@@ -1,0 +1,85 @@
+/* Общие стили для хедера */
+
+body::-webkit-scrollbar { width: 0; height: 0; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5px;
+  height: 50px;
+  background-color: #282c34;
+  color: white;
+
+}
+
+.logo-text {
+    font-size: 30px;
+    color: #fff;
+}
+
+.burgerMenuButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.navList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.navItem {
+  display: block;
+  font-size: 20px;
+}
+
+.navLink {
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.logoutButton {
+  margin-top: auto;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  width: 50%;
+  align-self: center;
+}
+.nav {
+display: none;
+position: absolute;
+top: 50px;
+left: 0;
+background-color: #444b58;
+width: 100%;
+padding: 20px;
+flex-direction: column;
+gap: 10px;
+}
+
+.nav.open {
+display: flex;
+width: 100%;
+height: calc(100vh - 50px);
+}
+
+.userSelection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.username {
+  font-size: 20px;
+}
