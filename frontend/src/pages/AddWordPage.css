@@ -11,6 +11,7 @@
   margin-left: auto;
   border-radius: 30px;
   height: 45px;
+  cursor: pointer;
   width: 45px;
   }
 
@@ -28,6 +29,7 @@
   border-radius: 30px;
   height: 45px;
   width: 45px;
+  cursor: pointer;
   }
 
 .record-btn {
@@ -46,6 +48,7 @@
   margin-left: auto;
   height: 45px;
   width: 100%;
+  cursor: pointer;
   }
   
 
@@ -116,6 +119,7 @@
   border-radius: 30px;
   height: 45px;
   width: 45px;
+  cursor: pointer;
 }
 
 .player-play-btn.paused {
@@ -132,6 +136,7 @@
   border-radius: 30px;
   height: 45px;
   width: 45px;
+  cursor: pointer;
 }
 
 .indicator-wrapper {
@@ -165,6 +170,7 @@
   font-size: 16px;
   font-family: "Raleway";
   font-weight: 500;
+  cursor: pointer;
 }
 
 /* vave animation */

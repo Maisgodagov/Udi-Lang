@@ -85,5 +85,22 @@ const addTranslation = async (req, res) => {
   }
 };
 
+// Функция для получения статистики словаря
+const getDictionaryStatistics = async (req, res) => {
+  try {
+    // Получаем общее количество слов
+    const [totalResults] = await db.query('SELECT COUNT(*) AS total FROM dictionary');
+    const [translatedResults] = await db.query('SELECT COUNT(*) AS translated FROM dictionary WHERE word_udi IS NOT NULL AND word_udi != ""');
 
-module.exports = { getDictionary, addWord, getWordsToTranslate, addTranslation, upload };
+    // Отправляем статистику
+    res.status(200).json({
+      total: totalResults[0].total,
+      translated: translatedResults[0].translated,
+    });
+  } catch (err) {
+    console.error('Ошибка при получении статистики:', err);
+    res.status(500).json({ message: 'Error fetching dictionary statistics' });
+  }
+};
+
+module.exports = { getDictionary, addWord, getWordsToTranslate, getDictionaryStatistics, addTranslation, upload };

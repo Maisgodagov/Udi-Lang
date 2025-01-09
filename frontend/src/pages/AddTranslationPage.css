@@ -1,0 +1,31 @@
+.russian-word {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 30px;
+    height: 45px;
+    margin-bottom: 10px;
+    padding: 0 20px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+.skip-btn {
+    border: none;
+    width: 100%;
+    height: 45px;
+    border-radius: 30px;
+    margin-top: 20px;
+    font-size: 16px;
+    background-color: #a8c8ce;
+    cursor: pointer;
+}
+
+.words-stat {
+    color: rgb(88, 88, 88);
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 17px;
+    font-weight: 300;
+}
