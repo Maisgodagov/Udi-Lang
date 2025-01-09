@@ -75,6 +75,9 @@ const Header: React.FC = () => {
           <li className='navItem'>
             <Link to="/add-word" className='navLink' onClick={handleLinkClick}>Добавить слово</Link>
           </li>
+          <li className='navItem'>
+            <Link to="/add-translation" className='navLink' onClick={handleLinkClick}>Добавить перевод</Link>
+          </li>
         </ul>
         <button onClick={handleLogout} className='logoutButton'>Выйти</button>
 

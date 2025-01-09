@@ -33,7 +33,7 @@ const AppContent: React.FC = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/dictionary" element={<DictionaryPage />} />
           <Route path="/add-word" element={<AddWordPage />} />
-          <Route path="/add-translation" element={<AddTranslationPage />} />
+          <Route path="/add-translation" element={<AddTranslationPage  />} />
         </Routes>
       </div>
     </div>
