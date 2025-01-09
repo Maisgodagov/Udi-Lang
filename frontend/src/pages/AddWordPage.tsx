@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import RecordRTC from 'recordrtc';
+import { Howl } from 'howler';
+import './AddWordPage.css';
 
 const AddWordPage: React.FC = () => {
   const [wordUdi, setWordUdi] = useState('');
@@ -10,12 +12,38 @@ const AddWordPage: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [duration, setDuration] = useState(0);
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [username, setUsername] = useState<string | null>(null);
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); 
+  const soundRef = useRef<Howl | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios
+        .get('/api/user/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          setUsername(response.data.username);
+        })
+        .catch((err) => {
+          setError('Error fetching user data');
+          console.error(err);
+        });
+    } else {
+      setError('No token found, please log in');
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!wordUdi || !wordRus || !audioBlob) {
+    if (!wordUdi || !wordRus || !audioBlob || !username) {
       setError('All fields are required, including the audio');
       return;
     }
@@ -24,12 +52,12 @@ const AddWordPage: React.FC = () => {
     formData.append('word_udi', wordUdi);
     formData.append('word_rus', wordRus);
     formData.append('audio', audioBlob, 'audio.wav');
+    formData.append('username', username);  // Добавляем имя пользователя в форму
 
-    // Отправляем данные на сервер
     axios
-      .post('http://localhost:3001/api/dictionary', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .post('/api/dictionary', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
-        setSuccessMessage('Word added successfully');
+        setSuccessMessage('Слово добавлено!');
         setWordUdi('');
         setWordRus('');
         setAudioUrl('');
@@ -37,8 +65,8 @@ const AddWordPage: React.FC = () => {
         setError('');
       })
       .catch((err) => {
-        setError('Error adding word');
-        console.error('Error:', err); // Логируем ошибку
+        setError('Ошибка при добавлении слова');
+        console.error('Error:', err);
       });
   };
 
@@ -55,6 +83,8 @@ const AddWordPage: React.FC = () => {
         newRecorder.startRecording();
         setRecorder(newRecorder);
         setIsRecording(true);
+        setDuration(0); 
+        intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000); 
       })
       .catch((err) => {
         console.error('Error accessing audio media: ', err);
@@ -67,21 +97,61 @@ const AddWordPage: React.FC = () => {
         const audioBlob = recorder.getBlob();
         const audioUrl = URL.createObjectURL(audioBlob);
         setAudioBlob(audioBlob);
-        setAudioUrl(audioUrl); // Сохраняем URL для прослушивания
+        setAudioUrl(audioUrl);
         setIsRecording(false);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        
+        soundRef.current = new Howl({
+          src: [audioUrl],
+          html5: true,
+          onplay: () => {
+            setIsPlaying(true);
+            setCurrentTime(0);
+            setInterval(() => {
+              setCurrentTime(soundRef.current?.seek() || 0);
+            }, 100);
+          },
+          onend: () => {
+            setIsPlaying(false);
+            setCurrentTime(0);
+          },
+        });
       });
     }
   };
 
+  const handleReset = () => {
+    setAudioBlob(null);
+    setAudioUrl('');
+    setIsRecording(false);
+    setDuration(0);
+  };
+
+  const formatDuration = (duration: number) => {
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
+    const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+    return `${formattedMinutes}:${formattedSeconds}`;
+  };
+
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      soundRef.current?.pause();
+    } else {
+      soundRef.current?.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
   return (
-    <div>
-      <h1>Add New Word</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-      <form onSubmit={handleSubmit}>
+    <div className="add-word-wrapper">
+      <h1 className="section-title">Добавить слово</h1>
+      <form className="add-form" onSubmit={handleSubmit}>
         <div>
-          <label>Word in Udi:</label>
           <input
+            className="add-input"
+            placeholder="Слово на удинском"
             type="text"
             value={wordUdi}
             onChange={(e) => setWordUdi(e.target.value)}
@@ -89,8 +159,9 @@ const AddWordPage: React.FC = () => {
           />
         </div>
         <div>
-          <label>Word in Russian:</label>
           <input
+            className="add-input"
+            placeholder="Перевод на русский"
             type="text"
             value={wordRus}
             onChange={(e) => setWordRus(e.target.value)}
@@ -98,29 +169,64 @@ const AddWordPage: React.FC = () => {
           />
         </div>
 
-        {/* Кнопки для записи аудио */}
-        {!isRecording ? (
-          <button type="button" onClick={startRecording}>
-            Start Recording
-          </button>
-        ) : (
-          <button type="button" onClick={stopRecording}>
-            Stop Recording
-          </button>
-        )}
+        <div className="record-wrapper">
+          {audioUrl && (
+            <div className="audio-player-wrapper">
+              <div className="audio-player">
+                <button 
+                  className={`player-play-btn ${isPlaying ? 'playing' : 'paused'}`} 
+                  type="button" 
+                  onClick={handlePlayPause}>
+                  {isPlaying ? '' : ''}
+                </button>
+                <p className="player-time">
+                  {formatDuration(Math.floor(currentTime))} / {formatDuration(duration)}
+                </p>
+              </div>
+            </div>
+          )}
 
-        {/* Прослушивание записанного аудио */}
-        {audioUrl && (
-          <div>
-            <audio controls>
-              <source src={audioUrl} type="audio/wav" />
-              Your browser does not support the audio element.
-            </audio>
-          </div>
-        )}
+          {isRecording ? (
+            <div className="indicator-wrapper">
+              <p className="record-duration-text">{formatDuration(duration)}</p>
+              <div className="boxContainer">
+                <div className="box box1"></div>
+                <div className="box box5"></div>
+                <div className="box box2"></div>
+                <div className="box box2"></div>
+                <div className="box box3"></div>
+                <div className="box box4"></div>
+                <div className="box box3"></div>
+                <div className="box box4"></div>
+                <div className="box box5"></div>
+              </div>
+              <button className="stop-record-btn" type="button" onClick={stopRecording}></button>
+            </div>
+          ) : audioUrl ? (
+            <button className="re-record-btn" type="button" onClick={handleReset}></button>
+          ) : (
+            <button className="record-btn" type="button" onClick={startRecording}>
+              Записать произношение
+            </button>
+          )}
+        </div>
 
-        <button type="submit">Add Word</button>
+        <button className="save-btn" type="submit">
+          Сохранить
+        </button>
+          {error && <p className='error-msg'>{error}</p>}
+          {successMessage && <p className='success-msg'>{successMessage}</p>}
       </form>
+
+      <p className="add-word-text">
+        - Пишите удинское слово русскими буквами так, как слышите его.
+      </p>
+      <p className="add-word-text">
+        - Запишите произношение слова, произнесите слово один или несколько раз, четко и понятно.
+      </p>
+      <p className="add-word-text">
+        - Переслушайте запись, проверьте, что всё правильно и нажмите сохранить.
+      </p>
     </div>
   );
 };

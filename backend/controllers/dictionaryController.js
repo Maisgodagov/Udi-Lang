@@ -24,30 +24,30 @@ const getDictionary = async (req, res) => {
     const [results] = await db.query('SELECT * FROM dictionary'); // Запрос к базе данных
     res.status(200).json(results);  // Отправляем данные
   } catch (err) {
-    console.error('Error fetching dictionary data:', err);
-    res.status(500).json({ message: 'Error fetching dictionary data' });
+    console.error('Ошибка при загрузке слов:', err);
+    res.status(500).json({ message: 'Ошибка при загрузке слов' });
   }
 };
 
 // Функция для добавления нового слова в словарь
 const addWord = async (req, res) => {
-  const { word_udi, word_rus } = req.body;
+  const { word_udi, word_rus, username } = req.body;  // Получаем имя пользователя из тела запроса
   const audioUrl = req.file ? `/uploads/${req.file.filename}` : '';  // Путь к файлу
 
   console.log('Received data:', req.body);
   console.log('Received file:', req.file);  // Логируем файл
 
-  if (!word_udi || !word_rus || !audioUrl) {
-    return res.status(400).json({ message: 'All fields are required, including the audio' });
+  if (!word_udi || !word_rus || !audioUrl || !username) {
+    return res.status(400).json({ message: 'Нужно заполнить все поля, включая запись произношения' });
   }
 
   try {
-    const query = 'INSERT INTO dictionary (word_udi, word_rus, audio_url) VALUES (?, ?, ?)';
-    const [results] = await db.query(query, [word_udi, word_rus, audioUrl]);
-    res.status(201).json({ message: 'Word added successfully', wordId: results.insertId });
+    const query = 'INSERT INTO dictionary (word_udi, word_rus, audio_url, username) VALUES (?, ?, ?, ?)';
+    const [results] = await db.query(query, [word_udi, word_rus, audioUrl, username]);  // Передаем username
+    res.status(201).json({ message: 'Слово добавлено', wordId: results.insertId });
   } catch (err) {
     console.error('Error adding word to dictionary:', err);
-    res.status(500).json({ message: 'Error adding word to the dictionary' });
+    res.status(500).json({ message: 'Ошибка при добавлении слова' });
   }
 };
 
