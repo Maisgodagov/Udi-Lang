@@ -1,11 +1,10 @@
 const express = require('express');
-const { getDictionary, addWord, upload } = require('../controllers/dictionaryController'); // Подключаем контроллер
+const { getDictionary, addWord, upload, getWordsToTranslate, addTranslation } = require('../controllers/dictionaryController');
 const router = express.Router();
 
-// Получить все слова из словаря
 router.get('/dictionary', getDictionary);
-
-// Добавить слово в словарь
 router.post('/dictionary', upload.single('audio'), addWord); // Используем multer для загрузки одного файла
+router.get('/words-to-translate', getWordsToTranslate); // Получаем слова без перевода
+router.post('/add-translation', upload.single('audio'), addTranslation); // Добавляем перевод
 
-module.exports = { dictionaryRoutes: router };
+module.exports = router;

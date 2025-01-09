@@ -3,7 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const { authRoutes } = require('./routes/authRoutes');
 const { userRoutes } = require('./routes/userRoutes');
-const { dictionaryRoutes } = require('./routes/dictionaryRoutes');
+const dictionaryRoutes = require('./routes/dictionaryRoutes');  // Убедитесь, что путь правильный
 
 const app = express();
 app.use(express.json());
@@ -15,7 +15,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); // Пу
 // Маршруты
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api', dictionaryRoutes);
+app.use('/api', dictionaryRoutes);  // Путь к маршруту словаря
 
 app.listen(3001, () => {
   console.log('Server running on port 3001');

@@ -51,4 +51,39 @@ const addWord = async (req, res) => {
   }
 };
 
-module.exports = { getDictionary, addWord, upload }; // Экспортируем функции
+// Функция для получения слов, у которых нет перевода
+// Функция для получения слов, у которых нет перевода на удинский
+const getWordsToTranslate = async (req, res) => {
+  try {
+    // Запрос к базе данных, чтобы получить слова с пустым полем word_udi
+    const [results] = await db.query('SELECT * FROM dictionary WHERE word_udi IS NULL OR word_udi = ""');
+    res.status(200).json(results);  // Отправляем результаты
+  } catch (err) {
+    console.error('Ошибка при получении слов:', err);
+    res.status(500).json({ message: 'Ошибка при получении слов для перевода' });
+  }
+};
+
+
+const addTranslation = async (req, res) => {
+  const { word_udi, word_rus, username } = req.body;
+  const audioUrl = req.file ? `/uploads/${req.file.filename}` : '';  // Путь к файлу
+
+  console.log('Received translation data:', { word_udi, word_rus, audioUrl, username });
+
+  if (!audioUrl) {
+    return res.status(400).json({ message: 'Audio file is required' });
+  }
+
+  try {
+    const query = 'UPDATE dictionary SET word_udi = ?, audio_url = ? WHERE word_rus = ?';
+    await db.query(query, [word_udi, audioUrl, word_rus]);
+    res.status(200).json({ message: 'Translation added successfully' });
+  } catch (err) {
+    console.error('Error adding translation:', err);
+    res.status(500).json({ message: 'Error adding translation' });
+  }
+};
+
+
+module.exports = { getDictionary, addWord, getWordsToTranslate, addTranslation, upload };
