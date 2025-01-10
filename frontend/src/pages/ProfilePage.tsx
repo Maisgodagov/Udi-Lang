@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './ProfilePage.css'
 
 const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<{ username: string; email: string; created_at: string } | null>(null);
+  const [userStats, setUserStats] = useState<{ total: number; translated: number }>({
+    total: 0,
+    translated: 0,
+  });
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -19,11 +24,23 @@ const ProfilePage: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` }, // Отправляем токен для аутентификации
         })
         .then((response) => {
-          console.log('User data from client:', response.data); // Логируем полученные данные
           setUser(response.data);  // Сохраняем полученные данные пользователя
         })
         .catch((err) => {
           setError('Error fetching user data');
+          console.error(err);
+        });
+
+      // Получаем статистику пользователя (количество добавленных и переведенных слов)
+      axios
+        .get('api/user/stats', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          setUserStats(response.data); // Сохраняем статистику
+        })
+        .catch((err) => {
+          setError('Error fetching user statistics');
           console.error(err);
         });
     }
@@ -35,18 +52,26 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>User Profile</h1>
+    <div className='page-wrapper'>
+      <h1 className='section-title'>Личный кабинет</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {user ? (
-        <div>
-          <p>Username: {user.username}</p>
-          <p>Email: {user.email}</p>
-          {/* Преобразуем строку с датой в объект Date и выводим ее */}
-          <p>
-            Registration Date: {user.created_at ? new Date(user.created_at).toLocaleString() : 'Invalid Date'}
+        <div className='profile-wrapper'>
+          <div className="profile-top">
+            <div className='profile-picture'></div>
+            <div>
+              <p className='profile-name'>{user.username.slice(0,1).toUpperCase()}{user.username.slice(1)}</p>
+              <p className='profile-email'>Почта: {user.email}</p>
+              {/* Преобразуем строку с датой в объект Date и выводим ее */}
+              <p className='profile-join-date'>
+                На UdiLang с {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Invalid Date'}
+              </p>
+            </div>
+          </div>
+          <p className='profile-stat'>
+            {`Вы добавили в словарь ${userStats.translated} слов`}
           </p>
-          <button onClick={handleLogout}>Logout</button>
+          <button className='profile-logout' onClick={handleLogout}>Выйти</button>
         </div>
       ) : (
         <p>Loading...</p>

@@ -16,6 +16,9 @@ body::-webkit-scrollbar { width: 0; height: 0; }
 .logo-text {
     font-size: 30px;
     color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 35px;
 }
 
 .burgerMenuButton {
@@ -47,13 +50,14 @@ body::-webkit-scrollbar { width: 0; height: 0; }
 
 .logoutButton {
   margin-top: auto;
-  background-color: #ff4d4d;
-  color: white;
+  background-color: #c75757;
+  color: rgb(237, 217, 217);
   border: none;
   padding: 5px 10px;
   cursor: pointer;
   width: 50%;
   align-self: center;
+  border-radius: 8px;
 }
 .nav {
 display: none;

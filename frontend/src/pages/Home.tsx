@@ -7,12 +7,16 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
+    if (!token) {
+      // Если нет токена, перенаправляем на страницу логина
+      navigate('/login');
+    }
+    else if (token) {
       // Если токен есть, это означает, что пользователь залогинен.
       // В будущем здесь можно будет получить данные о пользователе с сервера.
       setUser('User'); // Здесь, возможно, стоит получить имя пользователя с сервера
     }
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // Удаляем токен из localStorage

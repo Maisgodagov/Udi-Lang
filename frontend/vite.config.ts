@@ -1,13 +1,25 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // Прокси для всех запросов, начинающихся с /api
-      '/api': 'http://localhost:3001',  // Указываем адрес и порт бэкенда
+      '/api': 'http://localhost:3001',  // Прокси для всех запросов, начинающихся с /api
     },
   },
-})
+  build: {
+    outDir: path.resolve(__dirname, 'build'),  // Указываем папку для сборки
+    sourcemap: true,  // Генерация исходных карт для отладки
+    assetsDir: 'assets',  // Все ассеты будут помещены в папку assets внутри папки build
+    rollupOptions: {
+      output: {
+        // Оптимизация выхода
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+    },
+  },
+});

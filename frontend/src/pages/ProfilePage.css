@@ -1,0 +1,59 @@
+.profile-wrapper {
+    background-color: rgb(187, 187, 215);
+    max-width: 500px;
+    width: 90%;
+    padding: 20px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-picture {
+    width: 90px;
+    height: 90px;
+    background-image: url(../assets/user.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.profile-top {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+.profile-join-date {
+    font-size: 16px;
+    font-weight: 400;
+    font-family: "Raleway", serif;
+}
+.profile-email {
+    font-size: 16px;
+    font-weight: 400;
+    font-family: "Raleway", serif;
+}
+.profile-name {
+    font-size: 24px;
+    font-weight: 500;
+    font-family: "Raleway", serif;
+    margin-bottom: 10px;
+}
+
+.profile-stat {
+    font-size: 20px;
+    margin-bottom: 50px;
+}
+
+.profile-logout {
+    width: 50%;
+    align-self: center;
+    border: none;
+    height: 30px;
+    border-radius: 18px;
+    font-size: 17px;
+    font-family: "Raleway", serif;
+    font-weight: 500;
+    background-color: rgb(188, 116, 133);
+    color: #222020;
+    
+}

@@ -3,6 +3,7 @@ import axios from 'axios';
 import RecordRTC from 'recordrtc';
 import { Howl } from 'howler';
 import './AddTranslationPage.css';
+import { useNavigate } from 'react-router-dom';
 
 // Определяем интерфейс для слова
 interface Word {
@@ -33,10 +34,16 @@ const AddTranslationPage: React.FC = () => {
   const [totalWords, setTotalWords] = useState(0); // Общее количество слов
   const [translatedWords, setTranslatedWords] = useState(0); // Количество переведенных слов
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     // Загружаем данные пользователя и слова без перевода
     const token = localStorage.getItem('token');
-    if (token) {
+    if (!token) {
+      // Если нет токена, перенаправляем на страницу логина
+      navigate('/login');
+    }
+    else if (token) {
       axios
         .get('/api/user/profile', {
           headers: { Authorization: `Bearer ${token}` },
@@ -76,7 +83,7 @@ const AddTranslationPage: React.FC = () => {
         setError('Error fetching dictionary statistics');
         console.error(err);
       });
-  }, []);
+  }, [navigate]);
 
   const shuffle = (array: Word[]) => {
     const shuffled = [...array];
@@ -94,10 +101,12 @@ const AddTranslationPage: React.FC = () => {
       setError('All fields are required, including the audio');
       return;
     }
+    const wordUdiLowerCase = wordUdi.toLowerCase();
+    const wordRusLowerCase = currentWord.word_rus.toLowerCase();
 
     const formData = new FormData();
-    formData.append('word_udi', wordUdi);
-    formData.append('word_rus', currentWord.word_rus); // Заполняем русское слово из currentWord
+    formData.append('word_udi', wordUdiLowerCase);
+    formData.append('word_rus', wordRusLowerCase); // Заполняем русское слово из currentWord
     formData.append('audio', audioBlob, 'audio.wav');
     formData.append('username', username);  // Добавляем имя пользователя в форму
 
@@ -201,7 +210,7 @@ const AddTranslationPage: React.FC = () => {
   };
 
   return (
-    <div className="add-word-wrapper">
+    <div className="page-wrapper">
       <h1 className="section-title">Добавить перевод</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <p className='words-stat'>{`Переведено ${translatedWords} из ${totalWords} слов`}</p> {/* Отображаем счетчик */}
@@ -211,7 +220,7 @@ const AddTranslationPage: React.FC = () => {
             <h3 className='russian-word'>{currentWord.word_rus}</h3> {/* Выводим текущее русское слово */}
             <input
               className="add-input"
-              placeholder="Перевод на удинском"
+              placeholder="Перевод на удинский (русскими буквами)"
               type="text"
               value={wordUdi}
               onChange={(e) => setWordUdi(e.target.value)}

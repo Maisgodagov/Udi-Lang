@@ -1,0 +1,29 @@
+# node_modules
+node_modules/
+
+# Логи
+logs/
+*.log
+
+# Директории и файлы для IDE
+.idea/
+.vscode/
+
+# Прочие временные файлы
+*.bak
+*.tmp
+
+# Папка с временными файлами, которые генерируются при деплое
+/.env
+
+# Дистрибутивы и скомпилированные файлы
+/dist
+/build
+
+# Лишние файлы для npm, Yarn
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Файлы с паролями или другими конфиденциальными данными
+/config/secrets.json

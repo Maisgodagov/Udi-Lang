@@ -66,7 +66,7 @@ const getWordsToTranslate = async (req, res) => {
 
 
 const addTranslation = async (req, res) => {
-  const { word_udi, word_rus, username } = req.body;
+  const { word_udi, word_rus, username } = req.body;  // Получаем имя пользователя из тела запроса
   const audioUrl = req.file ? `/uploads/${req.file.filename}` : '';  // Путь к файлу
 
   console.log('Received translation data:', { word_udi, word_rus, audioUrl, username });
@@ -76,14 +76,49 @@ const addTranslation = async (req, res) => {
   }
 
   try {
-    const query = 'UPDATE dictionary SET word_udi = ?, audio_url = ? WHERE word_rus = ?';
-    await db.query(query, [word_udi, audioUrl, word_rus]);
+    // Обновляем поля word_udi, audio_url и username в базе данных для определенного слова
+    const query = 'UPDATE dictionary SET word_udi = ?, audio_url = ?, username = ? WHERE word_rus = ?';
+    await db.query(query, [word_udi, audioUrl, username, word_rus]);  // Передаем параметры в правильном порядке
     res.status(200).json({ message: 'Translation added successfully' });
   } catch (err) {
     console.error('Error adding translation:', err);
     res.status(500).json({ message: 'Error adding translation' });
   }
 };
+
+// Функция для получения статистики по пользователю
+const getUserStats = async (req, res) => {
+  const username = req.user.username;  // Получаем имя пользователя из токена
+
+  try {
+    // Получаем количество переведенных слов
+    const [translatedResults] = await db.query(
+      'SELECT COUNT(*) AS translated FROM dictionary WHERE username = ? AND word_udi IS NOT NULL AND word_udi != ""',
+      [username]
+    );
+
+    // Получаем общее количество добавленных слов
+    const [totalResults] = await db.query(
+      'SELECT COUNT(*) AS total FROM dictionary WHERE username = ?',
+      [username]
+    );
+
+    console.log('Stats:', {
+      translated: translatedResults[0].translated,
+      total: totalResults[0].total
+    }); // Логируем для проверки
+
+    res.status(200).json({
+      translated: translatedResults[0].translated,
+      total: totalResults[0].total,
+    });
+  } catch (err) {
+    console.error('Error fetching user stats:', err);
+    res.status(500).json({ message: 'Error fetching user stats' });
+  }
+};
+
+
 
 // Функция для получения статистики словаря
 const getDictionaryStatistics = async (req, res) => {
@@ -103,4 +138,4 @@ const getDictionaryStatistics = async (req, res) => {
   }
 };
 
-module.exports = { getDictionary, addWord, getWordsToTranslate, getDictionaryStatistics, addTranslation, upload };
+module.exports = { getDictionary, addWord, getWordsToTranslate, getDictionaryStatistics, getUserStats, addTranslation, upload };

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import RecordRTC from 'recordrtc';
 import { Howl } from 'howler';
+import { useNavigate } from 'react-router-dom';
 import './AddWordPage.css';
 
 const AddWordPage: React.FC = () => {
@@ -21,9 +22,14 @@ const AddWordPage: React.FC = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null); 
   const soundRef = useRef<Howl | null>(null);
 
+  const navigate = useNavigate(); 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
+    if (!token) {
+      // Если нет токена, перенаправляем на страницу логина
+      navigate('/login');
+    }
+    else if (token) {
       axios
         .get('/api/user/profile', {
           headers: { Authorization: `Bearer ${token}` },
@@ -38,7 +44,7 @@ const AddWordPage: React.FC = () => {
     } else {
       setError('No token found, please log in');
     }
-  }, []);
+  }, [navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,10 +53,12 @@ const AddWordPage: React.FC = () => {
       setError('All fields are required, including the audio');
       return;
     }
+    const wordUdiLowerCase = wordUdi.toLowerCase();
+    const wordRusLowerCase = wordRus.toLowerCase();
 
     const formData = new FormData();
-    formData.append('word_udi', wordUdi);
-    formData.append('word_rus', wordRus);
+    formData.append('word_udi',wordUdiLowerCase);
+    formData.append('word_rus', wordRusLowerCase);
     formData.append('audio', audioBlob, 'audio.wav');
     formData.append('username', username);  // Добавляем имя пользователя в форму
 
@@ -145,13 +153,13 @@ const AddWordPage: React.FC = () => {
   };
 
   return (
-    <div className="add-word-wrapper">
+    <div className="page-wrapper">
       <h1 className="section-title">Добавить слово</h1>
       <form className="add-form" onSubmit={handleSubmit}>
         <div>
           <input
             className="add-input"
-            placeholder="Слово на удинском"
+            placeholder="Слово на удинском (русскими буквами)"
             type="text"
             value={wordUdi}
             onChange={(e) => setWordUdi(e.target.value)}
