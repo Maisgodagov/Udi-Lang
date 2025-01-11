@@ -82,25 +82,37 @@ const AddWordPage: React.FC = () => {
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
+        // Условный тип для определения класса AudioContext
+        const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+  
+        if (!AudioContextClass) {
+          console.error('AudioContext is not supported in this browser');
+          return;
+        }
+  
+        const sampleRate = 44100; // Стандартная частота дискретизации
+  
         const newRecorder = new RecordRTC(stream, {
-          type: 'audio', // Тип записи - аудио
-          mimeType: 'audio/webm', // Формат записи сжатого аудио
+          type: 'audio',
+          mimeType: 'audio/wav',
           recorderType: RecordRTC.StereoAudioRecorder,
-          sampleRate: 24000, // Частота дискретизации: 24kHz (компромисс между качеством и размером)
-          audioBitsPerSecond: 96000, // Битрейт: 96kbps (умеренное качество и размер)
-          numberOfAudioChannels: 1, // Моно (экономит объем файла)
+          sampleRate, // Устанавливаем частоту дискретизации
+          desiredSampRate: sampleRate, // Приводим к стандартной частоте
+          audioBitsPerSecond: 128000, // Средний битрейт для сбалансированного качества
+          numberOfAudioChannels: 1, // Используем моно для уменьшения размера файла
         });
   
         newRecorder.startRecording();
         setRecorder(newRecorder);
         setIsRecording(true);
-        setDuration(0); // Сбрасываем длительность записи
-        intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000); // Обновляем таймер
+        setDuration(0);
+        intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000);
       })
       .catch((err) => {
         console.error('Error accessing audio media: ', err);
       });
   };
+  
   
   
   
