@@ -83,32 +83,38 @@ const AddWordPage: React.FC = () => {
       .getUserMedia({ audio: true })
       .then((stream) => {
         const newRecorder = new RecordRTC(stream, {
-          type: 'audio',
-          mimeType: 'audio/wav',
+          type: 'audio', // Тип записи - аудио
+          mimeType: 'audio/wav', // Формат записи
           recorderType: RecordRTC.StereoAudioRecorder,
+          sampleRate: 48000, // Устанавливаем высокую частоту дискретизации (48kHz)
+          audioBitsPerSecond: 320000, // Устанавливаем битрейт 320kbps для максимального качества
+          numberOfAudioChannels: 2, // Стереозапись
         });
-
+  
         newRecorder.startRecording();
         setRecorder(newRecorder);
         setIsRecording(true);
-        setDuration(0); 
-        intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000); 
+        setDuration(0); // Сбрасываем длительность записи
+        intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000); // Обновляем таймер
       })
       .catch((err) => {
         console.error('Error accessing audio media: ', err);
       });
   };
-
+  
+  
+  
   const stopRecording = () => {
     if (recorder) {
       recorder.stopRecording(() => {
-        const audioBlob = recorder.getBlob();
+        const audioBlob = recorder.getBlob(); // Получаем записанный файл
         const audioUrl = URL.createObjectURL(audioBlob);
         setAudioBlob(audioBlob);
         setAudioUrl(audioUrl);
         setIsRecording(false);
         if (intervalRef.current) clearInterval(intervalRef.current);
-        
+  
+        // Создаем плеер с новой записью
         soundRef.current = new Howl({
           src: [audioUrl],
           html5: true,
@@ -127,6 +133,7 @@ const AddWordPage: React.FC = () => {
       });
     }
   };
+  
 
   const handleReset = () => {
     setAudioBlob(null);
