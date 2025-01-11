@@ -58,8 +58,10 @@ const DictionaryPage: React.FC = () => {
     const handleAudioPlay = (audioUrl: string) => {
       const baseUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || '';
       const fullAudioUrl = `${baseUrl}${audioUrl}`;
+      console.log(fullAudioUrl)
       const audio = new Audio(fullAudioUrl);
       audio.play();
+      
     };
     
 
