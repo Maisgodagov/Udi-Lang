@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import RecordRTC from 'recordrtc';
+import * as Tone from 'tone';
 import { Howl } from 'howler';
 import { useNavigate } from 'react-router-dom';
 import './AddWordPage.css';
@@ -14,22 +14,21 @@ const AddWordPage: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [duration, setDuration] = useState(0);
-  const [recorder, setRecorder] = useState<RecordRTC | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [username, setUsername] = useState<string | null>(null);
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null); 
+  const recorderRef = useRef<Tone.Recorder | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const soundRef = useRef<Howl | null>(null);
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      // Если нет токена, перенаправляем на страницу логина
       navigate('/login');
-    }
-    else if (token) {
+    } else if (token) {
       axios
         .get('/api/user/profile', {
           headers: { Authorization: `Bearer ${token}` },
@@ -53,14 +52,15 @@ const AddWordPage: React.FC = () => {
       setError('All fields are required, including the audio');
       return;
     }
+
     const wordUdiLowerCase = wordUdi.toLowerCase();
     const wordRusLowerCase = wordRus.toLowerCase();
 
     const formData = new FormData();
-    formData.append('word_udi',wordUdiLowerCase);
+    formData.append('word_udi', wordUdiLowerCase);
     formData.append('word_rus', wordRusLowerCase);
     formData.append('audio', audioBlob, 'audio.wav');
-    formData.append('username', username);  // Добавляем имя пользователя в форму
+    formData.append('username', username);
 
     axios
       .post('/api/dictionary', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
@@ -78,81 +78,70 @@ const AddWordPage: React.FC = () => {
       });
   };
 
-  const startRecording = () => {
-    navigator.mediaDevices
-      .getUserMedia({
-        audio: {
-          noiseSuppression: true, // Уменьшение фонового шума
-          echoCancellation: true, // Устранение эха
-          autoGainControl: true, // Автоматическая регулировка громкости
-          channelCount: 20, // Один канал для упрощения обработки
-          sampleRate: 60100, // Высокая частота дискретизации для лучшего качества
-          sampleSize: 16, // 16-битный звук
-        },
-      })
-      .then((stream) => {
-        // Настраиваем RecordRTC
-        const recorder = new RecordRTC(stream, {
-          type: 'audio',
-          mimeType: 'audio/webm', // Более компактный формат
-          recorderType: RecordRTC.StereoAudioRecorder,
-          numberOfAudioChannels: 1, // Используем моно-звук
-          desiredSampRate: 44100, // Частота дискретизации
-          timeSlice: 1000, // Частота обновления записываемого аудио
-          disableLogs: true, // Убираем логи
-        });
-  
-        recorder.startRecording();
-        setRecorder(recorder);
-        setIsRecording(true);
-  
-        // Отображение длительности записи
-        setDuration(0);
-        intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000);
-      })
-      .catch((err) => {
-        console.error('Ошибка доступа к микрофону:', err);
-      });
-  };
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const stopRecording = () => {
-    if (recorder) {
-      recorder.stopRecording(() => {
-        const audioBlob = recorder.getBlob(); // Получаем записанный файл
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioBlob(audioBlob);
-        setAudioUrl(audioUrl);
-        setIsRecording(false);
-        if (intervalRef.current) clearInterval(intervalRef.current);
-  
-        // Создаем плеер с новой записью
-        soundRef.current = new Howl({
-          src: [audioUrl],
-          html5: true,
-          onplay: () => {
-            setIsPlaying(true);
-            setCurrentTime(0);
-            setInterval(() => {
-              setCurrentTime(soundRef.current?.seek() || 0);
-            }, 100);
-          },
-          onend: () => {
-            setIsPlaying(false);
-            setCurrentTime(0);
-          },
-        });
-      });
+  const startRecording = async () => {
+    try {
+      await Tone.start(); // Разрешение на использование AudioContext
+      const mic = new Tone.UserMedia();
+      await mic.open(); // Открытие доступа к микрофону
+
+      // Подключаем эффекты
+      const highpassFilter = new Tone.Filter(300, 'highpass');
+      const lowpassFilter = new Tone.Filter(6000, 'lowpass');
+      const compressor = new Tone.Compressor();
+
+      mic.connect(highpassFilter);
+      highpassFilter.connect(lowpassFilter);
+      lowpassFilter.connect(compressor);
+
+      // Подключаем рекордер
+      const recorder = new Tone.Recorder();
+      compressor.connect(recorder);
+      recorderRef.current = recorder;
+
+      recorder.start(); // Начинаем запись
+      setIsRecording(true);
+      setDuration(0);
+
+      intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000);
+    } catch (err) {
+      console.error('Ошибка доступа к микрофону:', err);
+      setError('Ошибка доступа к микрофону');
     }
   };
-  
+
+  const stopRecording = async () => {
+    try {
+      if (!recorderRef.current) return;
+
+      const recording = await recorderRef.current.stop(); // Останавливаем запись
+      const audioBlob = new Blob([recording], { type: 'audio/wav' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      setAudioBlob(audioBlob);
+      setAudioUrl(audioUrl);
+      setIsRecording(false);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+
+      soundRef.current = new Howl({
+        src: [audioUrl],
+        html5: true,
+        onplay: () => {
+          setIsPlaying(true);
+          setCurrentTime(0);
+          setInterval(() => {
+            setCurrentTime(soundRef.current?.seek() || 0);
+          }, 100);
+        },
+        onend: () => {
+          setIsPlaying(false);
+          setCurrentTime(0);
+        },
+      });
+    } catch (err) {
+      console.error('Ошибка при остановке записи:', err);
+      setError('Ошибка при остановке записи');
+    }
+  };
 
   const handleReset = () => {
     setAudioBlob(null);
@@ -164,9 +153,7 @@ const AddWordPage: React.FC = () => {
   const formatDuration = (duration: number) => {
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
-    const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
-    return `${formattedMinutes}:${formattedSeconds}`;
+    return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
   const handlePlayPause = () => {
@@ -214,7 +201,7 @@ const AddWordPage: React.FC = () => {
                   {isPlaying ? '' : ''}
                 </button>
                 <p className="player-time">
-                  {formatDuration(Math.floor(currentTime))} / {formatDuration(duration)}
+                {formatDuration(Math.floor(currentTime))}  / {formatDuration(duration)}
                 </p>
               </div>
             </div>
