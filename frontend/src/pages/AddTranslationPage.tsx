@@ -25,6 +25,7 @@ const AddTranslationPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [username, setUsername] = useState<string | null>(null);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const soundRef = useRef<Howl | null>(null);
@@ -134,6 +135,7 @@ const AddTranslationPage: React.FC = () => {
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
+        setMediaStream(stream);
         const newRecorder = new RecordRTC(stream, {
           type: 'audio',
           mimeType: 'audio/wav',
@@ -176,6 +178,10 @@ const AddTranslationPage: React.FC = () => {
             setCurrentTime(0);
           },
         });
+        if (mediaStream) {
+          mediaStream.getTracks().forEach((track) => track.stop());
+          setMediaStream(null); // Очищаем состояние
+        }
       });
     }
   };
