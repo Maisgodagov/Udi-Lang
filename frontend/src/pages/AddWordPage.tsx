@@ -18,6 +18,7 @@ const AddWordPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [username, setUsername] = useState<string | null>(null);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null); 
   const soundRef = useRef<Howl | null>(null);
@@ -79,54 +80,64 @@ const AddWordPage: React.FC = () => {
   };
 
   const startRecording = () => {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        const newRecorder = new RecordRTC(stream, {
-          type: 'audio',
-          mimeType: 'audio/wav',
-          recorderType: RecordRTC.StereoAudioRecorder,
-        });
+  navigator.mediaDevices
+    .getUserMedia({ audio: true })
+    .then((stream) => {
+      setMediaStream(stream); // Сохраняем активный поток
 
-        newRecorder.startRecording();
-        setRecorder(newRecorder);
-        setIsRecording(true);
-        setDuration(0); 
-        intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000); 
-      })
-      .catch((err) => {
-        console.error('Error accessing audio media: ', err);
+      const newRecorder = new RecordRTC(stream, {
+        type: 'audio',
+        mimeType: 'audio/wav',
+        recorderType: RecordRTC.StereoAudioRecorder,
       });
-  };
 
-  const stopRecording = () => {
-    if (recorder) {
-      recorder.stopRecording(() => {
-        const audioBlob = recorder.getBlob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioBlob(audioBlob);
-        setAudioUrl(audioUrl);
-        setIsRecording(false);
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        
-        soundRef.current = new Howl({
-          src: [audioUrl],
-          html5: true,
-          onplay: () => {
-            setIsPlaying(true);
-            setCurrentTime(0);
-            setInterval(() => {
-              setCurrentTime(soundRef.current?.seek() || 0);
-            }, 100);
-          },
-          onend: () => {
-            setIsPlaying(false);
-            setCurrentTime(0);
-          },
-        });
+      newRecorder.startRecording();
+      setRecorder(newRecorder);
+      setIsRecording(true);
+      setDuration(0);
+      intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000);
+    })
+    .catch((err) => {
+      console.error('Error accessing audio media:', err);
+    });
+};
+
+
+const stopRecording = () => {
+  if (recorder) {
+    recorder.stopRecording(() => {
+      const audioBlob = recorder.getBlob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      setAudioBlob(audioBlob);
+      setAudioUrl(audioUrl);
+      setIsRecording(false);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+
+      soundRef.current = new Howl({
+        src: [audioUrl],
+        html5: true,
+        onplay: () => {
+          setIsPlaying(true);
+          setCurrentTime(0);
+          setInterval(() => {
+            setCurrentTime(soundRef.current?.seek() || 0);
+          }, 100);
+        },
+        onend: () => {
+          setIsPlaying(false);
+          setCurrentTime(0);
+        },
       });
-    }
-  };
+
+      // Останавливаем поток
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+        setMediaStream(null); // Освобождаем состояние
+      }
+    });
+  }
+};
+
 
   const handleReset = () => {
     setAudioBlob(null);
