@@ -32,7 +32,9 @@ const getDictionary = async (req, res) => {
 // Функция для добавления нового слова в словарь
 const addWord = async (req, res) => {
   const { word_udi, word_rus, username } = req.body;  // Получаем имя пользователя из тела запроса
-  const audioUrl = req.file ? `/uploads/${req.file.filename}` : '';  // Путь к файлу
+  const baseUrl = process.env.BASE_URL || 'https://udilang.ru'; // Добавьте эту строку
+  const audioUrl = `${baseUrl}/uploads/${req.file.filename}`;
+
 
   console.log('Received data:', req.body);
   console.log('Received file:', req.file);  // Логируем файл
@@ -67,7 +69,9 @@ const getWordsToTranslate = async (req, res) => {
 
 const addTranslation = async (req, res) => {
   const { word_udi, word_rus, username } = req.body;  // Получаем имя пользователя из тела запроса
-  const audioUrl = req.file ? `/uploads/${req.file.filename}` : '';  // Путь к файлу
+  const baseUrl = process.env.BASE_URL || 'https://udilang.ru'; // Добавьте эту строку
+  const audioUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
+ 
 
   console.log('Received translation data:', { word_udi, word_rus, audioUrl, username });
 
