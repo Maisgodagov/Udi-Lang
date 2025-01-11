@@ -55,11 +55,13 @@ const DictionaryPage: React.FC = () => {
           entry.word_rus.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-  const handleAudioPlay = (audioUrl: string) => {
-    const fullAudioUrl = `http://localhost:3001${audioUrl}`;
-    const audio = new Audio(fullAudioUrl);
-    audio.play();
-  };
+    const handleAudioPlay = (audioUrl: string) => {
+      const baseUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || '';
+      const fullAudioUrl = `${baseUrl}${audioUrl}`;
+      const audio = new Audio(fullAudioUrl);
+      audio.play();
+    };
+    
 
   // Функция для наблюдения за скроллом и подгрузкой данных
   const lastElementRef = (node: Element | null) => {
