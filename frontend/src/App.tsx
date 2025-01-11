@@ -39,5 +39,4 @@ const AppContent: React.FC = () => {
     </div>
   );
 };
-
 export default App;

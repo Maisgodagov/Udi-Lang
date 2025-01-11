@@ -1,31 +1,68 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const morgan = require('morgan');
 const { authRoutes } = require('./routes/authRoutes');
 const { userRoutes } = require('./routes/userRoutes');
-const dictionaryRoutes = require('./routes/dictionaryRoutes');  // Путь к маршруту словаря
+const dictionaryRoutes = require('./routes/dictionaryRoutes');
+require('dotenv').config(); // Загружаем переменные окружения
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(morgan('combined')); // Логирование запросов
 
-// Отдаем файлы из папки 'uploads' как статические
-app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); // Путь для загрузки файлов
+// Настройка CORS
+const allowedOrigins = [process.env.CLIENT_URL || 'http://localhost:3000', process.env.FRONTEND_URL || 'http://localhost:5173'];
 
-// Отдаем статику из папки 'build' (для фронтенда)
-app.use(express.static(path.join(__dirname, '../build')));  // Путь для статики фронтенда
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Разрешаем запросы только с указанных доменов
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // Позволяем передавать куки или токены
+};
 
-// Маршруты для API
+app.use(cors(corsOptions));
+
+// Статические файлы (uploads и build)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); // Для загрузок
+app.use(express.static(path.join(__dirname, '../build'))); // Для фронтенда
+
+// API маршруты
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api', dictionaryRoutes);  // Путь к маршруту словаря
+app.use('/api', dictionaryRoutes);
 
-// Обслуживаем index.html для всех не-api запросов (для поддержки React Router)
+// Обслуживаем React-приложение
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+  const indexPath = path.join(__dirname, '../build', 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(404).send('index.html not found');
+    }
+  });
 });
 
-// Запускаем сервер на порту 3001
-app.listen(3001, () => {
-  console.log('Server running on port 3001');
+// Обработка ошибок и некорректных маршрутов
+app.use((req, res, next) => {
+  res.status(404).json({ message: 'API route not found' });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
+// Запуск сервера
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+  console.log(`Allowed Origins: ${allowedOrigins.join(', ')}`);
 });
