@@ -80,64 +80,41 @@ const AddWordPage: React.FC = () => {
 
   const startRecording = () => {
     navigator.mediaDevices
-      .getUserMedia({ audio: true })
+      .getUserMedia({
+        audio: {
+          noiseSuppression: true, // Уменьшение фонового шума
+          echoCancellation: true, // Устранение эха
+          autoGainControl: true, // Автоматическая регулировка громкости
+          channelCount: 20, // Один канал для упрощения обработки
+          sampleRate: 60100, // Высокая частота дискретизации для лучшего качества
+          sampleSize: 16, // 16-битный звук
+        },
+      })
       .then((stream) => {
-        const AudioContextClass =
-          window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-  
-        if (!AudioContextClass) {
-          console.error('AudioContext is not supported in this browser');
-          return;
-        }
-  
-        const audioContext = new AudioContextClass();
-        const source = audioContext.createMediaStreamSource(stream);
-  
-        // Умеренный фильтр верхних частот
-        const lowPassFilter = audioContext.createBiquadFilter();
-        lowPassFilter.type = 'lowpass';
-        lowPassFilter.frequency.value = 20000; // Умеренная фильтрация
-  
-        // Мягкий компрессор
-        const compressor = audioContext.createDynamicsCompressor();
-        compressor.threshold.setValueAtTime(-50, audioContext.currentTime);
-        compressor.knee.setValueAtTime(30, audioContext.currentTime);
-        compressor.ratio.setValueAtTime(3, audioContext.currentTime);
-        compressor.attack.setValueAtTime(0.05, audioContext.currentTime);
-        compressor.release.setValueAtTime(0.25, audioContext.currentTime);
-  
-        // Подключение фильтров
-        source.connect(lowPassFilter);
-        lowPassFilter.connect(compressor);
-  
-        const destination = audioContext.createMediaStreamDestination();
-        compressor.connect(destination);
-  
-        const processedStream = destination.stream;
-  
-        // Настройка RecordRTC с правильной частотой
-        const newRecorder = new RecordRTC(processedStream, {
+        // Настраиваем RecordRTC
+        const recorder = new RecordRTC(stream, {
           type: 'audio',
-          mimeType: 'audio/wav',
+          mimeType: 'audio/webm', // Более компактный формат
           recorderType: RecordRTC.StereoAudioRecorder,
-          sampleRate: audioContext.sampleRate, // Установка частоты из AudioContext
-          desiredSampRate: 44100, // Приведение к стандартной частоте для воспроизведения
-          audioBitsPerSecond: 128000,
-          numberOfAudioChannels: 1, // Один канал
+          numberOfAudioChannels: 1, // Используем моно-звук
+          desiredSampRate: 44100, // Частота дискретизации
+          timeSlice: 1000, // Частота обновления записываемого аудио
+          disableLogs: true, // Убираем логи
         });
   
-        newRecorder.startRecording();
-        setRecorder(newRecorder);
+        recorder.startRecording();
+        setRecorder(recorder);
         setIsRecording(true);
-        setDuration(0);
   
-        // Таймер для отображения длительности записи
+        // Отображение длительности записи
+        setDuration(0);
         intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000);
       })
       .catch((err) => {
-        console.error('Error accessing audio media: ', err);
+        console.error('Ошибка доступа к микрофону:', err);
       });
   };
+  
   
   
   
