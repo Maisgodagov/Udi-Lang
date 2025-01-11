@@ -56,14 +56,18 @@ const DictionaryPage: React.FC = () => {
     );
 
     const handleAudioPlay = (audioUrl: string) => {
-      const baseUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || '';
+      const baseUrl = process.env.REACT_APP_API_URL || 'https://udilang.ru'; // Убедитесь, что здесь правильный URL
       const fullAudioUrl = `${baseUrl}${audioUrl}`;
-      console.log(fullAudioUrl)
-      const audio = new Audio(fullAudioUrl);
-      audio.play();
-      
-    };
+      console.log('Full audio URL:', fullAudioUrl);
     
+      try {
+        const audio = new Audio(fullAudioUrl);
+        audio.play();
+      } catch (error) {
+        console.error('Error playing audio:', error);
+        alert('Не удалось воспроизвести аудио. Проверьте, доступен ли файл.');
+      }
+    };
 
   // Функция для наблюдения за скроллом и подгрузкой данных
   const lastElementRef = (node: Element | null) => {
