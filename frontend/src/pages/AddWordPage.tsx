@@ -82,36 +82,66 @@ const AddWordPage: React.FC = () => {
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
-        // Условный тип для определения класса AudioContext
-        const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const AudioContextClass =
+          window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
   
         if (!AudioContextClass) {
           console.error('AudioContext is not supported in this browser');
           return;
         }
   
-        const sampleRate = 44100; // Стандартная частота дискретизации
+        const audioContext = new AudioContextClass();
+        const source = audioContext.createMediaStreamSource(stream);
   
-        const newRecorder = new RecordRTC(stream, {
+        // Умеренный фильтр верхних частот
+        const lowPassFilter = audioContext.createBiquadFilter();
+        lowPassFilter.type = 'lowpass';
+        lowPassFilter.frequency.value = 20000; // Умеренная фильтрация
+  
+        // Мягкий компрессор
+        const compressor = audioContext.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-50, audioContext.currentTime);
+        compressor.knee.setValueAtTime(30, audioContext.currentTime);
+        compressor.ratio.setValueAtTime(3, audioContext.currentTime);
+        compressor.attack.setValueAtTime(0.05, audioContext.currentTime);
+        compressor.release.setValueAtTime(0.25, audioContext.currentTime);
+  
+        // Подключение фильтров
+        source.connect(lowPassFilter);
+        lowPassFilter.connect(compressor);
+  
+        const destination = audioContext.createMediaStreamDestination();
+        compressor.connect(destination);
+  
+        const processedStream = destination.stream;
+  
+        // Настройка RecordRTC с правильной частотой
+        const newRecorder = new RecordRTC(processedStream, {
           type: 'audio',
           mimeType: 'audio/wav',
           recorderType: RecordRTC.StereoAudioRecorder,
-          sampleRate, // Устанавливаем частоту дискретизации
-          desiredSampRate: sampleRate, // Приводим к стандартной частоте
-          audioBitsPerSecond: 128000, // Средний битрейт для сбалансированного качества
-          numberOfAudioChannels: 1, // Используем моно для уменьшения размера файла
+          sampleRate: audioContext.sampleRate, // Установка частоты из AudioContext
+          desiredSampRate: 44100, // Приведение к стандартной частоте для воспроизведения
+          audioBitsPerSecond: 128000,
+          numberOfAudioChannels: 1, // Один канал
         });
   
         newRecorder.startRecording();
         setRecorder(newRecorder);
         setIsRecording(true);
         setDuration(0);
+  
+        // Таймер для отображения длительности записи
         intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000);
       })
       .catch((err) => {
         console.error('Error accessing audio media: ', err);
       });
   };
+  
+  
+  
+  
   
   
   
