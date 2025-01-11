@@ -84,11 +84,11 @@ const AddWordPage: React.FC = () => {
       .then((stream) => {
         const newRecorder = new RecordRTC(stream, {
           type: 'audio', // Тип записи - аудио
-          mimeType: 'audio/wav', // Формат записи
+          mimeType: 'audio/webm', // Формат записи сжатого аудио
           recorderType: RecordRTC.StereoAudioRecorder,
-          sampleRate: 48000, // Устанавливаем высокую частоту дискретизации (48kHz)
-          audioBitsPerSecond: 320000, // Устанавливаем битрейт 320kbps для максимального качества
-          numberOfAudioChannels: 2, // Стереозапись
+          sampleRate: 24000, // Частота дискретизации: 24kHz (компромисс между качеством и размером)
+          audioBitsPerSecond: 96000, // Битрейт: 96kbps (умеренное качество и размер)
+          numberOfAudioChannels: 1, // Моно (экономит объем файла)
         });
   
         newRecorder.startRecording();
