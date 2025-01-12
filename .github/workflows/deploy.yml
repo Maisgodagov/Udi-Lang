@@ -1,0 +1,26 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - prod  # Указываем ветку, на которой будет происходить деплой
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Set up SSH for deploy
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to Server
+      run: |
+        ssh -o StrictHostKeyChecking=no root@212.67.11.39 '
+        cd /root/Udi-Lang/backend && git pull && pm2 restart all &&
+        cd /root/Udi-Lang/frontend && git pull && npm run build
+        '

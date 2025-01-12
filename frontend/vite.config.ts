@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:3001',  // Прокси для всех запросов, начинающихся с /api
+      '/api': 'http://212.67.11.39:3001',  // Прокси для всех запросов, начинающихся с /api
     },
   },
   build: {
