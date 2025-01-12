@@ -1,19 +1,75 @@
 const express = require('express');
-const { getDictionary, addWord, upload, getWordsToTranslate, getUserStats, updateWord, deleteWord, getDictionaryStatistics, addTranslation } = require('../controllers/dictionaryController');
+const { 
+  getDictionary, 
+  addWord, 
+  upload, 
+  getWordsToTranslate, 
+  getUserStats, 
+  updateWord, 
+  deleteWord, 
+  getDictionaryStatistics, 
+  addTranslation 
+} = require('../controllers/dictionaryController');
+
+const { authMiddleware, checkRole } = require('../middleware/authMiddleware'); // Экспорт через деструктуризацию.
+
 const router = express.Router();
-const authMiddleware = require('../middleware/authMiddleware');
 
-router.get('/dictionary', getDictionary);
-router.post('/dictionary', upload.single('audio'), addWord); // Используем multer для загрузки одного файла
-router.get('/words-to-translate', getWordsToTranslate); // Получаем слова без перевода
-router.post('/add-translation', upload.single('audio'), addTranslation); // Добавляем перевод
-router.get('/dictionary-statistics', getDictionaryStatistics);
-router.get('/user/stats', authMiddleware, getUserStats);
-router.put('/dictionary/:id', updateWord); // Добавлено
-router.delete('/dictionary/:id', deleteWord); // Добавлено
+router.get('/dictionary', authMiddleware, getDictionary); // Доступ для всех авторизованных пользователей
 
+router.post(
+  '/dictionary',
+  authMiddleware,
+  checkRole(['admin', 'moderator']), // Только для админа и модератора
+  upload.single('audio'),
+  addWord
+);
+
+router.get(
+  '/words-to-translate',
+  authMiddleware,
+  checkRole(['admin', 'translator', 'moderator']), // Только для админа и переводчика
+  getWordsToTranslate
+);
+
+router.post(
+  '/add-translation',
+  authMiddleware,
+  checkRole(['translator', 'admin', 'moderator' ]), // Только для переводчика
+  upload.single('audio'),
+  addTranslation
+);
+
+router.get(
+  '/dictionary-statistics',
+  authMiddleware,
+  checkRole(['admin']), // Только для админа
+  getDictionaryStatistics
+);
+
+router.get(
+  '/user/stats',
+  authMiddleware,
+  checkRole(['admin', 'moderator', 'translator']), // Для админа, модератора и переводчика
+  getUserStats
+);
+
+router.put(
+  '/dictionary/:id',
+  authMiddleware,
+  checkRole(['admin', 'moderator']), // Для админа и модератора
+  updateWord
+);
+
+router.delete(
+  '/dictionary/:id',
+  authMiddleware,
+  checkRole(['admin', 'moderator']), // Только для админа
+  deleteWord
+);
 
 router.get('/test', (req, res) => {
-    res.status(200).json({ message: 'Test route works!' });
-  });
+  res.status(200).json({ message: 'Test route works!' });
+});
+
 module.exports = router;

@@ -14,6 +14,7 @@ const LoginPage: React.FC = () => {
 
     try {
       const response = await login({ email, password });
+      localStorage.setItem('role', response.data.role);
       localStorage.setItem('token', response.data.token); // Сохраняем токен в localStorage
       navigate('/');  // Перенаправляем на главную страницу
     } catch (error) {

@@ -3,7 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
 const { authRoutes } = require('./routes/authRoutes');
-const { userRoutes } = require('./routes/userRoutes');
+const userRoutes = require('./routes/userRoutes');
 const dictionaryRoutes = require('./routes/dictionaryRoutes');
 require('dotenv').config(); // Загружаем переменные окружения
 
