@@ -30,7 +30,7 @@ const Header: React.FC = () => {
       setError('No token found, please log in');
     }
   }, []);
-  
+
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden'; // Блокируем прокрутку
@@ -90,6 +90,9 @@ const Header: React.FC = () => {
           </li>
           <li className='navItem'>
             <Link to="/add-translation" className='navLink' onClick={handleLinkClick}>Переводить слова</Link>
+          </li>
+          <li className='navItem'>
+            <Link to="/admin" className='navLink' onClick={handleLinkClick}>Админ</Link>
           </li>
         </ul>
         <button onClick={handleLogout} className='logoutButton'>Выйти</button>

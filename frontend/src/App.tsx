@@ -8,6 +8,7 @@ import Header from './components/Header';
 import DictionaryPage from './pages/DictionaryPage';
 import AddWordPage from './pages/AddWordPage';
 import AddTranslationPage from './pages/AddTranslationPage';
+import AdminPage from './pages/AdminPage';
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,7 @@ const AppContent: React.FC = () => {
           <Route path="/dictionary" element={<DictionaryPage />} />
           <Route path="/add-word" element={<AddWordPage />} />
           <Route path="/add-translation" element={<AddTranslationPage  />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </div>
     </div>
