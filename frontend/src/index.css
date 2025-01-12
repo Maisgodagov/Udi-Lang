@@ -16,9 +16,9 @@ body {
   font-style: normal;
 }
 .section-title {
-  color: #ff0000;
-  margin-bottom: 20px;
-  font-size: 34px;
+  color: #464646;
+  margin-bottom: 16px;
+  font-size: 28px;
   user-select: none;
 }
 
