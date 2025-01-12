@@ -56,16 +56,21 @@ const DictionaryPage: React.FC = () => {
     );
 
     const handleAudioPlay = (audioUrl: string) => {
-      const baseUrl = process.env.REACT_APP_API_URL || 'https://udilang.ru'; // Убедитесь, что здесь правильный URL
-      const fullAudioUrl = `${baseUrl}${audioUrl}`;
+      // Проверяем, начинается ли audioUrl с "http" (уже полный URL)
+      const fullAudioUrl = audioUrl.startsWith('http') 
+        ? audioUrl 
+        : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;
+      
       console.log('Full audio URL:', fullAudioUrl);
     
       try {
         const audio = new Audio(fullAudioUrl);
-        audio.play();
+        audio.play().catch(() => {
+          alert('Ошибка при воспроизведении аудио. Проверьте доступность файла.');
+        });
       } catch (error) {
         console.error('Error playing audio:', error);
-        alert('Не удалось воспроизвести аудио. Проверьте, доступен ли файл.');
+        alert('Не удалось воспроизвести аудио.');
       }
     };
 
