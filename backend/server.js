@@ -28,6 +28,10 @@ const corsOptions = {
   credentials: true, // Позволяем передавать куки или токены
 };
 
+app.get('/api/test', (req, res) => {
+  res.status(200).json({ message: 'Test route is working!' });
+});
+
 app.use(cors(corsOptions));
 
 // Статические файлы (uploads и build)
