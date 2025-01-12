@@ -75,93 +75,84 @@ const AdminPage: React.FC = () => {
   };
 
   return (
-    <div className="admin-page">
+    <div className="dictionary-wrapper">
       <h1 className="section-title">Админ панель</h1>
       {error && <p className="error-msg">{error}</p>}
       {successMessage && <p className="success-msg">{successMessage}</p>}
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Удинское слово</th>
-            <th>Русское слово</th>
-            <th>Добавлено пользователем</th>
-            <th>Произношение</th>
-            <th>Действия</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dictionary.map((entry) => (
-            <tr key={entry.id}>
-              <td>{entry.id}</td>
-              <td>
+      <ul className="admin-list">
+        {dictionary.map((entry) => (
+          <li key={entry.id} className="admin-item">
+            <div className="admin-info">
+              <span className="admin-id">{entry.id}.</span>
+              <div className="admin-word">
                 {editingId === entry.id ? (
                   <input
+                    className='word-edit-input'
+                    placeholder='Слово на удинском'
                     type="text"
                     value={wordUdiEdit}
                     onChange={(e) => setWordUdiEdit(e.target.value)}
                   />
                 ) : (
-                  entry.word_udi
+                  <span className='admin-word-udi'>{entry.word_udi} -</span>
                 )}
-              </td>
-              <td>
+              </div>
+              <div className="admin-word">
                 {editingId === entry.id ? (
                   <input
+                    className='word-edit-input'
+                    placeholder='Перевод на русский'
                     type="text"
                     value={wordRusEdit}
                     onChange={(e) => setWordRusEdit(e.target.value)}
                   />
                 ) : (
-                  entry.word_rus
+                  <span className='admin-word-rus'>{entry.word_rus}</span>
                 )}
-              </td>
-              <td>{entry.username}</td>
-              <td>
-                <button
-                  className="play-btn"
-                  onClick={() => handlePlayAudio(entry.audio_url)}
-                >
-                  ▶️
-                </button>
-              </td>
-              <td>
-                {editingId === entry.id ? (
-                  <>
-                    <button
-                      className="save-btn"
-                      onClick={() => handleSave(entry.id)}
-                    >
-                      Сохранить
-                    </button>
-                    <button
-                      className="cancel-btn"
-                      onClick={handleCancelEdit}
-                    >
-                      Отмена
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleEdit(entry)}
-                    >
-                      Редактировать
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(entry.id)}
-                    >
-                      Удалить
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </div>
+              <span className="admin-username">{entry.username}</span>
+            </div>
+            <div className="admin-actions">
+              <button
+                className="play-btn"
+                onClick={() => handlePlayAudio(entry.audio_url)}
+              >Произн.
+              </button>
+              {editingId === entry.id ? (
+                <>
+                  <button
+                    className="word-save-btn"
+                    onClick={() => handleSave(entry.id)}
+                  >
+                    Сохр.
+                  </button>
+                  <button
+                    className="word-cancel-btn"
+                    onClick={handleCancelEdit}
+                  >
+                    Отм.
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="edit-btn"
+                    onClick={() => handleEdit(entry)}
+                  >
+                    Ред.
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(entry.id)}
+                  >
+                    Удалить
+                  </button>
+                </>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

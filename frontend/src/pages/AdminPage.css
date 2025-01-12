@@ -1,72 +1,102 @@
-.admin-page {
-    padding: 20px;
-  }
-  
-  .section-title {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-  
-  .admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .admin-table th,
-  .admin-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-  }
-  
-  .admin-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-  }
-  
-  .play-btn,
-  .edit-btn,
-  .delete-btn,
-  .save-btn,
-  .cancel-btn {
-    padding: 5px 10px;
-    margin: 5px;
-    cursor: pointer;
+.admin-list {
+    max-width: 500px;
+    width: 95%;
+    list-style: none;
+    
+}
+
+.admin-item {
+    background-color: rgb(198, 198, 216);
+    margin-bottom: 10px;
+    padding: 16px;
+    border-radius: 18px;
+}
+
+.admin-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.admin-word-udi {
+    font-size: 20px;
+    color: rgb(24, 24, 115);
+    font-weight: 600;
+    margin-right: 5px;
+}
+.admin-id {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    margin-right: 20px;
+}
+.admin-word-rus {
+    font-size: 20px;
+    color: rgb(187, 101, 124);
+    font-weight: 500;
+}
+
+.admin-username {
+    margin-left: auto;
+    font-size: 16px;
+}
+.play-btn {
+    margin-left: auto;
+    height: 40px;
+    padding: 5px 40px 5px 15px;
+    background-image: url(../assets/sound.png);
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 90% center;
     border: none;
-    border-radius: 5px;
-  }
-  
-  .play-btn {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .edit-btn {
-    background-color: #ffc107;
-    color: white;
-  }
-  
-  .delete-btn {
-    background-color: #dc3545;
-    color: white;
-  }
-  
-  .save-btn {
-    background-color: #28a745;
-    color: white;
-  }
-  
-  .cancel-btn {
-    background-color: #6c757d;
-    color: white;
-  }
-  
-  .error-msg {
-    color: rgb(209, 61, 61);
-  }
-  
-  .success-msg {
-    color: green;
-  }
-  
+    border-radius: 30px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.edit-btn{
+    
+    height: 40px;
+    padding: 5px 15px 5px 15px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: rgb(225, 240, 238);
+    margin-right: 10px;
+}
+
+.delete-btn {
+    height: 40px;
+    padding: 5px 15px 5px 15px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: rgb(240, 225, 225);
+    margin-right: 10px;
+}
+
+.word-save-btn {
+    height: 40px;
+    padding: 5px 15px 5px 15px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: rgb(188, 225, 176);
+    margin-right: 10px;
+}
+.word-cancel-btn {
+    height: 40px;
+    padding: 5px 15px 5px 15px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: rgb(190, 192, 189);
+    margin-right: 10px;
+}
+.word-edit-input {
+    border: none;
+    height: 30px;
+    border-radius: 18px;
+    padding: 0 10px;
+    width: 180px;
+    margin-right: 5px;
+}
