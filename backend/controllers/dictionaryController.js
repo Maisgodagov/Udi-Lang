@@ -125,14 +125,11 @@ const getUserStats = async (req, res) => {
 
 // Функция для обновления слова
 const updateWord = async (req, res) => {
-  const { id } = req.params; // ID слова из URL
-  const { word_udi, word_rus } = req.body; // Новые данные слова
+  const { id } = req.params; // Получаем ID из параметров
+  const { word_udi, word_rus } = req.body;
 
-  console.log('Update request received for ID:', id); // Логируем ID
-  console.log('Update data:', { word_udi, word_rus }); // Логируем данные
-
-  if (!id || !word_udi || !word_rus) {
-    return res.status(400).json({ message: 'Необходимо заполнить оба поля и указать ID' });
+  if (!word_udi || !word_rus) {
+    return res.status(400).json({ message: 'Необходимо заполнить оба поля' });
   }
 
   try {
@@ -140,7 +137,6 @@ const updateWord = async (req, res) => {
     const [result] = await db.query(query, [word_udi, word_rus, id]);
 
     if (result.affectedRows === 0) {
-      console.log('Word not found for ID:', id); // Логируем, если запись не найдена
       return res.status(404).json({ message: 'Слово не найдено' });
     }
 
@@ -150,23 +146,14 @@ const updateWord = async (req, res) => {
     res.status(500).json({ message: 'Ошибка при обновлении слова' });
   }
 };
-
-// Функция для удаления слова
 const deleteWord = async (req, res) => {
-  const { id } = req.params; // ID слова из URL
-
-  console.log('Delete request received for ID:', id); // Логируем ID
-
-  if (!id) {
-    return res.status(400).json({ message: 'ID is required' });
-  }
+  const { id } = req.params; // Получаем ID из параметров
 
   try {
     const query = 'DELETE FROM dictionary WHERE id = ?';
     const [result] = await db.query(query, [id]);
 
     if (result.affectedRows === 0) {
-      console.log('Word not found for ID:', id); // Логируем, если запись не найдена
       return res.status(404).json({ message: 'Слово не найдено' });
     }
 
@@ -176,6 +163,7 @@ const deleteWord = async (req, res) => {
     res.status(500).json({ message: 'Ошибка при удалении слова' });
   }
 };
+
 
 // Функция для получения статистики словаря
 const getDictionaryStatistics = async (req, res) => {

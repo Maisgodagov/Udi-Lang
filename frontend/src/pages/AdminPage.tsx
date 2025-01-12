@@ -40,10 +40,7 @@ const AdminPage: React.FC = () => {
 
   const handleSave = async (id: number) => {
     try {
-      await axios.put(`/api/dictionary/${id}`, {
-        word_udi: wordUdiEdit,
-        word_rus: wordRusEdit,
-      });
+      await axios.put(`/api/dictionary/${id}`, { word_udi: wordUdiEdit, word_rus: wordRusEdit });
       setSuccessMessage('Слово успешно обновлено');
       setEditingId(null);
       fetchDictionary();
