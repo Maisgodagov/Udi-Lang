@@ -46,7 +46,7 @@ const AdminPage: React.FC = () => {
       });
       setSuccessMessage('Слово успешно обновлено');
       setEditingId(null);
-      fetchDictionary(); // Обновляем список после сохранения
+      fetchDictionary();
     } catch (err) {
       setError('Ошибка при сохранении слова');
       console.error(err);
@@ -58,7 +58,7 @@ const AdminPage: React.FC = () => {
       try {
         await axios.delete(`/api/dictionary/${id}`);
         setSuccessMessage('Слово успешно удалено');
-        fetchDictionary(); // Обновляем список после удаления
+        fetchDictionary();
       } catch (err) {
         setError('Ошибка при удалении слова');
         console.error(err);
@@ -67,9 +67,14 @@ const AdminPage: React.FC = () => {
   };
 
   const handlePlayAudio = (audioUrl: string) => {
-    const fullAudioUrl = `${process.env.REACT_APP_API_URL?.replace('/api', '') || ''}${audioUrl}`;
-    const audio = new Audio(fullAudioUrl);
-    audio.play();
+    const audio = new Audio(audioUrl);
+    audio.play().catch((err) => console.error('Ошибка воспроизведения аудио:', err));
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setWordUdiEdit('');
+    setWordRusEdit('');
   };
 
   return (
@@ -134,7 +139,7 @@ const AdminPage: React.FC = () => {
                     </button>
                     <button
                       className="cancel-btn"
-                      onClick={() => setEditingId(null)}
+                      onClick={handleCancelEdit}
                     >
                       Отмена
                     </button>

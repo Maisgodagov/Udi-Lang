@@ -1,5 +1,5 @@
 const express = require('express');
-const { getDictionary, addWord, upload, getWordsToTranslate, getUserStats, getDictionaryStatistics, addTranslation } = require('../controllers/dictionaryController');
+const { getDictionary, addWord, upload, getWordsToTranslate, getUserStats, updateWord, deleteWord, getDictionaryStatistics, addTranslation } = require('../controllers/dictionaryController');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -9,5 +9,7 @@ router.get('/words-to-translate', getWordsToTranslate); // Получаем сл
 router.post('/add-translation', upload.single('audio'), addTranslation); // Добавляем перевод
 router.get('/dictionary-statistics', getDictionaryStatistics);
 router.get('/user/stats', authMiddleware, getUserStats);
+router.put('/dictionary/:id', updateWord); // Добавлено
+router.delete('/dictionary/:id', deleteWord); // Добавлено
 
 module.exports = router;

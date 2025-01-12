@@ -123,6 +123,48 @@ const getUserStats = async (req, res) => {
 };
 
 
+// Функция для обновления слова
+const updateWord = async (req, res) => {
+  const { id } = req.params; // ID слова из URL
+  const { word_udi, word_rus } = req.body; // Новые данные слова
+
+  if (!word_udi || !word_rus) {
+    return res.status(400).json({ message: 'Необходимо заполнить оба поля' });
+  }
+
+  try {
+    const query = 'UPDATE dictionary SET word_udi = ?, word_rus = ? WHERE id = ?';
+    const [result] = await db.query(query, [word_udi, word_rus, id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Слово не найдено' });
+    }
+
+    res.status(200).json({ message: 'Слово успешно обновлено' });
+  } catch (err) {
+    console.error('Ошибка при обновлении слова:', err);
+    res.status(500).json({ message: 'Ошибка при обновлении слова' });
+  }
+};
+
+// Функция для удаления слова
+const deleteWord = async (req, res) => {
+  const { id } = req.params; // ID слова из URL
+
+  try {
+    const query = 'DELETE FROM dictionary WHERE id = ?';
+    const [result] = await db.query(query, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Слово не найдено' });
+    }
+
+    res.status(200).json({ message: 'Слово успешно удалено' });
+  } catch (err) {
+    console.error('Ошибка при удалении слова:', err);
+    res.status(500).json({ message: 'Ошибка при удалении слова' });
+  }
+};
 
 // Функция для получения статистики словаря
 const getDictionaryStatistics = async (req, res) => {
@@ -142,4 +184,4 @@ const getDictionaryStatistics = async (req, res) => {
   }
 };
 
-module.exports = { getDictionary, addWord, getWordsToTranslate, getDictionaryStatistics, getUserStats, addTranslation, upload };
+module.exports = { getDictionary, addWord, getWordsToTranslate, getDictionaryStatistics, getUserStats, deleteWord, updateWord, addTranslation, upload };
