@@ -21,6 +21,7 @@ const Header: React.FC = () => {
         .then((response) => {
           console.log('User data from server:', response.data); // Логируем полученные данные
           setUsername(response.data.username); // Извлекаем имя пользователя из ответа
+          localStorage.setItem('role', response.data.role); // Сохраняем роль в localStorage
         })
         .catch((err) => {
           setError('Error fetching user data');
@@ -30,6 +31,7 @@ const Header: React.FC = () => {
       setError('No token found, please log in');
     }
   }, []);
+  
 
   useEffect(() => {
     if (isMenuOpen) {

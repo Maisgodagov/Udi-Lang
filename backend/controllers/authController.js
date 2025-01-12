@@ -49,7 +49,7 @@ const login = async (req, res) => {
     }
 
     // Генерация JWT токена
-    const token = jwt.sign({ userId: user.id, role: user.role, username: user.username }, 'secretkey');
+    const token = jwt.sign({ userId: user.id, role: user.role, username: user.username }, process.env.JWT_SECRET);
 
     res.status(200).json({ message: 'Login successful', token });
   } catch (error) {

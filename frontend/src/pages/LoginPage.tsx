@@ -14,9 +14,17 @@ const LoginPage: React.FC = () => {
 
     try {
       const response = await login({ email, password });
-      localStorage.setItem('role', response.data.role);
-      localStorage.setItem('token', response.data.token); // Сохраняем токен в localStorage
+      const token = response.data.token;
+
+    // Декодирование токена для извлечения роли
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Расшифровка payload
+      const role = decodedToken.role;
+      localStorage.setItem('role', role);
+      localStorage.setItem('token', token); // Сохраняем токен в localStorage
+      console.log('Decoded token:', decodedToken);
+      console.log('Role:', decodedToken.role);  
       navigate('/');  // Перенаправляем на главную страницу
+      
     } catch (error) {
       setError('Failed to login. Please try again.');
       console.error(error);

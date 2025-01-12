@@ -13,6 +13,7 @@ const getProfile = async (req, res) => {
     res.status(200).json({
       username: user.username,
       email: user.email,
+      role: user.role,
       created_at: user.created_at
     });
   } catch (error) {

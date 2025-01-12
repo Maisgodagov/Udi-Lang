@@ -14,26 +14,30 @@ const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    console.log('Token:', token);
     if (!token) {
       // Если нет токена, перенаправляем на страницу логина
+      console.error('No token found');
       navigate('/login');
     } else {
       // Получаем данные пользователя с сервера
       axios
-        .get('api/user/profile', {
+        .get('/api/user/profile', {
           headers: { Authorization: `Bearer ${token}` }, // Отправляем токен для аутентификации
         })
         .then((response) => {
-          setUser(response.data);  // Сохраняем полученные данные пользователя
+          console.log('User profile data:', response.data);
+          setUser(response.data); // Сохраняем полученные данные пользователя
+          localStorage.setItem('role', response.data.role); // Сохраняем роль в localStorage
         })
         .catch((err) => {
           setError('Error fetching user data');
-          console.error(err);
+          console.error('Error fetching user profile:', err.response?.data || err.message);
         });
-
+  
       // Получаем статистику пользователя (количество добавленных и переведенных слов)
       axios
-        .get('api/user/stats', {
+        .get('/api/user/stats', {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
@@ -41,11 +45,11 @@ const ProfilePage: React.FC = () => {
         })
         .catch((err) => {
           setError('Error fetching user statistics');
-          console.error(err);
+          console.error('Error fetching user statistics:', err.response?.data || err.message);
         });
     }
   }, [navigate]);
-
+  
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
