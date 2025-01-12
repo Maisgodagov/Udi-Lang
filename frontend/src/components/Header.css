@@ -58,6 +58,7 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   width: 50%;
   align-self: center;
   border-radius: 8px;
+  margin-bottom: 50px;
 }
 .nav {
 display: none;
