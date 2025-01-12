@@ -30,6 +30,19 @@ const Header: React.FC = () => {
       setError('No token found, please log in');
     }
   }, []);
+  
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden'; // Блокируем прокрутку
+    } else {
+      document.body.style.overflow = ''; // Убираем блокировку прокрутки
+    }
+    // Очищаем эффект при размонтировании компонента
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
+
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // Удаляем токен
