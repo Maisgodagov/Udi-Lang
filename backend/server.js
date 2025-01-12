@@ -33,15 +33,16 @@ app.get('/api/test', (req, res) => {
 });
 
 app.use(cors(corsOptions));
+// API маршруты
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api', dictionaryRoutes);
 
 // Статические файлы (uploads и build)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); // Для загрузок
 app.use(express.static(path.join(__dirname, '../build'))); // Для фронтенда
 
-// API маршруты
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api', dictionaryRoutes);
+
 
 // Обслуживаем React-приложение
 app.get('*', (req, res) => {
