@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+
 import './AdminPage.css';
 import api from '../services/axiosConfig'; // Путь к вашему файлу
 
@@ -41,7 +41,7 @@ const AdminPage: React.FC = () => {
 
   const handleSave = async (id: number) => {
     try {
-      await axios.put(`/api/dictionary/${id}`, { word_udi: wordUdiEdit, word_rus: wordRusEdit });
+      await api.put(`/dictionary/${id}`, { word_udi: wordUdiEdit, word_rus: wordRusEdit });
       setSuccessMessage('Слово успешно обновлено');
       setEditingId(null);
       fetchDictionary();
@@ -54,7 +54,7 @@ const AdminPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (window.confirm('Вы уверены, что хотите удалить это слово?')) {
       try {
-        await axios.delete(`/api/dictionary/${id}`);
+        await api.delete(`/dictionary/${id}`);
         setSuccessMessage('Слово успешно удалено');
         fetchDictionary();
       } catch (err) {

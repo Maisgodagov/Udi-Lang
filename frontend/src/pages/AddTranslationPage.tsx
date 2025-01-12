@@ -112,8 +112,8 @@ const AddTranslationPage: React.FC = () => {
     formData.append('audio', audioBlob, 'audio.wav');
     formData.append('username', username);  // Добавляем имя пользователя в форму
 
-    axios
-      .post('/api/add-translation', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    api
+      .post('/add-translation', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
         setSuccessMessage('Перевод добавлен!');
         setWordUdi('');
