@@ -9,6 +9,7 @@ import DictionaryPage from './pages/DictionaryPage';
 import AddWordPage from './pages/AddWordPage';
 import AddTranslationPage from './pages/AddTranslationPage';
 import AdminPage from './pages/AdminPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
   return (
@@ -18,14 +19,13 @@ const App: React.FC = () => {
   );
 };
 
-// Дополнительный компонент для обработки рендеринга Header
+// Компонент для обработки рендеринга Header
 const AppContent: React.FC = () => {
-  const location = useLocation();  // Получаем текущий путь
+  const location = useLocation(); // Получаем текущий путь
   return (
     <div>
       {/* Условный рендеринг Header */}
       {location.pathname !== '/login' && location.pathname !== '/register' && <Header />}
-      
       <div>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -33,12 +33,34 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/dictionary" element={<DictionaryPage />} />
-          <Route path="/add-word" element={<AddWordPage />} />
-          <Route path="/add-translation" element={<AddTranslationPage  />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route
+            path="/add-word"
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'moderator']}>
+                <AddWordPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-translation"
+            element={
+              <ProtectedRoute allowedRoles={['translator', 'admin', 'moderator']}>
+                <AddTranslationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </div>
   );
 };
+
 export default App;
