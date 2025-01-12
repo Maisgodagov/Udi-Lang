@@ -123,13 +123,11 @@ const getUserStats = async (req, res) => {
 };
 
 
-// Функция для обновления слова
 const updateWord = async (req, res) => {
-  
-  const { id } = req.params; // Получаем ID из параметров
+  const { id } = req.params;
   const { word_udi, word_rus } = req.body;
-  console.log('PUT запрос для обновления, ID:', req.params.id);
-  console.log('Body запроса:', req.body);
+  console.log(`PUT /api/dictionary/${id}`, req.body);
+
   if (!word_udi || !word_rus) {
     return res.status(400).json({ message: 'Необходимо заполнить оба поля' });
   }
@@ -139,6 +137,7 @@ const updateWord = async (req, res) => {
     const [result] = await db.query(query, [word_udi, word_rus, id]);
 
     if (result.affectedRows === 0) {
+      console.log('Word not found:', id);
       return res.status(404).json({ message: 'Слово не найдено' });
     }
 
@@ -148,15 +147,17 @@ const updateWord = async (req, res) => {
     res.status(500).json({ message: 'Ошибка при обновлении слова' });
   }
 };
+
 const deleteWord = async (req, res) => {
-  const { id } = req.params; // Получаем ID из параметров
-  console.log('DELETE запрос для удаления, ID:', req.params.id);
+  const { id } = req.params;
+  console.log(`DELETE /api/dictionary/${id}`);
 
   try {
     const query = 'DELETE FROM dictionary WHERE id = ?';
     const [result] = await db.query(query, [id]);
 
     if (result.affectedRows === 0) {
+      console.log('Word not found:', id);
       return res.status(404).json({ message: 'Слово не найдено' });
     }
 
