@@ -125,9 +125,11 @@ const getUserStats = async (req, res) => {
 
 // Функция для обновления слова
 const updateWord = async (req, res) => {
+  
   const { id } = req.params; // Получаем ID из параметров
   const { word_udi, word_rus } = req.body;
-
+  console.log('PUT запрос для обновления, ID:', req.params.id);
+  console.log('Body запроса:', req.body);
   if (!word_udi || !word_rus) {
     return res.status(400).json({ message: 'Необходимо заполнить оба поля' });
   }
@@ -148,6 +150,7 @@ const updateWord = async (req, res) => {
 };
 const deleteWord = async (req, res) => {
   const { id } = req.params; // Получаем ID из параметров
+  console.log('DELETE запрос для удаления, ID:', req.params.id);
 
   try {
     const query = 'DELETE FROM dictionary WHERE id = ?';

@@ -12,4 +12,8 @@ router.get('/user/stats', authMiddleware, getUserStats);
 router.put('/dictionary/:id', updateWord); // Добавлено
 router.delete('/dictionary/:id', deleteWord); // Добавлено
 
+
+router.get('/test', (req, res) => {
+    res.status(200).json({ message: 'Test route works!' });
+  });
 module.exports = router;
