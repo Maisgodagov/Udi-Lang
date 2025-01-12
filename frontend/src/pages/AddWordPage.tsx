@@ -4,6 +4,7 @@ import RecordRTC from 'recordrtc';
 import { Howl } from 'howler';
 import { useNavigate } from 'react-router-dom';
 import './AddWordPage.css';
+import api from '../services/axiosConfig'; // Путь к вашему файлу
 
 const AddWordPage: React.FC = () => {
   const [wordUdi, setWordUdi] = useState('');
@@ -63,8 +64,8 @@ const AddWordPage: React.FC = () => {
     formData.append('audio', audioBlob, 'audio.wav');
     formData.append('username', username);  // Добавляем имя пользователя в форму
 
-    axios
-      .post('/api/dictionary', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    api
+      .post('/dictionary', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
         setSuccessMessage('Слово добавлено!');
         setWordUdi('');

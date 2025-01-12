@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminPage.css';
+import api from '../services/axiosConfig'; // Путь к вашему файлу
 
 interface DictionaryEntry {
   id: number;
@@ -24,7 +25,7 @@ const AdminPage: React.FC = () => {
 
   const fetchDictionary = async () => {
     try {
-      const response = await axios.get('/api/dictionary');
+      const response = await api.get('/dictionary');
       setDictionary(response.data);
     } catch (err) {
       setError('Ошибка при загрузке слов');

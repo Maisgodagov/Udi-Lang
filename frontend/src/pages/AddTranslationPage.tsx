@@ -4,6 +4,7 @@ import RecordRTC from 'recordrtc';
 import { Howl } from 'howler';
 import './AddTranslationPage.css';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/axiosConfig'; // Путь к вашему файлу
 
 // Определяем интерфейс для слова
 interface Word {
@@ -60,8 +61,8 @@ const AddTranslationPage: React.FC = () => {
       setError('No token found, please log in');
     }
 
-    axios
-      .get('/api/words-to-translate')
+    api
+      .get('/words-to-translate')
       .then((response) => {
         // Перемешиваем слова
         const shuffledWords = shuffle(response.data);
@@ -74,8 +75,8 @@ const AddTranslationPage: React.FC = () => {
       });
 
     // Получаем статистику по словарю
-    axios
-      .get('/api/dictionary-statistics')
+    api
+      .get('/dictionary-statistics')
       .then((response) => {
         setTotalWords(response.data.total);
         setTranslatedWords(response.data.translated);

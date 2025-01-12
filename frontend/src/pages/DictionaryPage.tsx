@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
 import './DictionaryPage.css';
+import api from '../services/axiosConfig'; // Путь к вашему файлу
 
 interface DictionaryEntry {
   id: number;
@@ -23,7 +23,7 @@ const DictionaryPage: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`/api/dictionary?page=${page}&limit=50`);
+        const response = await api.get(`/dictionary?page=${page}&limit=50`);
         // Проверяем, чтобы не было дублирующих слов при подгрузке
         setHasMore(response.data.length === 50); // Если меньше 50, значит больше нет данных для подгрузки
         setDictionary((prev) => {
