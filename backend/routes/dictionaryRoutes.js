@@ -43,7 +43,7 @@ router.post(
 router.get(
   '/dictionary-statistics',
   authMiddleware,
-  checkRole(['admin']), // Только для админа
+  checkRole(['admin', 'translator', 'moderator']), // Только для админа
   getDictionaryStatistics
 );
 
