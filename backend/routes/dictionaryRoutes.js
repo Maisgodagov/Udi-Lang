@@ -50,7 +50,7 @@ router.get(
 router.get(
   '/user/stats',
   authMiddleware,
-  checkRole(['admin', 'moderator', 'translator']), // Для админа, модератора и переводчика
+  checkRole(['admin', 'moderator', 'translator', 'user']), // Для админа, модератора и переводчика
   getUserStats
 );
 
