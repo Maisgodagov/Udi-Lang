@@ -56,16 +56,6 @@ const RegisterPage: React.FC = () => {
             required
           />
         </div>
-        <div>
-          <input
-            className='login-input'
-            placeholder='Подтвердите пароль'
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
         <button className='login-btn' type="submit">Создать аккаунт</button>
       </form>
 
