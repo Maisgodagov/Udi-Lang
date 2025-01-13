@@ -81,6 +81,9 @@ const Header: React.FC = () => {
           <li className="navItem">
             <Link to="/dictionary" className="navLink" onClick={handleLinkClick}>Словарь</Link>
           </li>
+          <li className="navItem">
+            <Link to="/phrases" className="navLink" onClick={handleLinkClick}>Фразы</Link>
+          </li>
           {role === 'admin' || role === 'moderator' ? (
             <li className="navItem">
               <Link to="/add-word" className="navLink" onClick={handleLinkClick}>Добавить слово</Link>

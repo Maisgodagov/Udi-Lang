@@ -9,6 +9,7 @@ const {
   addPhraseTranslation, 
   addTranslation, 
   getUserStats, 
+  getPhrases,
   updateWord, 
   deleteWord, 
   getDictionaryStatistics,
@@ -26,6 +27,9 @@ router.get('/test', (req, res) => {
 
 // 2. Получение всего словаря (для авторизованных пользователей)
 router.get('/dictionary', authMiddleware, getDictionary);
+
+// 13. Получнение всех фраз
+router.get('/phrases', authMiddleware, getPhrases);
 
 // 3. Добавление нового слова (только для admin и moderator)
 router.post(

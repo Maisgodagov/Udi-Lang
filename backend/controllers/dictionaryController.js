@@ -27,6 +27,17 @@ const getDictionary = async (req, res) => {
   }
 };
 
+// Получение всех фраз
+const getPhrases = async (req, res) => {
+  try {
+    const [results] = await db.query('SELECT * FROM phrases');
+    res.status(200).json(results);
+  } catch (err) {
+    console.error('Ошибка при загрузке фраз:', err);
+    res.status(500).json({ message: 'Ошибка при загрузке фраз' })
+  }
+}
+
 // Добавление нового слова в словарь
 const addWord = async (req, res) => {
   const { word_udi, word_rus, username } = req.body;
@@ -228,5 +239,6 @@ module.exports = {
   deleteWord, 
   getDictionaryStatistics, 
   addPhrase,
+  getPhrases,
   upload
 };

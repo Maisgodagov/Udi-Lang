@@ -10,6 +10,7 @@ import AddWordPage from './pages/AddWordPage';
 import AddTranslationPage from './pages/AddTranslationPage';
 import AdminPage from './pages/AdminPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import PhrasesPage from './pages/PhrasesPage';
 
 const App: React.FC = () => {
   return (
@@ -33,6 +34,7 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/dictionary" element={<DictionaryPage />} />
+          <Route path="/phrases" element={<PhrasesPage />} />
           <Route
             path="/add-word"
             element={

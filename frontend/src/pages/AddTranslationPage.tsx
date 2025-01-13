@@ -257,7 +257,7 @@ const AddTranslationPage: React.FC = () => {
     <div className="page-wrapper">
       <h1 className="section-title">Добавить перевод</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <p className="words-stat">{`Переведено ${translatedItems} из ${totalItems} элементов`}</p>
+      <p className="words-stat">{`Переведено ${translatedItems} из ${totalItems} слов и фраз`}</p>
       {currentItem ? (
         <form className="add-form" onSubmit={handleSubmit}>
           <div>
