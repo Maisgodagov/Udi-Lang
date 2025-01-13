@@ -330,7 +330,7 @@ const AddTranslationPage: React.FC = () => {
           {successMessage && <p className="success-msg">{successMessage}</p>}
         </form>
       ) : (
-        <p>No data available to translate.</p>
+        <p></p>
       )}
       <p className="add-word-text">
         - Элементы выводятся случайным образом, на русском языке.
