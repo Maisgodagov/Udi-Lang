@@ -117,7 +117,7 @@ const AddTranslationPage: React.FC = () => {
     e.preventDefault();
 
     if (!wordUdi || !audioBlob || !username || !currentItem) {
-      setError('All fields are required, including the audio');
+      setError('Заполните все поля и запишите произношение.');
       return;
     }
 
@@ -187,7 +187,7 @@ const AddTranslationPage: React.FC = () => {
         intervalRef.current = setInterval(() => setDuration((prev) => prev + 1), 1000);
       })
       .catch((err) => {
-        console.error('Error accessing audio media: ', err);
+        console.error('Ошибка доступа к микрофону', err);
       });
   };
 
