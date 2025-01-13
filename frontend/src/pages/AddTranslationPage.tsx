@@ -140,7 +140,7 @@ const AddTranslationPage: React.FC = () => {
       .post(endpoint, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
         setSuccessMessage(
-          `${currentItem.type === 'word' ? 'Слово' : 'Фраза'} успешно добавлено!`
+          `${currentItem.type === 'word' ? 'Слово успешно добавлено!' : 'Фраза успешно добавлена!'} `
         );
         setWordUdi('');
         setAudioUrl('');
@@ -264,7 +264,7 @@ const AddTranslationPage: React.FC = () => {
             <h3 className="russian-word">
               {currentItem.text}{' '}
               <span className="type-label">
-                ({currentItem.type === 'word' ? 'Слово' : 'Фраза'})
+                {currentItem.type === 'word' ? 'cлово' : 'фраза'}
               </span>
             </h3>
             <input
