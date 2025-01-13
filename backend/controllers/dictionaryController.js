@@ -66,7 +66,43 @@ const getWordsToTranslate = async (req, res) => {
   }
 };
 
+const getPhrasesToTranslate = async (req, res) => {
+  try {
+    const [results] = await db.query(
+      'SELECT * FROM phrases WHERE phrase_udi IS NULL OR phrase_udi = ""'
+    );
+    res.status(200).json(results);
+  } catch (err) {
+    console.error('Ошибка при получении фраз:', err);
+    res.status(500).json({ message: 'Ошибка при получении фраз для перевода' });
+  }
+};
+const addPhraseTranslation = async (req, res) => {
+  const { phrase_udi, phrase_rus, username } = req.body;
+  const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
+  const audioUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
 
+  console.log('Received translation data for phrase:', {
+    phrase_udi,
+    phrase_rus,
+    audioUrl,
+    username,
+  });
+
+  if (!audioUrl) {
+    return res.status(400).json({ message: 'Аудиофайл обязателен' });
+  }
+
+  try {
+    const query =
+      'UPDATE phrases SET phrase_udi = ?, audio_url = ?, username = ? WHERE phrase_rus = ?';
+    await db.query(query, [phrase_udi, audioUrl, username, phrase_rus]);
+    res.status(200).json({ message: 'Перевод фразы успешно добавлен' });
+  } catch (err) {
+    console.error('Error adding phrase translation:', err);
+    res.status(500).json({ message: 'Ошибка при добавлении перевода фразы' });
+  }
+};
 const addTranslation = async (req, res) => {
   const { word_udi, word_rus, username } = req.body;  // Получаем имя пользователя из тела запроса
   const baseUrl = process.env.BASE_URL || 'https://udilang.ru'; // Добавьте эту строку
@@ -168,6 +204,27 @@ const deleteWord = async (req, res) => {
   }
 };
 
+const addPhrase = async (req, res) => {
+  const { phrase_udi, phrase_rus, username } = req.body;
+  const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
+  const audioUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
+
+  console.log('Received phrase data:', req.body);
+
+  if (!phrase_udi || !phrase_rus || !audioUrl || !username) {
+    return res.status(400).json({ message: 'Все поля, включая запись, обязательны для заполнения' });
+  }
+
+  try {
+    const query =
+      'INSERT INTO phrases (phrase_udi, phrase_rus, audio_url, username) VALUES (?, ?, ?, ?)';
+    const [results] = await db.query(query, [phrase_udi, phrase_rus, audioUrl, username]);
+    res.status(201).json({ message: 'Фраза добавлена', phraseId: results.insertId });
+  } catch (err) {
+    console.error('Error adding phrase:', err);
+    res.status(500).json({ message: 'Ошибка при добавлении фразы' });
+  }
+};
 
 // Функция для получения статистики словаря
 const getDictionaryStatistics = async (req, res) => {
@@ -187,4 +244,4 @@ const getDictionaryStatistics = async (req, res) => {
   }
 };
 
-module.exports = { getDictionary, addWord, getWordsToTranslate, getDictionaryStatistics, getUserStats, deleteWord, updateWord, addTranslation, upload };
+module.exports = { getDictionary, addWord, getWordsToTranslate, addPhrase, addPhraseTranslation, getPhrasesToTranslate, getDictionaryStatistics, getUserStats, deleteWord, updateWord, addTranslation, upload };

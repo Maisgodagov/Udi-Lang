@@ -88,7 +88,7 @@ const Header: React.FC = () => {
           ) : null}
           {role === 'admin' || role === 'moderator' || role === 'translator' ? (
             <li className="navItem">
-              <Link to="/add-translation" className="navLink" onClick={handleLinkClick}>Переводить слова</Link>
+              <Link to="/add-translation" className="navLink" onClick={handleLinkClick}>Переводить</Link>
             </li>
           ) : null}
           {role === 'admin' ? (

@@ -7,11 +7,12 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/axiosConfig'; // Путь к вашему файлу
 
 // Определяем интерфейс для слова
-interface Word {
+interface TranslationItem {
   id: number;
-  word_rus: string;
-  word_udi?: string;
+  text: string;
+  translation: string; 
   audio_url?: string;
+  type: 'word' | 'phrase';
 }
 
 const AddTranslationPage: React.FC = () => {
@@ -32,10 +33,10 @@ const AddTranslationPage: React.FC = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const soundRef = useRef<Howl | null>(null);
 
-  const [currentWord, setCurrentWord] = useState<Word | null>(null); // Для текущего слова
-  const [words, setWords] = useState<Word[]>([]); // Для списка слов
-  const [totalWords, setTotalWords] = useState(0); // Общее количество слов
-  const [translatedWords, setTranslatedWords] = useState(0); // Количество переведенных слов
+  const [currentItem, setCurrentItem] = useState<TranslationItem | null>(null);
+  const [items, setItems] = useState<TranslationItem[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [translatedItems, setTranslatedItems] = useState(0);
 
   const navigate = useNavigate()
 
@@ -63,24 +64,27 @@ const AddTranslationPage: React.FC = () => {
     }
 
     api
-      .get('/words-to-translate')
-      .then((response) => {
-        // Перемешиваем слова
-        const shuffledWords = shuffle(response.data);
-        setWords(shuffledWords);
-        setCurrentWord(shuffledWords[0]); // Устанавливаем первое слово
-      })
-      .catch((err) => {
-        setError('Error fetching words to translate');
-        console.error(err);
-      });
-
+    .get('/mixed-words-phrases')
+    .then((response) => {
+      console.log('Mixed items response:', response.data)
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        const shuffledItems = shuffle(response.data);
+        setItems(shuffledItems);
+        setCurrentItem(shuffledItems[0]); // Устанавливаем первое слово
+      } else {
+        setError('No data available to translate.');
+      }
+    })
+    .catch((err) => {
+      setError('Error fetching items to translate');
+      console.error(err);
+    });
     // Получаем статистику по словарю
     api
       .get('/dictionary-statistics')
       .then((response) => {
-        setTotalWords(response.data.total);
-        setTranslatedWords(response.data.translated);
+        setTotalItems(response.data.total);
+        setTranslatedItems(response.data.translated);
       })
       .catch((err) => {
         setError('Error fetching dictionary statistics');
@@ -88,7 +92,7 @@ const AddTranslationPage: React.FC = () => {
       });
   }, [navigate]);
 
-  const shuffle = (array: Word[]) => {
+  const shuffle = (array: TranslationItem[]) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -100,33 +104,38 @@ const AddTranslationPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!wordUdi || !audioBlob || !username || !currentWord) {
+    if (!wordUdi || !audioBlob || !username || !currentItem) {
       setError('All fields are required, including the audio');
       return;
     }
-    const wordUdiLowerCase = wordUdi.toLowerCase();
-    const wordRusLowerCase = currentWord.word_rus.toLowerCase();
+    // const wordUdiLowerCase = wordUdi.toLowerCase();
+    // const wordRusLowerCase = currentWord.word_rus.toLowerCase();
 
     const formData = new FormData();
-    formData.append('word_udi', wordUdiLowerCase);
-    formData.append('word_rus', wordRusLowerCase); // Заполняем русское слово из currentWord
+    formData.append(currentItem.type === 'word' ? 'word_udi' : 'phrase_udi', wordUdi);
+    formData.append(currentItem.type === 'word' ? 'word_rus' : 'phrase_rus', currentItem.text);
     formData.append('audio', audioBlob, 'audio.wav');
-    formData.append('username', username);  // Добавляем имя пользователя в форму
+    formData.append('username', username);
+
+    const endpoint =
+      currentItem.type === 'word' ? '/add-word-translation' : '/add-phrase-translation';
 
     setIsLoading(true)
     api
-      .post('/add-translation', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .post(endpoint, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
-        setSuccessMessage('Перевод добавлен!');
+        setSuccessMessage(
+          `${currentItem.type === 'word' ? 'Слово' : 'Фраза'} успешно добавлено!`
+        );
         setWordUdi('');
         setAudioUrl('');
         setAudioBlob(null);
         setError('');
-        setWords(words.slice(1));  // Убираем первое слово из списка
-        setCurrentWord(words[1]);  // Переходим к следующему слову
+        setItems(items.slice(1));  // Убираем первое слово из списка
+        setCurrentItem(items[1]);  // Переходим к следующему слову
 
         // Обновляем статистику
-        setTranslatedWords(translatedWords + 1);
+        setTranslatedItems(translatedItems + 1);
       })
       .catch((err) => {
         setError('Ошибка при добавлении перевода');
@@ -226,19 +235,23 @@ const AddTranslationPage: React.FC = () => {
   };
 
   const handleSkip = () => {
-    setWords(words.slice(1));  // Пропускаем текущее слово
-    setCurrentWord(words[1]);  // Переходим к следующему слову
+    setItems(items.slice(1));  // Пропускаем текущее слово
+    setCurrentItem(items[1]);  // Переходим к следующему слову
   };
 
   return (
     <div className="page-wrapper">
       <h1 className="section-title">Добавить перевод</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <p className='words-stat'>{`Переведено ${translatedWords} из ${totalWords} слов`}</p> {/* Отображаем счетчик */}
-      {currentWord && (
+      <p className='words-stat'>{`Переведено ${translatedItems} из ${totalItems} слов`}</p> {/* Отображаем счетчик */}
+      {currentItem && (
         <form className="add-form" onSubmit={handleSubmit}>
           <div>
-            <h3 className='russian-word'>{currentWord.word_rus}</h3> {/* Выводим текущее русское слово */}
+            <h3 className='russian-word'>{currentItem.text}{' '}
+            <span className="type-label">
+                ({currentItem.type === 'word' ? 'Слово' : 'Фраза'})
+              </span>
+            </h3> {/* Выводим текущее русское слово */}
             <input
               className="add-input"
               placeholder="Перевод на удинский (русскими буквами)"

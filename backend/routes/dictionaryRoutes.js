@@ -72,4 +72,26 @@ router.get('/test', (req, res) => {
   res.status(200).json({ message: 'Test route works!' });
 });
 
+router.get('/mixed-words-phrases', async (req, res) => {
+  try {
+    const [words] = await db.query(
+      'SELECT id, word_rus AS text, word_udi, audio_url, "word" AS type FROM dictionary'
+    );
+    const [phrases] = await db.query(
+      'SELECT id, phrase_rus AS text, phrase_udi, audio_url, "phrase" AS type FROM phrases'
+    );
+
+    const mixed = [...words, ...phrases];
+    if (mixed.length === 0) {
+      return res.status(404).json({ message: 'Нет доступных данных для перевода' });
+    }
+
+    mixed.sort(() => Math.random() - 0.5);
+    res.json(mixed);
+  } catch (err) {
+    console.error('Error fetching mixed data:', err);
+    res.status(500).json({ error: 'Ошибка при загрузке данных' });
+  }
+});
+
 module.exports = router;
