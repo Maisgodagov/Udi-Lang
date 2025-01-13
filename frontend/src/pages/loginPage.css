@@ -16,9 +16,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 20px;
     width: 100vw;
     height: 100vh;
     margin: auto;   
+    
 }
 
 .login-input {
