@@ -97,7 +97,6 @@ const AddTranslationPage: React.FC = () => {
     api
       .get('/dictionary-statistics')
       .then((response) => {
-        setTotalItems(response.data.total);
         setTranslatedItems(response.data.translated);
       })
       .catch((err) => {
