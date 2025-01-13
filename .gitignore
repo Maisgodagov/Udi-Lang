@@ -27,3 +27,4 @@ yarn-error.log
 
 # Файлы с паролями или другими конфиденциальными данными
 /config/secrets.json
+/uploads/
