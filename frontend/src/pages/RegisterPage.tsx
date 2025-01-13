@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // Импортируем useNavigate
 import { register } from '../services/api';
 
@@ -9,6 +9,14 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();  // Инициализируем navigate
 
+  useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        navigate('/'); // Перенаправляем на главную, если токен существует
+      }
+    }, [navigate]);
+  
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -16,7 +24,7 @@ const RegisterPage: React.FC = () => {
       await register({ username, email, password });
       navigate('/login');  // Перенаправляем на страницу логина
     } catch (error) {
-      setError('Failed to register. Please try again.');
+      setError('Ошибка, попробуйте еще раз.');
       console.error(error);
     }
   };
@@ -60,7 +68,7 @@ const RegisterPage: React.FC = () => {
       </form>
 
       <p className='login-text'>
-        Уже есть аккаунт? <a href="/login">Войти</a>
+        Уже есть аккаунт? <a className='reg-link' href="/login">Войти</a>
       </p>
     </div>
   );

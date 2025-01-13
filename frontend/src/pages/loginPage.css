@@ -1,5 +1,5 @@
 .login-form {
-    background-color: rgb(89, 107, 88);
+    background-color: #99b2b5;
     width: 100%;
     max-width: 400px;
     padding: 40px;
@@ -8,6 +8,7 @@
     flex-direction: column;
     gap: 20px;
     margin-bottom: 12px;
+    box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
 }       
 
 .login-wrapper {
@@ -21,17 +22,21 @@
 }
 
 .login-input {
+    font-family: "Rubik", serif;
     border: none;
     height: 40px;
     width: 100%;
     padding-left: 10px;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 400;
     border-radius: 8px;
     background-color: #fff;
+    border: 1px solid #e4e4e4;
+    box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
 }
 
 .login-btn {
+    font-family: "Rubik", serif;
     background-color: #fff;
     width: 50%;
     align-self: center;
@@ -39,14 +44,24 @@
     height: 35px;
     border-radius: 18px;
     font-size: 16px;
+    border: 1px solid #e4e4e4;
 }
 
 .login-title {
     font-size: 44px;
-    margin-bottom: 12px;   
+    margin-bottom: 12px;  
+    font-weight: 500; 
     color: #2f312d; 
 }
 .login-text {
     font-size: 18px;
-}
     
+}
+
+.btn {
+    box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
+  }
+
+  .reg-link {
+    text-decoration: none;
+  }

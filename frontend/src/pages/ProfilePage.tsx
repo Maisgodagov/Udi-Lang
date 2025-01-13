@@ -31,7 +31,7 @@ const ProfilePage: React.FC = () => {
           localStorage.setItem('role', response.data.role); // Сохраняем роль в localStorage
         })
         .catch((err) => {
-          setError('Error fetching user data');
+          setError('Не удалось загрузить данные пользователя');
           console.error('Error fetching user profile:', err.response?.data || err.message);
         });
   
@@ -44,7 +44,7 @@ const ProfilePage: React.FC = () => {
           setUserStats(response.data); // Сохраняем статистику
         })
         .catch((err) => {
-          setError('Error fetching user statistics');
+          setError('Не удалось загрузить статистику');
           console.error('Error fetching user statistics:', err.response?.data || err.message);
         });
     }

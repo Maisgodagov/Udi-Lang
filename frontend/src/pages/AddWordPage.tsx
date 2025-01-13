@@ -20,6 +20,7 @@ const AddWordPage: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [username, setUsername] = useState<string | null>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null); 
   const soundRef = useRef<Howl | null>(null);
@@ -63,7 +64,7 @@ const AddWordPage: React.FC = () => {
     formData.append('word_rus', wordRusLowerCase);
     formData.append('audio', audioBlob, 'audio.wav');
     formData.append('username', username);  // Добавляем имя пользователя в форму
-
+    setIsLoading(true)
     api
       .post('/dictionary', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
@@ -77,7 +78,10 @@ const AddWordPage: React.FC = () => {
       .catch((err) => {
         setError('Ошибка при добавлении слова');
         console.error('Error:', err);
-      });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      })
   };
 
   const startRecording = () => {
@@ -231,8 +235,8 @@ const stopRecording = () => {
           )}
         </div>
 
-        <button className="save-btn" type="submit">
-          Сохранить
+        <button className="save-btn" type="submit" disabled={isLoading}>
+          {isLoading ? 'Сохранение...' : 'Сохранить'}
         </button>
           {error && <p className='error-msg'>{error}</p>}
           {successMessage && <p className='success-msg'>{successMessage}</p>}

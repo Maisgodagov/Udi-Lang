@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // Импортируем useNavigate
 import { login } from '../services/api';
 import './loginPage.css'
@@ -8,6 +8,13 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();  // Инициализируем navigate
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/'); // Перенаправляем на главную, если токен существует
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +33,7 @@ const LoginPage: React.FC = () => {
       navigate('/');  // Перенаправляем на главную страницу
       
     } catch (error) {
-      setError('Failed to login. Please try again.');
+      setError('Неверная почта или пароль');
       console.error(error);
     }
   };
@@ -56,11 +63,11 @@ const LoginPage: React.FC = () => {
             required
           />
         </div>
-        <button className='login-btn' type="submit">Войти</button>
+        <button className='login-btn btn' type="submit">Войти</button>
       </form>
 
       <p className='login-text'>
-        Нет аккаунта? <a href="/register">Регистрация</a>
+        Нет аккаунта? <a className='reg-link' href="/register">Регистрация</a>
       </p>
     </div>
   );

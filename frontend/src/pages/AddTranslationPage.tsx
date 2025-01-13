@@ -27,6 +27,7 @@ const AddTranslationPage: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [username, setUsername] = useState<string | null>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const soundRef = useRef<Howl | null>(null);
@@ -112,6 +113,7 @@ const AddTranslationPage: React.FC = () => {
     formData.append('audio', audioBlob, 'audio.wav');
     formData.append('username', username);  // Добавляем имя пользователя в форму
 
+    setIsLoading(true)
     api
       .post('/add-translation', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
@@ -129,7 +131,10 @@ const AddTranslationPage: React.FC = () => {
       .catch((err) => {
         setError('Ошибка при добавлении перевода');
         console.error('Error:', err);
-      });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      })
   };
 
   const startRecording = () => {
@@ -278,8 +283,8 @@ const AddTranslationPage: React.FC = () => {
             )}
           </div>
 
-          <button className="save-btn" type="submit">
-            Сохранить
+          <button className="save-btn" type="submit" disabled={isLoading}> 
+            {isLoading ? 'Сохранение...' : 'Сохранить'}
           </button>
           <button className="skip-btn" type="button" onClick={handleSkip}>
             Другое слово

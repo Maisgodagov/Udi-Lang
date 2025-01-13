@@ -13,6 +13,7 @@
   height: 45px;
   cursor: pointer;
   width: 45px;
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
   }
 
 .stop-record-btn{
@@ -30,14 +31,15 @@
   height: 45px;
   width: 45px;
   cursor: pointer;
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
   }
 
 .record-btn {
   border: none;
   padding: 6px 12px;
   font-size: 16px;
-  font-weight: 500;
-  font-family: "Raleway";
+  font-weight: 400;
+  font-family: "Rubik";
   color: #1a1a1a;
   background-color: rgb(143, 180, 146);
   background-image: url(../assets/microphone.png);
@@ -49,6 +51,7 @@
   height: 45px;
   width: 100%;
   cursor: pointer;
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
   }
   
 .add-form {
@@ -58,6 +61,7 @@
   max-width: 400px;
   border-radius: 18px;
   margin-bottom: 20px;
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
 }
 
 .add-input {
@@ -68,6 +72,7 @@
   padding: 18px;
   border-radius: 30px;
   font-size: 16px;
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
 }
 
 .add-word-text {
@@ -82,7 +87,7 @@
   background-color: #a6bca6;
   border-radius: 30px;
   height: 45px;
-  
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
 }
 
 .audio-player-wrapper {
@@ -110,6 +115,7 @@
   height: 45px;
   width: 45px;
   cursor: pointer;
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
 }
 
 .player-play-btn.paused {
@@ -127,6 +133,7 @@
   height: 45px;
   width: 45px;
   cursor: pointer;
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
 }
 
 .indicator-wrapper {
@@ -148,7 +155,7 @@
   text-align: center;
   width: 85%;
   font-size: 14px;
-  font-family: sans-serif;
+  font-family: 'Rubik';
 }
 
 .save-btn {
@@ -158,9 +165,10 @@
   border-radius: 30px;
   margin-top: 20px;
   font-size: 16px;
-  font-family: "Raleway";
-  font-weight: 500;
+  font-family: "Rubik";
+  font-weight: 400;
   cursor: pointer;
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
 }
 
 /* vave animation */

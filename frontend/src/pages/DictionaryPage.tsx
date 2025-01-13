@@ -32,7 +32,7 @@ const DictionaryPage: React.FC = () => {
           return Array.from(uniqueEntries.values()); // Преобразуем Map обратно в массив
         });
       } catch (err) {
-        setError('Error fetching dictionary data');
+        setError('Не удалось загрузить слова');
         console.error(err);
       } finally {
         setLoading(false);
@@ -66,11 +66,9 @@ const DictionaryPage: React.FC = () => {
       try {
         const audio = new Audio(fullAudioUrl);
         audio.play().catch(() => {
-          alert('Ошибка при воспроизведении аудио. Проверьте доступность файла.');
         });
       } catch (error) {
         console.error('Error playing audio:', error);
-        alert('Не удалось воспроизвести аудио.');
       }
     };
 
@@ -121,7 +119,7 @@ const DictionaryPage: React.FC = () => {
           ))}
         </ul>
       ) : (
-        <p>Загружаем словарь...</p>
+        <p></p>
       )}
 
       {loading && <p>Загружаем...</p>}
