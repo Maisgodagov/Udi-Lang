@@ -4,13 +4,14 @@ import axios from 'axios';
 import './ProfilePage.css'
 
 const ProfilePage: React.FC = () => {
-  const [user, setUser] = useState<{ username: string; email: string; created_at: string } | null>(null);
+  const [user, setUser] = useState<{ username: string; email: string; created_at: string; role: string } | null>(null);
   const [userStats, setUserStats] = useState<{ total: number; translated: number }>({
     total: 0,
     translated: 0,
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -57,6 +58,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className='page-wrapper'>
+
       <h1 className='section-title'>Личный кабинет</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {user ? (
@@ -64,7 +66,10 @@ const ProfilePage: React.FC = () => {
           <div className="profile-top">
             <div className='profile-picture'></div>
             <div>
-              <p className='profile-name'>{user.username.slice(0,1).toUpperCase()}{user.username.slice(1)}</p>
+              <div className="name-wrapper">
+                <p className='profile-name'>{user.username.slice(0,1).toUpperCase()}{user.username.slice(1)}</p>
+                <p className='profile-role'> {user.role}</p>
+              </div>
               <p className='profile-email'>Почта: {user.email}</p>
               {/* Преобразуем строку с датой в объект Date и выводим ее */}
               <p className='profile-join-date'>
@@ -78,7 +83,7 @@ const ProfilePage: React.FC = () => {
           <button className='profile-logout' onClick={handleLogout}>Выйти</button>
         </div>
       ) : (
-        <p>Loading...</p>
+        <p>Загрузка</p>
       )}
     </div>
   );

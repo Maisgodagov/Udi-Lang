@@ -37,7 +37,13 @@
     font-size: 24px;
     font-weight: 500;
     font-family: "Rubik", serif;
-    margin-bottom: 10px;
+    margin: 0;
+
+}
+
+.profile-role {
+    font-weight: 300;
+    
 }
 
 .profile-stat {
@@ -45,7 +51,12 @@
     margin-bottom: 50px;
     font-weight: 300;
 }
-
+.name-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
 .profile-logout {
     width: 50%;
     align-self: center;
