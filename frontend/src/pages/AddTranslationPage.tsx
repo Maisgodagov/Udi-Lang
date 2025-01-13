@@ -139,13 +139,22 @@ const AddTranslationPage: React.FC = () => {
 
   const startRecording = () => {
     navigator.mediaDevices
-      .getUserMedia({ audio: true })
+    .getUserMedia({
+      audio: {
+        sampleRate: 44100, // Установить частоту дискретизации
+        channelCount: 2,   // Стерео
+        echoCancellation: true, // Устранение эха
+        noiseSuppression: true, // Подавление шума
+        autoGainControl: true,  // Автоматическая регулировка громкости
+      },
+    })
       .then((stream) => {
         setMediaStream(stream);
         const newRecorder = new RecordRTC(stream, {
           type: 'audio',
           mimeType: 'audio/wav',
           recorderType: RecordRTC.StereoAudioRecorder,
+          desiredSampRate: 44100,
         });
 
         newRecorder.startRecording();
