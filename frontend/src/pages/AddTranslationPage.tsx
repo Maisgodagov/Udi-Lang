@@ -6,11 +6,11 @@ import './AddTranslationPage.css';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/axiosConfig'; // Путь к вашему файлу
 
-// Определяем интерфейс для слова
+// Интерфейс для элемента перевода (слово или фраза)
 interface TranslationItem {
   id: number;
   text: string;
-  translation: string; 
+  translation: string;
   audio_url?: string;
   type: 'word' | 'phrase';
 }
@@ -38,20 +38,16 @@ const AddTranslationPage: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [translatedItems, setTranslatedItems] = useState(0);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Загружаем данные пользователя и слова без перевода
+    // Проверяем токен и получаем профиль
     const token = localStorage.getItem('token');
     if (!token) {
-      // Если нет токена, перенаправляем на страницу логина
       navigate('/login');
-    }
-    else if (token) {
+    } else {
       axios
-        .get('/api/user/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        .get('/api/user/profile', { headers: { Authorization: `Bearer ${token}` } })
         .then((response) => {
           setUsername(response.data.username);
         })
@@ -59,26 +55,44 @@ const AddTranslationPage: React.FC = () => {
           setError('Error fetching user data');
           console.error(err);
         });
-    } else {
-      setError('No token found, please log in');
     }
 
-    api
-    .get('/mixed-words-phrases')
-    .then((response) => {
-      console.log('Mixed items response:', response.data)
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        const shuffledItems = shuffle(response.data);
-        setItems(shuffledItems);
-        setCurrentItem(shuffledItems[0]); // Устанавливаем первое слово
-      } else {
-        setError('No data available to translate.');
-      }
-    })
-    .catch((err) => {
-      setError('Error fetching items to translate');
-      console.error(err);
-    });
+    // Получение слов без перевода
+    const fetchWords = api.get('/words-to-translate');
+    // Получение фраз без перевода
+    const fetchPhrases = api.get('/phrases-to-translate');
+
+    Promise.all([fetchWords, fetchPhrases])
+      .then(([wordsRes, phrasesRes]) => {
+        const words: TranslationItem[] = wordsRes.data.map((item: any) => ({
+          id: item.id,
+          text: item.word_rus,
+          translation: item.word_udi || '',
+          audio_url: item.audio_url,
+          type: 'word'
+        }));
+        const phrases: TranslationItem[] = phrasesRes.data.map((item: any) => ({
+          id: item.id,
+          text: item.phrase_rus,
+          translation: item.phrase_udi || '',
+          audio_url: item.audio_url,
+          type: 'phrase'
+        }));
+        const mixed = [...words, ...phrases];
+        if (mixed.length > 0) {
+          const shuffledItems = shuffle(mixed);
+          setItems(shuffledItems);
+          setCurrentItem(shuffledItems[0]);
+          setTotalItems(mixed.length);
+        } else {
+          setError('No data available to translate.');
+        }
+      })
+      .catch((err) => {
+        setError('Error fetching items to translate');
+        console.error(err);
+      });
+
     // Получаем статистику по словарю
     api
       .get('/dictionary-statistics')
@@ -87,7 +101,6 @@ const AddTranslationPage: React.FC = () => {
         setTranslatedItems(response.data.translated);
       })
       .catch((err) => {
-        setError('Error fetching dictionary statistics');
         console.error(err);
       });
   }, [navigate]);
@@ -108,19 +121,21 @@ const AddTranslationPage: React.FC = () => {
       setError('All fields are required, including the audio');
       return;
     }
-    // const wordUdiLowerCase = wordUdi.toLowerCase();
-    // const wordRusLowerCase = currentWord.word_rus.toLowerCase();
 
     const formData = new FormData();
-    formData.append(currentItem.type === 'word' ? 'word_udi' : 'phrase_udi', wordUdi);
-    formData.append(currentItem.type === 'word' ? 'word_rus' : 'phrase_rus', currentItem.text);
+    if (currentItem.type === 'word') {
+      formData.append('word_udi', wordUdi);
+      formData.append('word_rus', currentItem.text);
+    } else {
+      formData.append('phrase_udi', wordUdi);
+      formData.append('phrase_rus', currentItem.text);
+    }
     formData.append('audio', audioBlob, 'audio.wav');
     formData.append('username', username);
 
-    const endpoint =
-      currentItem.type === 'word' ? '/add-word-translation' : '/add-phrase-translation';
+    const endpoint = currentItem.type === 'word' ? '/add-word-translation' : '/add-phrase-translation';
 
-    setIsLoading(true)
+    setIsLoading(true);
     api
       .post(endpoint, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
@@ -131,10 +146,10 @@ const AddTranslationPage: React.FC = () => {
         setAudioUrl('');
         setAudioBlob(null);
         setError('');
-        setItems(items.slice(1));  // Убираем первое слово из списка
-        setCurrentItem(items[1]);  // Переходим к следующему слову
-
-        // Обновляем статистику
+        // Убираем использованный элемент и переходим к следующему
+        const remaining = items.slice(1);
+        setItems(remaining);
+        setCurrentItem(remaining[0] || null);
         setTranslatedItems(translatedItems + 1);
       })
       .catch((err) => {
@@ -143,20 +158,20 @@ const AddTranslationPage: React.FC = () => {
       })
       .finally(() => {
         setIsLoading(false);
-      })
+      });
   };
 
   const startRecording = () => {
     navigator.mediaDevices
-    .getUserMedia({
-      audio: {
-        sampleRate: 44100, // Установить частоту дискретизации
-        channelCount: 2,   // Стерео
-        echoCancellation: true, // Устранение эха
-        noiseSuppression: true, // Подавление шума
-        autoGainControl: true,  // Автоматическая регулировка громкости
-      },
-    })
+      .getUserMedia({
+        audio: {
+          sampleRate: 44100,
+          channelCount: 2,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      })
       .then((stream) => {
         setMediaStream(stream);
         const newRecorder = new RecordRTC(stream, {
@@ -180,15 +195,15 @@ const AddTranslationPage: React.FC = () => {
   const stopRecording = () => {
     if (recorder) {
       recorder.stopRecording(() => {
-        const audioBlob = recorder.getBlob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioBlob(audioBlob);
-        setAudioUrl(audioUrl);
+        const blob = recorder.getBlob();
+        const url = URL.createObjectURL(blob);
+        setAudioBlob(blob);
+        setAudioUrl(url);
         setIsRecording(false);
         if (intervalRef.current) clearInterval(intervalRef.current);
 
         soundRef.current = new Howl({
-          src: [audioUrl],
+          src: [url],
           html5: true,
           onplay: () => {
             setIsPlaying(true);
@@ -204,7 +219,7 @@ const AddTranslationPage: React.FC = () => {
         });
         if (mediaStream) {
           mediaStream.getTracks().forEach((track) => track.stop());
-          setMediaStream(null); // Очищаем состояние
+          setMediaStream(null);
         }
       });
     }
@@ -220,9 +235,7 @@ const AddTranslationPage: React.FC = () => {
   const formatDuration = (duration: number) => {
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
-    const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
-    return `${formattedMinutes}:${formattedSeconds}`;
+    return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
   const handlePlayPause = () => {
@@ -235,23 +248,25 @@ const AddTranslationPage: React.FC = () => {
   };
 
   const handleSkip = () => {
-    setItems(items.slice(1));  // Пропускаем текущее слово
-    setCurrentItem(items[1]);  // Переходим к следующему слову
+    const remaining = items.slice(1);
+    setItems(remaining);
+    setCurrentItem(remaining[0] || null);
   };
 
   return (
     <div className="page-wrapper">
       <h1 className="section-title">Добавить перевод</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <p className='words-stat'>{`Переведено ${translatedItems} из ${totalItems} слов`}</p> {/* Отображаем счетчик */}
-      {currentItem && (
+      <p className="words-stat">{`Переведено ${translatedItems} из ${totalItems} элементов`}</p>
+      {currentItem ? (
         <form className="add-form" onSubmit={handleSubmit}>
           <div>
-            <h3 className='russian-word'>{currentItem.text}{' '}
-            <span className="type-label">
+            <h3 className="russian-word">
+              {currentItem.text}{' '}
+              <span className="type-label">
                 ({currentItem.type === 'word' ? 'Слово' : 'Фраза'})
               </span>
-            </h3> {/* Выводим текущее русское слово */}
+            </h3>
             <input
               className="add-input"
               placeholder="Перевод на удинский (русскими буквами)"
@@ -284,16 +299,16 @@ const AddTranslationPage: React.FC = () => {
               <div className="indicator-wrapper">
                 <p className="record-duration-text">{formatDuration(duration)}</p>
                 <div className="boxContainer">
-                <div className="box box1"></div>
-                <div className="box box5"></div>
-                <div className="box box2"></div>
-                <div className="box box2"></div>
-                <div className="box box3"></div>
-                <div className="box box4"></div>
-                <div className="box box3"></div>
-                <div className="box box4"></div>
-                <div className="box box5"></div>
-              </div>
+                  <div className="box box1"></div>
+                  <div className="box box5"></div>
+                  <div className="box box2"></div>
+                  <div className="box box2"></div>
+                  <div className="box box3"></div>
+                  <div className="box box4"></div>
+                  <div className="box box3"></div>
+                  <div className="box box4"></div>
+                  <div className="box box5"></div>
+                </div>
                 <button className="stop-record-btn" type="button" onClick={stopRecording}></button>
               </div>
             ) : audioUrl ? (
@@ -305,7 +320,7 @@ const AddTranslationPage: React.FC = () => {
             )}
           </div>
 
-          <button className="save-btn" type="submit" disabled={isLoading}> 
+          <button className="save-btn" type="submit" disabled={isLoading}>
             {isLoading ? 'Сохранение...' : 'Сохранить'}
           </button>
           <button className="skip-btn" type="button" onClick={handleSkip}>
@@ -313,22 +328,24 @@ const AddTranslationPage: React.FC = () => {
           </button>
 
           {successMessage && <p className="success-msg">{successMessage}</p>}
-        </form>  
+        </form>
+      ) : (
+        <p>No data available to translate.</p>
       )}
       <p className="add-word-text">
-      - Слова выводятся случайным образом, на русском языке.
+        - Элементы выводятся случайным образом, на русском языке.
       </p>
       <p className="add-word-text">
-      - Если вы знаете перевод на удинский, введите перевод русскими буквами.
+        - Если вы знаете перевод на удинский, введите перевод русскими буквами.
       </p>
       <p className="add-word-text">
-      - Запишите произношение слова.
+        - Запишите произношение.
       </p>
       <p className="add-word-text">
-      - Если вы не знаете или не помните перевод, просто откройте Другое слово
+        - Если вы не знаете или не помните перевод, просто откройте Другое слово.
       </p>
       <p className="add-word-text">
-      - Все русские слова добавляются автоматически, из-за чего могут попадаться слова, у которых нет перевода на удинский язык, например "атом" или "интернет". Если вам попалось такое слово, вы можете ввести в перевод это же слово или же пропустить его.
+        - Все элементы добавляются автоматически, поэтому могут появляться как слова, так и фразы.
       </p>
     </div>
   );

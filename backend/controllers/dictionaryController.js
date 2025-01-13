@@ -5,7 +5,7 @@ const { db } = require('../config/db');
 // Настройка multer для загрузки файлов в папку uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadsPath = path.join(__dirname, '../../uploads');
+    const uploadsPath = path.join(__dirname, '../../uploads'); // Дважды ".." чтобы выйти из папки backend
     console.log('Uploads path:', uploadsPath);
     cb(null, uploadsPath);
   },
@@ -140,7 +140,7 @@ const getUserStats = async (req, res) => {
   }
 };
 
-// Обновление слова
+// Обновление слова (в таблице dictionary)
 const updateWord = async (req, res) => {
   const { id } = req.params;
   const { word_udi, word_rus } = req.body;
@@ -164,7 +164,7 @@ const updateWord = async (req, res) => {
   }
 };
 
-// Удаление слова
+// Удаление слова (из таблицы dictionary)
 const deleteWord = async (req, res) => {
   const { id } = req.params;
   console.log(`DELETE /api/dictionary/${id}`);
@@ -216,39 +216,17 @@ const getDictionaryStatistics = async (req, res) => {
   }
 };
 
-// Новая функция для получения смешанных слов и фраз
-const getMixedWordsPhrases = async (req, res) => {
-  try {
-    const [words] = await db.query(
-      'SELECT id, word_rus AS text, word_udi, audio_url, "word" AS type FROM dictionary'
-    );
-    const [phrases] = await db.query(
-      'SELECT id, phrase_rus AS text, phrase_udi, audio_url, "phrase" AS type FROM phrases'
-    );
-    const mixed = [...words, ...phrases];
-    if (mixed.length === 0) {
-      return res.status(404).json({ message: 'Нет доступных данных для перевода' });
-    }
-    mixed.sort(() => Math.random() - 0.5);
-    res.json(mixed);
-  } catch (err) {
-    console.error('Error fetching mixed data:', err);
-    res.status(500).json({ message: 'Ошибка при загрузке данных' });
-  }
-};
-
 module.exports = { 
   getDictionary, 
   addWord, 
   getWordsToTranslate, 
   getPhrasesToTranslate, 
-  addPhraseTranslation,
+  addPhraseTranslation, 
   addTranslation, 
   getUserStats, 
   updateWord, 
   deleteWord, 
   getDictionaryStatistics, 
   addPhrase,
-  getMixedWordsPhrases,
-  upload 
+  upload
 };

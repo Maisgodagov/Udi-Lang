@@ -1,20 +1,22 @@
 const express = require('express');
-const { db } = require('../config/db'); // Если требуется
+const { db } = require('../config/db'); // Если требуется для inline-запроса (не обязательно)
 const { 
   getDictionary, 
   addWord, 
   upload, 
   getWordsToTranslate, 
+  getPhrasesToTranslate, 
+  addPhraseTranslation, 
+  addTranslation, 
   getUserStats, 
   updateWord, 
   deleteWord, 
-  getDictionaryStatistics, 
-  addTranslation,
-  getMixedWordsPhrases,  // Добавляем новую функцию
-  // Также можно добавить getPhrasesToTranslate, addPhraseTranslation, addPhrase, если нужно
+  getDictionaryStatistics,
+  addPhrase
 } = require('../controllers/dictionaryController');
 
 const { authMiddleware, checkRole } = require('../middleware/authMiddleware');
+
 const router = express.Router();
 
 // 1. Тестовый маршрут
@@ -34,7 +36,7 @@ router.post(
   addWord
 );
 
-// 4. Получение слов без перевода (для admin, translator, moderator)
+// 4. Получение слов без перевода
 router.get(
   '/words-to-translate',
   authMiddleware,
@@ -42,7 +44,15 @@ router.get(
   getWordsToTranslate
 );
 
-// 5. Добавление перевода для слова (POST /api/add-translation)
+// 5. Получение фраз без перевода
+router.get(
+  '/phrases-to-translate',
+  authMiddleware,
+  checkRole(['admin', 'translator', 'moderator']),
+  getPhrasesToTranslate
+);
+
+// 6. Добавление перевода для слова (обновление таблицы dictionary)
 router.post(
   '/add-translation',
   authMiddleware,
@@ -51,15 +61,16 @@ router.post(
   addTranslation
 );
 
-// 6. Получение смешанного списка слов и фраз
-router.get(
-  '/mixed-words-phrases',
+// 7. Добавление перевода для фразы (обновление таблицы phrases)
+router.post(
+  '/add-phrase-translation',
   authMiddleware,
-  // Если нужно ограничить доступ, добавьте checkRole([...])
-  getMixedWordsPhrases
+  checkRole(['translator', 'admin', 'moderator']),
+  upload.single('audio'),
+  addPhraseTranslation
 );
 
-// 7. Статистика по словарю
+// 8. Статистика по словарю
 router.get(
   '/dictionary-statistics',
   authMiddleware,
@@ -67,7 +78,7 @@ router.get(
   getDictionaryStatistics
 );
 
-// 8. Статистика по пользователю
+// 9. Статистика по пользователю
 router.get(
   '/user/stats',
   authMiddleware,
@@ -75,7 +86,7 @@ router.get(
   getUserStats
 );
 
-// 9. Обновление слова
+// 10. Обновление слова
 router.put(
   '/dictionary/:id',
   authMiddleware,
@@ -83,12 +94,21 @@ router.put(
   updateWord
 );
 
-// 10. Удаление слова
+// 11. Удаление слова
 router.delete(
   '/dictionary/:id',
   authMiddleware,
   checkRole(['admin', 'moderator']),
   deleteWord
+);
+
+// 12. Добавление новой фразы (вставка в таблицу phrases)
+router.post(
+  '/phrases',
+  authMiddleware,
+  checkRole(['admin', 'moderator']),
+  upload.single('audio'),
+  addPhrase
 );
 
 module.exports = router;
