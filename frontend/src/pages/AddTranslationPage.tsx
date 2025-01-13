@@ -133,7 +133,7 @@ const AddTranslationPage: React.FC = () => {
     formData.append('audio', audioBlob, 'audio.wav');
     formData.append('username', username);
 
-    const endpoint = currentItem.type === 'word' ? '/add-word-translation' : '/add-phrase-translation';
+    const endpoint = currentItem.type === 'word' ? '/add-translation' : '/add-phrase-translation';
 
     setIsLoading(true);
     api
