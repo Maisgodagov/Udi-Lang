@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Получение всех слов (словарь)
-const getDictionary = async (res) => {
+const getDictionary = async (req, res) => {
   try {
     const [results] = await db.query('SELECT * FROM dictionary');
     res.status(200).json(results);
@@ -28,7 +28,7 @@ const getDictionary = async (res) => {
 };
 
 // Получение всех фраз
-const getPhrases = async (res) => {
+const getPhrases = async (req, res) => {
   try {
     const [results] = await db.query('SELECT * FROM phrases');
     res.status(200).json(results);
