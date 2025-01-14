@@ -58,7 +58,7 @@ const DictionaryPage: React.FC = () => {
       // Проверяем, начинается ли audioUrl с "http" (уже полный URL)
       const fullAudioUrl = audioUrl.startsWith('http') 
         ? audioUrl 
-        : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;
+        : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;      
       try {
         const audio = new Audio(fullAudioUrl);
         audio.play().catch(() => {
