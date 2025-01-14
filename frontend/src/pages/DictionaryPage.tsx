@@ -62,7 +62,7 @@ const DictionaryPage: React.FC = () => {
         : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;
       
       console.log('Full audio URL:', fullAudioUrl);
-    
+      
       try {
         const audio = new Audio(fullAudioUrl);
         audio.play().catch(() => {
@@ -83,10 +83,10 @@ const DictionaryPage: React.FC = () => {
     });
     if (node) observer.current.observe(node);
   };
-
   return (
     <div className="dictionary-wrapper">
-      <h1 className="section-title">Словарь</h1>
+      <h1 className="dictionary-section-title">Словарь</h1>
+      <span className='words-count'>{filteredDictionary.length} слов</span>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <div className="search-wrapper">
         <input
