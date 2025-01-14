@@ -46,9 +46,8 @@ const AdminPage: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/user/users');
+      const response = await api.get('/users');
       setUsersList(response.data);
-      console.log(response)
     } catch (err) { console.log(err)}
   }
 
