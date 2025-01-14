@@ -29,6 +29,7 @@ const AddTranslationPage: React.FC = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState<string>('');
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const soundRef = useRef<Howl | null>(null);
@@ -43,6 +44,8 @@ const AddTranslationPage: React.FC = () => {
   useEffect(() => {
     // Проверяем токен и получаем профиль
     const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role') || '';
+    setRole(storedRole);
     if (!token) {
       navigate('/login');
     } else {
@@ -251,7 +254,33 @@ const AddTranslationPage: React.FC = () => {
     setItems(remaining);
     setCurrentItem(remaining[0] || null);
   };
+  const handleDeleteCurrent = () => {
+    if (!currentItem) return;
+    if (!window.confirm('Вы уверены, что хотите удалить этот элемент?')) return;
 
+    const endpoint =
+      currentItem.type === 'word'
+        ? `/dictionary/${currentItem.id}`
+        : `/phrases/${currentItem.id}`;
+
+    api
+      .delete(endpoint)
+      .then(() => {
+        setSuccessMessage(
+          currentItem.type === 'word'
+            ? 'Слово успешно удалено'
+            : 'Фраза успешно удалена'
+        );
+        // После удаления переходим к следующему элементу
+        const remaining = items.slice(1);
+        setItems(remaining);
+        setCurrentItem(remaining[0] || null);
+      })
+      .catch((err) => {
+        setError('Ошибка при удалении элемента');
+        console.error('Delete error:', err);
+      });
+  };
   return (
     <div className="page-wrapper">
       <h1 className="section-title">Добавить перевод</h1>
@@ -322,10 +351,20 @@ const AddTranslationPage: React.FC = () => {
           <button className="save-btn" type="submit" disabled={isLoading}>
             {isLoading ? 'Сохранение...' : 'Сохранить'}
           </button>
+          <div className="btn-skip-wrapper">
+          {role === 'admin' && (
+            <button 
+              className="delete-btn-admin" 
+            >
+              Удалить
+            </button>
+          )}
           <button className="skip-btn" type="button" onClick={handleSkip}>
             Другое слово
           </button>
-
+          
+          </div>
+          
           {successMessage && <p className="success-msg">{successMessage}</p>}
         </form>
       ) : (

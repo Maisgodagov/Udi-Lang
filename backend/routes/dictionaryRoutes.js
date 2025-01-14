@@ -10,6 +10,7 @@ const {
   addTranslation, 
   getUserStats, 
   getPhrases,
+  deletePhrase, 
   updateWord, 
   deleteWord, 
   getDictionaryStatistics,
@@ -105,6 +106,15 @@ router.delete(
   checkRole(['admin', 'moderator']),
   deleteWord
 );
+
+// Удаление фразы – добавляем новый роут
+router.delete(
+  '/phrases/:id',
+  authMiddleware,
+  checkRole(['admin', 'moderator']),
+  deletePhrase
+);
+
 
 // 12. Добавление новой фразы (вставка в таблицу phrases)
 router.post(

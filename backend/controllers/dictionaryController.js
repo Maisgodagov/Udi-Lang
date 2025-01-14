@@ -193,6 +193,24 @@ const deleteWord = async (req, res) => {
   }
 };
 
+// Удаление фразы из таблицы
+const deletePhrase = async (req, res) => {
+  const { id } = req.params;
+  console.log(`DELETE /api/phrases/${id}`);
+  try {
+    const query = 'DELETE FROM phrases WHERE id = ?';
+    const [result] = await db.query(query, [id]);
+    if (result.affectedRows === 0) {
+      console.log('Phrase not found:', id);
+      return res.status(404).json({ message: 'Фраза не найдена' });
+    }
+    res.status(200).json({ message: 'Фраза успешно удалена' });
+  } catch (err) {
+    console.error('Ошибка при удалении фразы:', err);
+    res.status(500).json({ message: 'Ошибка при удалении фразы' });
+  }
+};
+
 // Добавление новой фразы (вставка в таблицу phrases)
 const addPhrase = async (req, res) => {
   const { phrase_udi, phrase_rus, username } = req.body;
@@ -237,6 +255,7 @@ module.exports = {
   getUserStats, 
   updateWord, 
   deleteWord, 
+  deletePhrase, 
   getDictionaryStatistics, 
   addPhrase,
   getPhrases,
