@@ -256,7 +256,7 @@ const AddTranslationPage: React.FC = () => {
   };
   const handleDeleteCurrent = () => {
     if (!currentItem) return;
-    if (!window.confirm('Вы уверены, что хотите удалить этот элемент?')) return;
+    // if (!window.confirm('Вы уверены, что хотите удалить этот элемент?')) return;
 
     const endpoint =
       currentItem.type === 'word'
@@ -353,7 +353,7 @@ const AddTranslationPage: React.FC = () => {
           </button>
           <div className="btn-skip-wrapper">
           {role === 'admin' && (
-            <button 
+            <button onClick={handleDeleteCurrent}
               className="delete-btn-admin" 
             >
               Удалить
