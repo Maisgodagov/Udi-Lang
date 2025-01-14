@@ -22,4 +22,13 @@ const getProfile = async (req, res) => {
   }
 };
 
-module.exports = { getProfile };  // Экспортируем функцию для использования в маршрутах
+const getUsers = async (req, res) => {
+  try {
+    const [users] = await db.query('SELECT * FROM users');
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ message: 'Ошибка при загрузке пользователей'})
+  }
+}
+
+module.exports = { getProfile, getUsers };  // Экспортируем функцию для использования в маршрутах

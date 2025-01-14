@@ -11,8 +11,17 @@ interface DictionaryEntry {
   username: string;
 }
 
+interface UsersListEntry {
+  id: number;
+  username: string;
+  email: string;
+  role: 'admin' | 'moderator' | 'translator' | 'user';
+  created_at : string;
+}
+
 const AdminPage: React.FC = () => {
   const [dictionary, setDictionary] = useState<DictionaryEntry[]>([]);
+  const [usersList, setUsersList] = useState<UsersListEntry[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [wordUdiEdit, setWordUdiEdit] = useState<string>('');
   const [wordRusEdit, setWordRusEdit] = useState<string>('');
@@ -22,6 +31,7 @@ const AdminPage: React.FC = () => {
 
   useEffect(() => {
     fetchDictionary();
+    fetchUsers();
   }, []);
 
   const fetchDictionary = async () => {
@@ -33,6 +43,13 @@ const AdminPage: React.FC = () => {
       console.error(err);
     }
   };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get('/users');
+      setUsersList(response.data);
+    } catch (err) { console.log(err)}
+  }
 
    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchTerm(e.target.value);
@@ -100,7 +117,17 @@ const AdminPage: React.FC = () => {
           onChange={handleSearchChange}
         />
       </div>
-
+      <ul className="admin-users-list">
+      <h2 className="classname">Список пользователей</h2>
+      {usersList.map((entry) => (
+        <li key={entry.id} className='admin-users-item'>
+          <span className='user-item-id'>{entry.id}</span>
+          <span className='user-item-name'>{entry.username}</span>
+          <span className='user-item-email'>{entry.email}</span>
+          <span className='user-item-role'>{entry.role}</span>
+        </li>
+      ))}
+      </ul>
       <ul className="admin-list">
         {filteredDictionary.map((entry) => (
           <li key={entry.id} className="admin-item">
