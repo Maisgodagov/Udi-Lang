@@ -1,3 +1,4 @@
+const { db } = require('../config/db');
 const { User } = require('../models/userModel');
 
 // Функция для получения профиля пользователя
