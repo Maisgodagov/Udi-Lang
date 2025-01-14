@@ -46,7 +46,6 @@ const DictionaryPage: React.FC = () => {
     setSearchTerm(e.target.value);
   };
 
-
  const filteredDictionary = dictionary
     .filter(
       (entry) =>
@@ -60,16 +59,9 @@ const DictionaryPage: React.FC = () => {
       const fullAudioUrl = audioUrl.startsWith('http') 
         ? audioUrl 
         : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;
-      
-      console.log('Full audio URL:', fullAudioUrl);
-      
-      try {
         const audio = new Audio(fullAudioUrl);
         audio.play().catch(() => {
         });
-      } catch (error) {
-        console.error('Error playing audio:', error);
-      }
     };
 
   // Функция для наблюдения за скроллом и подгрузкой данных

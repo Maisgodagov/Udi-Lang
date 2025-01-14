@@ -17,6 +17,7 @@ const AdminPage: React.FC = () => {
   const [wordUdiEdit, setWordUdiEdit] = useState<string>('');
   const [wordRusEdit, setWordRusEdit] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
   useEffect(() => {
@@ -33,6 +34,16 @@ const AdminPage: React.FC = () => {
     }
   };
 
+   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(e.target.value);
+    };
+
+    const filteredDictionary = dictionary
+    .filter(
+      (entry) =>
+        (entry.word_udi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          entry.word_rus.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
   const handleEdit = (entry: DictionaryEntry) => {
     setEditingId(entry.id);
     setWordUdiEdit(entry.word_udi);
@@ -80,8 +91,18 @@ const AdminPage: React.FC = () => {
       <h1 className="section-title">Админ панель</h1>
       {error && <p className="error-msg">{error}</p>}
       {successMessage && <p className="success-msg">{successMessage}</p>}
+      <div className="search-wrapper">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Найти слово..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+      </div>
+
       <ul className="admin-list">
-        {dictionary.map((entry) => (
+        {filteredDictionary.map((entry) => (
           <li key={entry.id} className="admin-item">
             <div className="admin-info">
               <span className="admin-id">{entry.id}.</span>
