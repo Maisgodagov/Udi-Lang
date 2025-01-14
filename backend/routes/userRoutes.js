@@ -8,7 +8,6 @@ const router = express.Router();
 // Используем getProfile как обработчик для маршрута
 router.get('/profile', authMiddleware, getProfile);  // Прокачиваешь запрос на правильный обработчик
 
-router.get('/users', authMiddleware, getUsers);
 router.get(
     '/users',
     authMiddleware,
