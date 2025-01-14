@@ -45,6 +45,7 @@
     font-size: 16px;
     background-color: #f84b4b;
     box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
+    cursor: pointer;
 }
 
 .btn-skip-wrapper {

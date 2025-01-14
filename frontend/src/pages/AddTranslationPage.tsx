@@ -257,12 +257,12 @@ const AddTranslationPage: React.FC = () => {
   const handleDeleteCurrent = () => {
     if (!currentItem) return;
     // if (!window.confirm('Вы уверены, что хотите удалить этот элемент?')) return;
-
+  
     const endpoint =
       currentItem.type === 'word'
         ? `/dictionary/${currentItem.id}`
         : `/phrases/${currentItem.id}`;
-
+  
     api
       .delete(endpoint)
       .then(() => {
@@ -271,6 +271,8 @@ const AddTranslationPage: React.FC = () => {
             ? 'Слово успешно удалено'
             : 'Фраза успешно удалена'
         );
+        // Сброс значения ввода перевода
+        setWordUdi('');
         // После удаления переходим к следующему элементу
         const remaining = items.slice(1);
         setItems(remaining);
@@ -281,6 +283,7 @@ const AddTranslationPage: React.FC = () => {
         console.error('Delete error:', err);
       });
   };
+
   return (
     <div className="page-wrapper">
       <h1 className="section-title">Добавить перевод</h1>
@@ -353,7 +356,7 @@ const AddTranslationPage: React.FC = () => {
           </button>
           <div className="btn-skip-wrapper">
           {role === 'admin' && (
-            <button onClick={handleDeleteCurrent}
+            <button type='button' onClick={handleDeleteCurrent}
               className="delete-btn-admin" 
             >
               Удалить
