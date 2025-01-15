@@ -35,9 +35,11 @@ const getUsers = async (req, res) => {
   const changeUserRole = async (req, res) => {
       const { id } = req.params;
       const { role } = req.body;
-
+      if (!role) {
+        return res.satus(400).json({ message: 'Вы не выбрали роль'});
+      }
       try {
-        const query = 'UPDATE users SET role = ?';
+        const query = 'UPDATE users SET role = ? WHERE id = ?';
         const [result] = await db.query(query, [role, id]);
         if (result.affectedRows === 0) {
           console.log('user not found:', id);
