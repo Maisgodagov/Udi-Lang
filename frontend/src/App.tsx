@@ -11,6 +11,7 @@ import AddTranslationPage from './pages/AddTranslationPage';
 import AdminPage from './pages/AdminPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import PhrasesPage from './pages/PhrasesPage';
+import AdminUsers from './pages/AdminUsers';
 
 const App: React.FC = () => {
   return (
@@ -56,6 +57,14 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-users"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminUsers />
               </ProtectedRoute>
             }
           />

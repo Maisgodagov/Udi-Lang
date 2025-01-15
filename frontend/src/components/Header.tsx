@@ -96,7 +96,12 @@ const Header: React.FC = () => {
           ) : null}
           {role === 'admin' ? (
             <li className="navItem">
-              <Link to="/admin" className="navLink" onClick={handleLinkClick}>Админ</Link>
+              <Link to="/admin" className="navLink" onClick={handleLinkClick}>Админ-слова</Link>
+            </li>
+          ) : null}
+          {role === 'admin' ? (
+            <li className="navItem">
+              <Link to="/admin-users" className="navLink" onClick={handleLinkClick}>Админ-пользователи</Link>
             </li>
           ) : null}
         </ul>

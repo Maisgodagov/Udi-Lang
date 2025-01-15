@@ -1,7 +1,7 @@
 const express = require('express');
 const { getProfile } = require('../controllers/userController');  // Убедись, что правильно импортирована функция
 const { authMiddleware, checkRole } = require('../middleware/authMiddleware');
-const { getUsers } = require('../controllers/userController')
+const { getUsers, changeUserRole } = require('../controllers/userController')
 
 const router = express.Router();
 
@@ -10,4 +10,12 @@ router.get('/profile', authMiddleware, getProfile);  // Прокачиваешь
 
 router.get('/users', getUsers);
 
+// Обновление роли юзера
+router.put(
+    '/users/:id',
+    authMiddleware,
+    checkRole(['admin']),
+    changeUserRole
+  );
+  
 module.exports = router; // Экспортируем router напрямую

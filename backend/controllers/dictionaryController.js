@@ -137,10 +137,6 @@ const getUserStats = async (req, res) => {
       'SELECT COUNT(*) AS total FROM dictionary WHERE username = ?',
       [username]
     );
-    console.log('Stats:', {
-      translated: translatedResults[0].translated,
-      total: totalResults[0].total
-    });
     res.status(200).json({
       translated: translatedResults[0].translated,
       total: totalResults[0].total,
@@ -155,7 +151,6 @@ const getUserStats = async (req, res) => {
 const updateWord = async (req, res) => {
   const { id } = req.params;
   const { word_udi, word_rus } = req.body;
-  console.log(`PUT /api/dictionary/${id}`, req.body);
 
   if (!word_udi || !word_rus) {
     return res.status(400).json({ message: 'Необходимо заполнить оба поля' });
@@ -178,12 +173,10 @@ const updateWord = async (req, res) => {
 // Удаление слова (из таблицы dictionary)
 const deleteWord = async (req, res) => {
   const { id } = req.params;
-  console.log(`DELETE /api/dictionary/${id}`);
   try {
     const query = 'DELETE FROM dictionary WHERE id = ?';
     const [result] = await db.query(query, [id]);
     if (result.affectedRows === 0) {
-      console.log('Word not found:', id);
       return res.status(404).json({ message: 'Слово не найдено' });
     }
     res.status(200).json({ message: 'Слово успешно удалено' });
@@ -196,12 +189,10 @@ const deleteWord = async (req, res) => {
 // Удаление фразы из таблицы
 const deletePhrase = async (req, res) => {
   const { id } = req.params;
-  console.log(`DELETE /api/phrases/${id}`);
   try {
     const query = 'DELETE FROM phrases WHERE id = ?';
     const [result] = await db.query(query, [id]);
     if (result.affectedRows === 0) {
-      console.log('Phrase not found:', id);
       return res.status(404).json({ message: 'Фраза не найдена' });
     }
     res.status(200).json({ message: 'Фраза успешно удалена' });
@@ -216,7 +207,6 @@ const addPhrase = async (req, res) => {
   const { phrase_udi, phrase_rus, username } = req.body;
   const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
   const audioUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
-  console.log('Received phrase data:', req.body);
   if (!phrase_udi || !phrase_rus || !audioUrl || !username) {
     return res.status(400).json({ message: 'Все поля, включая запись, обязательны для заполнения' });
   }
@@ -225,7 +215,6 @@ const addPhrase = async (req, res) => {
     const [results] = await db.query(query, [phrase_udi, phrase_rus, audioUrl, username]);
     res.status(201).json({ message: 'Фраза добавлена', phraseId: results.insertId });
   } catch (err) {
-    console.error('Error adding phrase:', err);
     res.status(500).json({ message: 'Ошибка при добавлении фразы' });
   }
 };
@@ -240,7 +229,6 @@ const getDictionaryStatistics = async (req, res) => {
       translated: translatedResults[0].translated,
     });
   } catch (err) {
-    console.error('Ошибка при получении статистики:', err);
     res.status(500).json({ message: 'Error fetching dictionary statistics' });
   }
 };

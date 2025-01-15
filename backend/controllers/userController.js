@@ -31,5 +31,23 @@ const getUsers = async (req, res) => {
     res.status(500).json({ message: 'Ошибка при загрузке пользователей'})
   }
 }
+// Изменение роли пользователя 
+  const changeUserRole = async (req, res) => {
+      const { id } = req.params;
+      const { role } = req.body;
 
-module.exports = { getProfile, getUsers };  // Экспортируем функцию для использования в маршрутах
+      try {
+        const query = 'UPDATE users SET role = ?';
+        const [result] = await db.query(query, [role, id]);
+        if (result.affectedRows === 0) {
+          console.log('user not found:', id);
+          return res.status(404).json({ message: 'Слово не найдено' });
+        }
+        res.status(200).json({ message: 'Роль пользователя обновлена' });      
+      } catch (err) {
+        console.error('Ошибка при обновлении роли:', err);
+        res.status(500).json({ message: 'Ошибка при обновлении слова'})
+      }
+  }
+  
+module.exports = { getProfile, getUsers, changeUserRole };  // Экспортируем функцию для использования в маршрутах
