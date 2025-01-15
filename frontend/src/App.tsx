@@ -12,6 +12,7 @@ import AdminPage from './pages/AdminPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import PhrasesPage from './pages/PhrasesPage';
 import AdminUsers from './pages/AdminUsers';
+import WordsGame from './pages/WordsGame';
 
 const App: React.FC = () => {
   return (
@@ -65,6 +66,14 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/words-game"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <WordsGame />
               </ProtectedRoute>
             }
           />
