@@ -17,6 +17,8 @@ const DictionaryPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true); // Для проверки, есть ли еще слова для подгрузки
   const observer = useRef<IntersectionObserver | null>(null);
+  const [playingId, setPlayingId] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     // Запрос на сервер для получения слов с пагинацией
@@ -54,17 +56,38 @@ const DictionaryPage: React.FC = () => {
           entry.word_rus.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-    const handleAudioPlay = (audioUrl: string) => {
+    const handleAudioPlay = (entry: DictionaryEntry) => {
+      if (playingId === entry.id) {
+        return;
+      }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
       // Проверяем, начинается ли audioUrl с "http" (уже полный URL)
-      const fullAudioUrl = audioUrl.startsWith('http') 
-        ? audioUrl 
-        : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;      
+      const fullAudioUrl = entry.audio_url.startsWith('http') 
+        ? entry.audio_url 
+        : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${entry.audio_url.startsWith('/') ? '' : '/'}${entry.audio_url}`;      
       try {
         const audio = new Audio(fullAudioUrl);
+        audioRef.current = audio;
+        setPlayingId(entry.id);
+
+        audio.onended = () => {
+          setPlayingId(null);
+        };
+        // Если произошла ошибка или пользователь прервал воспроизведение
+        audio.onpause = () => {
+          setPlayingId(null);
+        };
+  
         audio.play().catch(() => {
+          // При ошибке воспроизведения также снимаем блокировку
+          setPlayingId(null);
         });
       } catch (error) {
         console.error('Error playing audio:', error);
+        setPlayingId(null);
       }
     };
 
@@ -107,9 +130,10 @@ const DictionaryPage: React.FC = () => {
               </p>
               <button
                 className="dictionary-play-btn"
-                onClick={() => handleAudioPlay(entry.audio_url)}
+                onClick={() => handleAudioPlay(entry)}
+                disabled={playingId === entry.id}
               >
-                Произношение
+                {playingId === entry.id ? 'Проигрывается...' : 'Произношение'}
               </button>
             </li>
           ))}
