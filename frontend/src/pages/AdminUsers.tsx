@@ -57,29 +57,35 @@ const AdminUsers: React.FC = () => {
             <li key={entry.id} className='admin-users-item'>
                 <div className="admin-user-wrapper">
                     <span className='user-item-id'>{entry.id}</span>
-                    <span className='user-item-name'>{entry.username}</span>
-                    <span className='user-item-email'>{entry.email}</span>
+                    <div className="admin-username-wrapper">
+                        <span className='user-item-name'>{entry.username}</span>
+                        <span className='user-item-email'>{entry.email}</span>
+                    </div>
+                    
                     {editingId === entry.id ? (
-                        <input
-                            className='word-edit-input'
-                            placeholder='Роль'
-                            type="text"
+                        <select
+                            className='role-edit-input'
                             value={userRoleEdit}
                             onChange={(e) => setUserRoleEdit(e.target.value)}
-                        />
+                        > 
+                            <option value="admin">Админ</option>
+                            <option value="translator">Переводчик</option>
+                            <option value="user">Пользоватль</option>
+                            <option value="moderator">Модератор</option>
+                        </select>
                         ) : (
                             <span className='user-item-role'>{entry.role}</span>
                         )}
                     {editingId === entry.id ? (
                         <>
                         <button
-                            className="word-save-btn"
+                            className="role-save-btn"
                             onClick={() => handleSave(entry.id)}
                         >
                             Сохр.
                         </button>
                         <button
-                            className="word-cancel-btn"
+                            className="role-cancel-btn"
                             onClick={handleCancelEdit}
                         >
                             Отм.
@@ -88,10 +94,9 @@ const AdminUsers: React.FC = () => {
                     ) : (
                         <>
                         <button
-                            className="edit-btn"
+                            className="role-edit-btn"
                             onClick={() => handleEdit(entry)}
                         >
-                            Изменить роль
                         </button>
                         </>
                     )}
