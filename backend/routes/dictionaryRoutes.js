@@ -4,7 +4,6 @@ const {
   getDictionary, 
   addWord, 
   upload, 
-  addWord2,
   getWordsToTranslate, 
   getPhrasesToTranslate, 
   addPhraseTranslation, 

@@ -36,18 +36,18 @@ const AddWordPage: React.FC = () => {
     e.preventDefault();
 
     if (!wordUdi || !wordRus || !username) {
-      setError('All fields (Удинское слово и перевод) are required');
+      setError('Все обязательные поля должны быть заполнены');
       return;
     }
 
-    // Здесь можно задать пустую строку для audio_url, если его не заполняем на этой странице
+    // Для audio_url, если запись аудио не требуется, отправляем пустую строку
     const defaultAudioUrl = '';
 
     const formData = new FormData();
     formData.append('word_udi', wordUdi.trim().toLowerCase());
     formData.append('word_rus', wordRus.trim().toLowerCase());
     formData.append('comment', comment.trim());
-    formData.append('audio_url', defaultAudioUrl); // Если аудио не передаётся, сохраняем пустую строку
+    formData.append('audio_url', defaultAudioUrl);
     formData.append('username', username);
 
     setIsLoading(true);
@@ -96,7 +96,7 @@ const AddWordPage: React.FC = () => {
         <div>
           <textarea
             className="add-input comment-input"
-            placeholder="Комментарий (например: примечание, синонимы, особенности произношения)"
+            placeholder="Комментарий (опционально)"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           ></textarea>
@@ -108,8 +108,7 @@ const AddWordPage: React.FC = () => {
         {successMessage && <p className="success-msg">{successMessage}</p>}
       </form>
       <p className="add-word-text">
-        - Добавляйте удинское слово и перевод. Поле комментария можно использовать для дополнительных
-        пояснений.
+        - Добавляйте удинское слово и перевод. Комментарий можно использовать для дополнительных пояснений.
       </p>
     </div>
   );

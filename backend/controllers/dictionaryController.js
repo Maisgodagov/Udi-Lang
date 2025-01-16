@@ -40,34 +40,32 @@ const getPhrases = async (req, res) => {
 
 // Добавление нового слова в словарь
 const addWord = async (req, res) => {
-  // Извлекаем поля из req.body
   const { word_udi, word_rus, comment, username } = req.body;
   
-  // Если в запросе отправлено аудио (например, с другой страницы), его можно обработать:
-  // Если аудио не обязательно, можно установить значение по умолчанию
+  // Если файл аудио не передан, устанавливаем audioUrl в пустую строку
   let audioUrl = '';
   if (req.file) {
     const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
     audioUrl = `${baseUrl}/uploads/${req.file.filename}`;
   }
 
-  console.log('Received data:', req.body);
-  console.log('Received file:', req.file);
+  console.log('Полученные данные:', req.body);
+  console.log('Полученный файл:', req.file);
 
   if (!word_udi || !word_rus || !username) {
     return res.status(400).json({ message: 'Нужно заполнить обязательные поля: слово на удинском, перевод и имя пользователя' });
   }
 
   try {
-    // Изменён запрос: теперь добавляем поле comment
     const query = 'INSERT INTO dictionary (word_udi, word_rus, comment, audio_url, username) VALUES (?, ?, ?, ?, ?)';
     const [results] = await db.query(query, [word_udi, word_rus, comment || '', audioUrl, username]);
     res.status(201).json({ message: 'Слово добавлено', wordId: results.insertId });
   } catch (err) {
-    console.error('Error adding word to dictionary:', err);
+    console.error('Ошибка при добавлении слова в словарь:', err);
     res.status(500).json({ message: 'Ошибка при добавлении слова' });
   }
 };
+
 
 // Получение слов, у которых нет перевода (в таблице dictionary)
 const getWordsToTranslate = async (req, res) => {
