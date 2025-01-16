@@ -4,6 +4,7 @@ const {
   getDictionary, 
   addWord, 
   upload, 
+  addWord2,
   getWordsToTranslate, 
   getPhrasesToTranslate, 
   addPhraseTranslation, 
@@ -41,6 +42,12 @@ router.post(
   addWord
 );
 
+router.post(
+  '/dictionary2',
+  authMiddleware,
+  checkRole(['admin', 'moderator']),
+  addWord2
+);
 // 4. Получение слов без перевода
 router.get(
   '/words-to-translate',
