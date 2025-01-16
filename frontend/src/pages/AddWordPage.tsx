@@ -20,7 +20,6 @@ const AddWordPage: React.FC = () => {
       navigate('/login');
       return;
     }
-    // Получаем профиль (если нужно, но теперь username не используется)
     axios
       .get('/api/user/profile', { headers: { Authorization: `Bearer ${token}` } })
       .catch((err) => {
@@ -37,15 +36,15 @@ const AddWordPage: React.FC = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('word_udi', wordUdi.trim().toLowerCase());
-    formData.append('word_rus', wordRus.trim().toLowerCase());
-    formData.append('comment', comment.trim());
-    // username и audio_url не передаются, сервер вставит пустые строки
+    const payload = {
+      word_udi: wordUdi.trim().toLowerCase(),
+      word_rus: wordRus.trim().toLowerCase(),
+      comment: comment.trim(),
+    };
 
     setIsLoading(true);
     api
-      .post('/dictionary', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .post('/dictionary', payload)
       .then(() => {
         setSuccessMessage('Слово добавлено!');
         setWordUdi('');

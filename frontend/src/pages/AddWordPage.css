@@ -262,3 +262,8 @@
   margin-top: 6px;
   font-weight: 500;
 }
+.comment-input {
+  resize: none;
+  font-size: 16px;
+  
+}

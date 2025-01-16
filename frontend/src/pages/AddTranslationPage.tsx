@@ -4,19 +4,21 @@ import RecordRTC from 'recordrtc';
 import { Howl } from 'howler';
 import './AddTranslationPage.css';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/axiosConfig'; // Путь к вашему файлу
+import api from '../services/axiosConfig';
 
-// Интерфейс для элемента перевода (слово или фраза)
+// Интерфейс для элемента словаря (только для слов)
 interface TranslationItem {
   id: number;
-  text: string;
-  translation: string;
+  text: string;         // слово на русском (word_rus)
+  translation: string;  // слово на удинском (word_udi)
+  comment?: string;     // комментарий, если есть
   audio_url?: string;
-  type: 'word' | 'phrase';
+  type: 'word';
 }
 
 const AddTranslationPage: React.FC = () => {
-  const [wordUdi, setWordUdi] = useState('');
+  // Теперь нам не нужен ввод перевода (wordUdi) – оно уже есть в базе
+  // Оставляем только состояния для записи аудио и работы с данными
   const [audioUrl, setAudioUrl] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -30,14 +32,14 @@ const AddTranslationPage: React.FC = () => {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState<string>('');
-
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const soundRef = useRef<Howl | null>(null);
-
+  
   const [currentItem, setCurrentItem] = useState<TranslationItem | null>(null);
   const [items, setItems] = useState<TranslationItem[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [translatedItems, setTranslatedItems] = useState(0);
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const soundRef = useRef<Howl | null>(null);
 
   const navigate = useNavigate();
 
@@ -48,65 +50,63 @@ const AddTranslationPage: React.FC = () => {
     setRole(storedRole);
     if (!token) {
       navigate('/login');
-    } else {
-      axios
-        .get('/api/user/profile', { headers: { Authorization: `Bearer ${token}` } })
-        .then((response) => {
-          setUsername(response.data.username);
-        })
-        .catch((err) => {
-          setError('Error fetching user data');
-          console.error(err);
-        });
+      return;
     }
-
-    // Получение слов без перевода
-    const fetchWords = api.get('/words-to-translate');
-    // Получение фраз без перевода
-    const fetchPhrases = api.get('/phrases-to-translate');
-
-    Promise.all([fetchWords, fetchPhrases])
-      .then(([wordsRes, phrasesRes]) => {
-        const words: TranslationItem[] = wordsRes.data.map((item: any) => ({
-          id: item.id,
-          text: item.word_rus,
-          translation: item.word_udi || '',
-          audio_url: item.audio_url,
-          type: 'word'
-        }));
-        const phrases: TranslationItem[] = phrasesRes.data.map((item: any) => ({
-          id: item.id,
-          text: item.phrase_rus,
-          translation: item.phrase_udi || '',
-          audio_url: item.audio_url,
-          type: 'phrase'
-        }));
-        const mixed = [...words, ...phrases];
-        if (mixed.length > 0) {
-          const shuffledItems = shuffle(mixed);
-          setItems(shuffledItems);
-          setCurrentItem(shuffledItems[0]);
-          setTotalItems(mixed.length);
-        } else {
-          setError('No data available to translate.');
-        }
+    axios
+      .get('/api/user/profile', { headers: { Authorization: `Bearer ${token}` } })
+      .then(response => {
+        setUsername(response.data.username);
       })
-      .catch((err) => {
-        setError('Error fetching items to translate');
+      .catch(err => {
+        setError('Error fetching user data');
         console.error(err);
       });
 
-    // Получаем статистику по словарю
-    api
-      .get('/dictionary-statistics')
-      .then((response) => {
+    // Получение всех слов из словаря
+    api.get('/dictionary')
+      .then(res => {
+        // Преобразуем полученные данные. Ожидается, что на бекенде таблица dictionary содержит:
+        // word_rus, word_udi, comment, audio_url, и т.д.
+        const fetchedWords: TranslationItem[] = res.data
+          .filter((item: any) => 
+            item.word_rus && item.word_rus.trim() !== '' &&
+            item.word_udi && item.word_udi.trim() !== '' &&
+            (!item.audio_url || item.audio_url.trim() === '')
+          )
+          .map((item: any) => ({
+            id: item.id,
+            text: item.word_rus,           // русское слово
+            translation: item.word_udi,      // удинское слово
+            comment: item.comment,           // комментарий (опционально)
+            audio_url: item.audio_url,       // должна быть пустая, если не записано озвучивание
+            type: 'word'
+          }));
+          
+        if (fetchedWords.length > 0) {
+          const shuffledItems = shuffle(fetchedWords);
+          setItems(shuffledItems);
+          setCurrentItem(shuffledItems[0]);
+          setTotalItems(fetchedWords.length);
+        } else {
+          setError('Нет слов, требующих озвучивания.');
+        }
+      })
+      .catch(err => {
+        setError('Ошибка при получении слов для озвучивания.');
+        console.error(err);
+      });
+    
+    // Можно также получить статистику по словарю, если нужно
+    api.get('/dictionary-statistics')
+      .then(response => {
         setTranslatedItems(response.data.translated);
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
       });
   }, [navigate]);
 
+  // Функция перемешивания
   const shuffle = (array: TranslationItem[]) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -116,35 +116,36 @@ const AddTranslationPage: React.FC = () => {
     return shuffled;
   };
 
+  // На этой странице пользователю нужно только записать озвучку.
+  // Поэтому проверяем только наличие audioBlob, username и выбранного элемента.
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!wordUdi || !audioBlob || !username || !currentItem) {
-      setError('Заполните все поля и запишите произношение.');
+    if (!audioBlob || !username || !currentItem) {
+      setError('Запишите произношение.');
       return;
     }
 
     const formData = new FormData();
-    if (currentItem.type === 'word') {
-      formData.append('word_udi', wordUdi);
-      formData.append('word_rus', currentItem.text);
-    } else {
-      formData.append('phrase_udi', wordUdi);
-      formData.append('phrase_rus', currentItem.text);
+    // Передаём информацию из выбранного слова
+    // При обновлении записи озвучки используем сохранённые значения перевода и слова
+    formData.append('word_udi', currentItem.translation);
+    formData.append('word_rus', currentItem.text);
+    // Ранее записанный комментарий остаётся неизменным (при желании можно его отправлять тоже)
+    if (currentItem.comment) {
+      formData.append('comment', currentItem.comment);
     }
+    // Добавляем аудио-запись
     formData.append('audio', audioBlob, 'audio.wav');
+    // Добавляем username
     formData.append('username', username);
 
-    const endpoint = currentItem.type === 'word' ? '/add-translation' : '/add-phrase-translation';
-
     setIsLoading(true);
-    api
-      .post(endpoint, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    // Используем эндпоинт, который обновляет слово, добавляя озвучку
+    // Например, '/add-translation'
+    api.post('/add-translation', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
-        setSuccessMessage(
-          `${currentItem.type === 'word' ? 'Слово успешно добавлено!' : 'Фраза успешно добавлена!'} `
-        );
-        setWordUdi('');
+        setSuccessMessage('Озвучка успешно добавлена!');
         setAudioUrl('');
         setAudioBlob(null);
         setError('');
@@ -154,8 +155,8 @@ const AddTranslationPage: React.FC = () => {
         setCurrentItem(remaining[0] || null);
         setTranslatedItems(translatedItems + 1);
       })
-      .catch((err) => {
-        setError('Ошибка при добавлении перевода');
+      .catch(err => {
+        setError('Ошибка при добавлении озвучки');
         console.error('Error:', err);
       })
       .finally(() => {
@@ -163,6 +164,7 @@ const AddTranslationPage: React.FC = () => {
       });
   };
 
+  // Функции записи аудио (оставляем их без изменений)
   const startRecording = () => {
     navigator.mediaDevices
       .getUserMedia({
@@ -182,7 +184,6 @@ const AddTranslationPage: React.FC = () => {
           recorderType: RecordRTC.StereoAudioRecorder,
           desiredSampRate: 44100,
         });
-
         newRecorder.startRecording();
         setRecorder(newRecorder);
         setIsRecording(true);
@@ -249,36 +250,26 @@ const AddTranslationPage: React.FC = () => {
     setIsPlaying(!isPlaying);
   };
 
+  // Переход к следующему слову (если, например, пользователь не хочет озвучивать текущее слово)
   const handleSkip = () => {
     const remaining = items.slice(1);
     setItems(remaining);
     setCurrentItem(remaining[0] || null);
   };
+
+  // Удаление слова (если администратор решит его исключить)
   const handleDeleteCurrent = () => {
     if (!currentItem) return;
-    // if (!window.confirm('Вы уверены, что хотите удалить этот элемент?')) return;
-  
-    const endpoint =
-      currentItem.type === 'word'
-        ? `/dictionary/${currentItem.id}`
-        : `/phrases/${currentItem.id}`;
-  
-    api
-      .delete(endpoint)
+    const endpoint = `/dictionary/${currentItem.id}`;
+    api.delete(endpoint)
       .then(() => {
-        setSuccessMessage(
-          currentItem.type === 'word'
-            ? 'Слово успешно удалено'
-            : 'Фраза успешно удалена'
-        );
-        // Сброс значения ввода перевода
-        setWordUdi('');
-        // После удаления переходим к следующему элементу
+        setSuccessMessage('Слово успешно удалено');
+        // Удаляем элемент и переходим к следующему
         const remaining = items.slice(1);
         setItems(remaining);
         setCurrentItem(remaining[0] || null);
       })
-      .catch((err) => {
+      .catch(err => {
         setError('Ошибка при удалении элемента');
         console.error('Delete error:', err);
       });
@@ -286,26 +277,24 @@ const AddTranslationPage: React.FC = () => {
 
   return (
     <div className="page-wrapper">
-      <h1 className="section-title">Добавить перевод</h1>
+      <h1 className="section-title">Добавить озвучку</h1>
+      <p className="words-stat">{`Осталось озвучить ${totalItems} слов`}</p>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <p className="words-stat">{`Переведено ${translatedItems} из ${totalItems} слов и фраз`}</p>
+      
       {currentItem ? (
         <form className="add-form" onSubmit={handleSubmit}>
           <div>
+          <h3 className="udin-word">
+              {currentItem.translation}
+              <span className="type-label">уди.</span>
+            </h3>
             <h3 className="russian-word">
               {currentItem.text}{' '}
-              <span className="type-label">
-                {currentItem.type === 'word' ? 'cлово' : 'фраза'}
-              </span>
+              <span className="type-label">рус.</span>
             </h3>
-            <input
-              className="add-input"
-              placeholder="Перевод на удинский (русскими буквами)"
-              type="text"
-              value={wordUdi}
-              onChange={(e) => setWordUdi(e.target.value)}
-              required
-            />
+            {currentItem.comment && (
+              <p className="comment">{currentItem.comment}</p>
+            )}
           </div>
 
           <div className="record-wrapper">
@@ -355,35 +344,25 @@ const AddTranslationPage: React.FC = () => {
             {isLoading ? 'Сохранение...' : 'Сохранить'}
           </button>
           <div className="btn-skip-wrapper">
-          {role === 'admin' && (
-            <button type='button' onClick={handleDeleteCurrent}
-              className="delete-btn-admin" 
-            >
-              Удалить
+            {role === 'admin' && (
+              <button type="button" onClick={handleDeleteCurrent} className="delete-btn-admin">
+                Удалить
+              </button>
+            )}
+            <button className="skip-btn" type="button" onClick={handleSkip}>
+              Другое слово
             </button>
-          )}
-          <button className="skip-btn" type="button" onClick={handleSkip}>
-            Другое слово
-          </button>
-          
           </div>
-          
           {successMessage && <p className="success-msg">{successMessage}</p>}
         </form>
       ) : (
         <p></p>
       )}
       <p className="add-word-text">
-        - Слова и фразы выводятся случайным образом, на русском языке.
+        - Нажмите "Записать произношение", чтобы добавить озвучку.
       </p>
       <p className="add-word-text">
-        - Если вы знаете перевод на удинский, введите перевод русскими буквами.
-      </p>
-      <p className="add-word-text">
-        - Запишите произношение.
-      </p>
-      <p className="add-word-text">
-        - Если вы не знаете или не помните перевод, просто откройте Другое слово.
+        - Если не хотите озвучивать текущее слово – нажмите "Другое слово".
       </p>
     </div>
   );
