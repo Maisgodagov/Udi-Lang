@@ -41,14 +41,11 @@ const AddWordPage: React.FC = () => {
     }
 
     // Для audio_url, если запись аудио не требуется, отправляем пустую строку
-    const defaultAudioUrl = '';
 
     const formData = new FormData();
     formData.append('word_udi', wordUdi.trim().toLowerCase());
     formData.append('word_rus', wordRus.trim().toLowerCase());
     formData.append('comment', comment.trim());
-    formData.append('audio_url', defaultAudioUrl);
-    formData.append('username', username);
 
     setIsLoading(true);
     api

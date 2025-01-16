@@ -40,25 +40,18 @@ const getPhrases = async (req, res) => {
 
 // Добавление нового слова в словарь
 const addWord = async (req, res) => {
-  const { word_udi, word_rus, comment, username } = req.body;
+  const { word_udi, word_rus, comment } = req.body;
   
-  // Если файл аудио не передан, устанавливаем audioUrl в пустую строку
-  let audioUrl = '';
-  if (req.file) {
-    const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
-    audioUrl = `${baseUrl}/uploads/${req.file.filename}`;
-  }
-
   console.log('Полученные данные:', req.body);
-  console.log('Полученный файл:', req.file);
+
 
   if (!word_udi || !word_rus || !username) {
     return res.status(400).json({ message: 'Нужно заполнить обязательные поля: слово на удинском, перевод и имя пользователя' });
   }
 
   try {
-    const query = 'INSERT INTO dictionary (word_udi, word_rus, comment, audio_url, username) VALUES (?, ?, ?, ?, ?)';
-    const [results] = await db.query(query, [word_udi, word_rus, comment || '', audioUrl, username]);
+    const query = 'INSERT INTO dictionary (word_udi, word_rus, comment ) VALUES (?, ?, ?)';
+    const [results] = await db.query(query, [word_udi, word_rus, comment || '']);
     res.status(201).json({ message: 'Слово добавлено', wordId: results.insertId });
   } catch (err) {
     console.error('Ошибка при добавлении слова в словарь:', err);
