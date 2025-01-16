@@ -62,6 +62,14 @@ const AppContent: React.FC = () => {
             }
           />
           <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin-users"
             element={
               <ProtectedRoute allowedRoles={['admin']}>

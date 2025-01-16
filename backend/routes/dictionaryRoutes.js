@@ -38,16 +38,9 @@ router.post(
   '/dictionary',
   authMiddleware,
   checkRole(['admin', 'moderator']),
-  upload.single('audio'),
   addWord
 );
 
-router.post(
-  '/dictionary2',
-  authMiddleware,
-  checkRole(['admin', 'moderator']),
-  addWord2
-);
 // 4. Получение слов без перевода
 router.get(
   '/words-to-translate',

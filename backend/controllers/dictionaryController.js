@@ -40,47 +40,23 @@ const getPhrases = async (req, res) => {
 
 // Добавление нового слова в словарь
 const addWord = async (req, res) => {
-  const { word_udi, word_rus, username } = req.body;
-  const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
-  const audioUrl = `${baseUrl}/uploads/${req.file.filename}`;
+  const { word_udi, word_rus, username, comment } = req.body;
+  const audioUrl = ``;
 
   console.log('Received data:', req.body);
   console.log('Received file:', req.file);
 
-  if (!word_udi || !word_rus || !audioUrl || !username) {
-    return res.status(400).json({ message: 'Нужно заполнить все поля, включая запись произношения' });
+  if (!word_udi || !word_rus || !username) {
+    return res.status(400).json({ message: 'Нужно заполнить все поля' });
   }
 
   try {
-    const query = 'INSERT INTO dictionary (word_udi, word_rus, audio_url, username) VALUES (?, ?, ?, ?)';
-    const [results] = await db.query(query, [word_udi, word_rus, audioUrl, username]);
+    // Изменён запрос: теперь добавляем поле comment
+    const query = 'INSERT INTO dictionary (word_udi, word_rus, comment, audio_url, username) VALUES (?, ?, ?, ?, ?)';
+    const [results] = await db.query(query, [word_udi, word_rus, comment || '', audioUrl, username]);
     res.status(201).json({ message: 'Слово добавлено', wordId: results.insertId });
   } catch (err) {
     console.error('Error adding word to dictionary:', err);
-    res.status(500).json({ message: 'Ошибка при добавлении слова' });
-  }
-};
-
-const addWord2 = async (req, res) => {
-  // Извлекаем поля из запроса. Заметим, что audio может отсутствовать.
-  const { word_udi, word_rus, comment, username } = req.body;
-  // Если аудио загружается через multer, оно будет доступно в req.file.
-  // Здесь предполагаем, что аудио может отсутствовать, поэтому:
-  const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
-  const audioUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
-
-  console.log('Received data:', req.body);
-  if (!word_udi || !word_rus || !username) {
-    return res.status(400).json({ message: 'Нужно заполнить все обязательные поля: word_udi, word_rus и username' });
-  }
-
-  try {
-    // Пишем запрос для вставки в таблицу dictionary2
-    const query = 'INSERT INTO dictionary2 (word_udi, word_rus, comment, audio_url, username) VALUES (?, ?, ?, ?, ?)';
-    const [results] = await db.query(query, [word_udi, word_rus, comment, audioUrl, username]);
-    res.status(201).json({ message: 'Слово добавлено', wordId: results.insertId });
-  } catch (err) {
-    console.error('Error adding word to dictionary2:', err);
     res.status(500).json({ message: 'Ошибка при добавлении слова' });
   }
 };
@@ -271,6 +247,5 @@ module.exports = {
   getDictionaryStatistics, 
   addPhrase,
   getPhrases,
-  addWord2,
   upload
 };

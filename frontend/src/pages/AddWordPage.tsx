@@ -8,15 +8,14 @@ const AddWordPage: React.FC = () => {
   const [wordUdi, setWordUdi] = useState('');
   const [wordRus, setWordRus] = useState('');
   const [comment, setComment] = useState('');
-  const [audioUrl, setAudioUrl] = useState(''); // если аудио уже есть, его можно задавать или оставлять пустым
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [username, setUsername] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Проверяем токен и получаем профиль
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
@@ -37,39 +36,36 @@ const AddWordPage: React.FC = () => {
     e.preventDefault();
 
     if (!wordUdi || !wordRus || !username) {
-      setError('Пожалуйста, заполните удинское слово, перевод и комментарий (если нужен)');
+      setError('All fields (Удинское слово и перевод) are required');
       return;
     }
 
-    const wordUdiLowerCase = wordUdi.toLowerCase();
-    const wordRusLowerCase = wordRus.toLowerCase();
+    // Здесь можно задать пустую строку для audio_url, если его не заполняем на этой странице
+    const defaultAudioUrl = '';
 
-    // Создаем FormData. Если аудио не требуется, его можно не добавлять (или оставить пустым)
     const formData = new FormData();
-    formData.append('word_udi', wordUdiLowerCase);
-    formData.append('word_rus', wordRusLowerCase);
-    formData.append('comment', comment);
+    formData.append('word_udi', wordUdi.trim().toLowerCase());
+    formData.append('word_rus', wordRus.trim().toLowerCase());
+    formData.append('comment', comment.trim());
+    formData.append('audio_url', defaultAudioUrl); // Если аудио не передаётся, сохраняем пустую строку
     formData.append('username', username);
-    // Если аудио отсутствует, можно либо вообще не передавать поле audio, либо передавать пустую строку.
-    if (audioUrl) {
-      formData.append('audio', audioUrl);
-    }
 
+    setIsLoading(true);
     api
-      .post('/dictionary2', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      .post('/dictionary', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(() => {
         setSuccessMessage('Слово добавлено!');
         setWordUdi('');
         setWordRus('');
         setComment('');
-        setAudioUrl('');
         setError('');
       })
       .catch((err) => {
         setError('Ошибка при добавлении слова');
         console.error('Error:', err);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -99,31 +95,21 @@ const AddWordPage: React.FC = () => {
         </div>
         <div>
           <textarea
-            className="add-textarea"
-            placeholder="Комментарий (необязательно)"
+            className="add-input comment-input"
+            placeholder="Комментарий (например: примечание, синонимы, особенности произношения)"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-          />
+          ></textarea>
         </div>
-        {/* Если аудио не требуется, можно убрать блок с воспроизведением */}
-        {/* <div className="audio-section">
-          <p>Аудио (необязательно)</p>
-          {/* Можно добавить поле для ввода URL или кнопку для выбора файла */}
-        {/* </div> */}
-        <button className="save-btn" type="submit">
-          Сохранить
+        <button className="save-btn" type="submit" disabled={isLoading}>
+          {isLoading ? 'Сохранение...' : 'Сохранить'}
         </button>
         {error && <p className="error-msg">{error}</p>}
         {successMessage && <p className="success-msg">{successMessage}</p>}
       </form>
       <p className="add-word-text">
-        - Пишите удинское слово русскими буквами так, как слышите его.
-      </p>
-      <p className="add-word-text">
-        - Укажите перевод на русский.
-      </p>
-      <p className="add-word-text">
-        - Можно добавить комментарий, если нужно.
+        - Добавляйте удинское слово и перевод. Поле комментария можно использовать для дополнительных
+        пояснений.
       </p>
     </div>
   );
