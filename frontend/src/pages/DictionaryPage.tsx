@@ -48,13 +48,13 @@ const DictionaryPage: React.FC = () => {
     setSearchTerm(e.target.value);
   };
 
- const filteredDictionary = dictionary
-    .filter(
-      (entry) =>
-        entry.word_udi && entry.word_udi.trim() !== '' && // Проверка на наличие удинского перевода
-        (entry.word_udi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          entry.word_rus.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+  const filteredDictionary = dictionary.filter((entry) =>
+    entry.audio_url && entry.audio_url.trim() !== '' && // только записи с аудио
+    (
+      entry.word_udi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entry.word_rus.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
 
     const handleAudioPlay = (entry: DictionaryEntry) => {
       if (playingId === entry.id) {
