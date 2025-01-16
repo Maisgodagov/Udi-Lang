@@ -39,25 +39,31 @@ const getPhrases = async (req, res) => {
 }
 
 // Добавление нового слова в словарь
+// controllers/dictionaryController.js
+
 const addWord = async (req, res) => {
   const { word_udi, word_rus, comment } = req.body;
   
   console.log('Полученные данные:', req.body);
 
-
-  if (!word_udi || !word_rus || !username) {
-    return res.status(400).json({ message: 'Нужно заполнить обязательные поля: слово на удинском, перевод и имя пользователя' });
+  // Проверяем, что обязательные поля заполнены
+  if (!word_udi || !word_rus) {
+    return res.status(400).json({ 
+      message: 'Нужно заполнить обязательные поля: слово на удинском и перевод на русский' 
+    });
   }
 
   try {
-    const query = 'INSERT INTO dictionary (word_udi, word_rus, comment ) VALUES (?, ?, ?)';
-    const [results] = await db.query(query, [word_udi, word_rus, comment || '']);
+    // Здесь audio_url и username устанавливаем как пустые строки
+    const query = 'INSERT INTO dictionary (word_udi, word_rus, comment, audio_url, username) VALUES (?, ?, ?, ?, ?)';
+    const [results] = await db.query(query, [word_udi, word_rus, comment || '', '', '']);
     res.status(201).json({ message: 'Слово добавлено', wordId: results.insertId });
   } catch (err) {
     console.error('Ошибка при добавлении слова в словарь:', err);
     res.status(500).json({ message: 'Ошибка при добавлении слова' });
   }
 };
+
 
 
 // Получение слов, у которых нет перевода (в таблице dictionary)

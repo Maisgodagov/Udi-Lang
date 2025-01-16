@@ -10,7 +10,6 @@ const AddWordPage: React.FC = () => {
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [username, setUsername] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -21,11 +20,9 @@ const AddWordPage: React.FC = () => {
       navigate('/login');
       return;
     }
+    // Получаем профиль (если нужно, но теперь username не используется)
     axios
       .get('/api/user/profile', { headers: { Authorization: `Bearer ${token}` } })
-      .then((response) => {
-        setUsername(response.data.username);
-      })
       .catch((err) => {
         setError('Error fetching user data');
         console.error(err);
@@ -35,17 +32,16 @@ const AddWordPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!wordUdi || !wordRus || !username) {
-      setError('Все обязательные поля должны быть заполнены');
+    if (!wordUdi || !wordRus) {
+      setError('Все обязательные поля (слово на удинском и перевод) должны быть заполнены');
       return;
     }
-
-    // Для audio_url, если запись аудио не требуется, отправляем пустую строку
 
     const formData = new FormData();
     formData.append('word_udi', wordUdi.trim().toLowerCase());
     formData.append('word_rus', wordRus.trim().toLowerCase());
     formData.append('comment', comment.trim());
+    // username и audio_url не передаются, сервер вставит пустые строки
 
     setIsLoading(true);
     api
