@@ -40,14 +40,22 @@ const getPhrases = async (req, res) => {
 
 // Добавление нового слова в словарь
 const addWord = async (req, res) => {
-  const { word_udi, word_rus, username, comment } = req.body;
-  const audioUrl = ``;
+  // Извлекаем поля из req.body
+  const { word_udi, word_rus, comment, username } = req.body;
+  
+  // Если в запросе отправлено аудио (например, с другой страницы), его можно обработать:
+  // Если аудио не обязательно, можно установить значение по умолчанию
+  let audioUrl = '';
+  if (req.file) {
+    const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
+    audioUrl = `${baseUrl}/uploads/${req.file.filename}`;
+  }
 
   console.log('Received data:', req.body);
   console.log('Received file:', req.file);
 
   if (!word_udi || !word_rus || !username) {
-    return res.status(400).json({ message: 'Нужно заполнить все поля' });
+    return res.status(400).json({ message: 'Нужно заполнить обязательные поля: слово на удинском, перевод и имя пользователя' });
   }
 
   try {
