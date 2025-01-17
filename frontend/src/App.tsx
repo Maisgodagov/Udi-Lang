@@ -13,6 +13,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PhrasesPage from './pages/PhrasesPage';
 import AdminUsers from './pages/AdminUsers';
 import WordsGame from './pages/WordsGame';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
 
 const App: React.FC = () => {
   return (
@@ -21,6 +24,7 @@ const App: React.FC = () => {
     </Router>
   );
 };
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 // Компонент для обработки рендеринга Header
 const AppContent: React.FC = () => {
@@ -81,7 +85,9 @@ const AppContent: React.FC = () => {
             path="/words-game"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <WordsGame />
+                <DndProvider backend={isTouchDevice ? TouchBackend : HTML5Backend}>
+                  <WordsGame />
+                </DndProvider>
               </ProtectedRoute>
             }
           />

@@ -3,6 +3,8 @@ import './WordsGame.css';
 import api from '../services/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import DraggableWord from '../components/DraggableWord';
+import DropZone from '../components/DropZone';
 
 interface Word {
   id: number;
@@ -16,19 +18,16 @@ const WordsGame: React.FC = () => {
   const [words, setWords] = useState<Word[]>([]);
   const [options, setOptions] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<string>('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
   const [role, setRole] = useState<string>('');
   const [username, setUsername] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Функция для генерации вариантов ответа
   const generateOptions = (correct: string, allWords: Word[]) => {
-    // Возьмем все переводы, кроме правильного
     const otherTranslations = allWords
       .map((w) => w.translation)
       .filter((trans) => trans.trim() !== '' && trans !== correct);
-    
-    // Если вариантов меньше 2, используем все что есть
     const randomOptions: string[] = [];
     const copy = [...otherTranslations];
     while (copy.length > 0 && randomOptions.length < 2) {
@@ -36,20 +35,18 @@ const WordsGame: React.FC = () => {
       randomOptions.push(copy[index]);
       copy.splice(index, 1);
     }
-    // Собираем массив с правильным ответом и двумя случайными
     const opts = [correct, ...randomOptions];
-    // Перемешиваем варианты
     for (let i = opts.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [opts[i], opts[j]] = [opts[j], opts[i]];
     }
-    return opts;
+    // Берем первую часть каждого варианта до запятой.
+    return opts.map((opt) => opt.split(',')[0].trim());
   };
 
-  // Проигрывание аудио для текущего слова
+  // Функция проигрывания аудио (опционально)
   const playAudio = (audioUrl?: string) => {
     if (!audioUrl) return;
-    // Если ссылка не начинается с "http", можно добавить базовый URL (по необходимости)
     const fullAudioUrl = audioUrl.startsWith('http')
       ? audioUrl
       : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;
@@ -79,32 +76,27 @@ const WordsGame: React.FC = () => {
         });
     }
 
-    // Получение слов для перевода
+    // Получение слов из словаря
     api
       .get('/dictionary')
       .then((res) => {
-        console.log('Ответ сервера:', res.data);
         const fetchedWords: Word[] = res.data.map((item: any) => ({
           id: item.id,
           word_udi: item.word_udi || '',
-          translation: item.word_rus, // перевод на русский
+          translation: item.word_rus,
           audio_url: item.audio_url,
         }));
-
-        console.log('Преобразованные слова:', fetchedWords);
 
         const filteredWords = fetchedWords.filter(
           (word) =>
             typeof word.word_udi === 'string' &&
             word.word_udi.trim() !== '' &&
             typeof word.translation === 'string' &&
-            word.translation.trim() !== ''
+            word.translation.trim() !== '' &&
+            (!word.audio_url || word.audio_url.trim() === '')
         );
 
-        console.log('Отфильтрованные слова:', filteredWords);
-
         if (filteredWords.length > 0) {
-          // Перемешиваем и выбираем первое слово
           const shuffle = (array: Word[]) => {
             const shuffled = [...array];
             for (let i = shuffled.length - 1; i > 0; i--) {
@@ -116,32 +108,32 @@ const WordsGame: React.FC = () => {
           const shuffledWords = shuffle(filteredWords);
           setWords(shuffledWords);
           setCurrentWord(shuffledWords[0]);
+          const opts = generateOptions(shuffledWords[0].translation, shuffledWords);
+          setOptions(opts);
+          playAudio(shuffledWords[0].audio_url);
         } else {
-          setError('Слово не найдено');
+          setError('Нет слов для изучения.');
         }
       })
       .catch((err) => {
-        setError('Error fetching items to translate');
+        setError('Error fetching words');
         console.error(err);
       });
   }, [navigate]);
 
-  // Каждый раз, когда меняется текущее слово, генерируем варианты и сразу воспроизводим аудио
+  // При смене текущего слова генерируем варианты и сбрасываем feedback
   useEffect(() => {
     if (currentWord) {
       const opts = generateOptions(currentWord.translation, words);
       setOptions(opts);
-      playAudio(currentWord.audio_url);
-      setFeedback(''); // Сбрасываем предыдущее сообщение
+      setFeedback('');
     }
   }, [currentWord, words]);
 
-  // Обработчик клика по варианту ответа
   const handleAnswer = (selected: string) => {
     if (!currentWord) return;
     if (selected === currentWord.translation) {
       setFeedback('правильно');
-      // Переход на следующее слово через короткую задержку (например, 1 секунда)
       setTimeout(() => {
         handleSkip();
       }, 1000);
@@ -150,35 +142,43 @@ const WordsGame: React.FC = () => {
     }
   };
 
-  // Обработчик кнопки "Пропустить" (также можно использовать для перехода к следующему слову)
   const handleSkip = () => {
     const remaining = words.slice(1);
     setWords(remaining);
     setCurrentWord(remaining[0] || null);
   };
 
+  // Обработчик для drop zone, вызывается при отпускании draggable элемента
+  const handleDrop = (target: string) => {
+    if (target === 'dontknow') {
+      handleSkip();
+    } else {
+      handleAnswer(target);
+    }
+  };
+
   return (
     <div className="games-container">
       {error && <p className="error-message">{error}</p>}
       {currentWord ? (
-        <div className="games-word">
-          <span className="games-word-udi">{currentWord.word_udi}</span>
-          <div className="options-container">
-            {options.map((option, index) => (
-              <button 
-                key={index} 
-                className="option-btn" 
-                onClick={() => handleAnswer(option)}
-              >
-                {option}
-              </button>
-            ))}
+        <>
+          <DraggableWord word={currentWord.word_udi} />
+          <div className="options-wrapper">
+            <DropZone target={options[0] || ''} onDrop={handleDrop}>
+              {options[0]}
+            </DropZone>
+            <DropZone target={options[1] || ''} onDrop={handleDrop}>
+              {options[1]}
+            </DropZone>
+            <DropZone target={options[2] || ''} onDrop={handleDrop}>
+              {options[2]}
+            </DropZone>
+            <DropZone target="dontknow" onDrop={handleDrop}>
+              не знаю
+            </DropZone>
           </div>
-          <button className="skip-btn" onClick={handleSkip}>
-            Пропустить
-          </button>
           {feedback && <p className="feedback">{feedback}</p>}
-        </div>
+        </>
       ) : (
         <p>Нет слов для отображения</p>
       )}
