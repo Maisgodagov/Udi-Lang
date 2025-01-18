@@ -28,7 +28,7 @@ const WordsGame: React.FC = () => {
 
   const navigate = useNavigate();
 
-  // Функция для генерации вариантов ответа – возвращает ровно 2 варианта (правильный и 1 случайный неверный).
+  // Генерация вариантов ответа (ровно 2 варианта: правильный и 1 неверный)
   const generateOptions = (correct: string, allWords: Word[]): string[] => {
     const normalizedCorrect = correct.split(',')[0].trim().toLowerCase();
     const otherTranslations = allWords
@@ -44,7 +44,6 @@ const WordsGame: React.FC = () => {
     if (opts.length === 1) {
       opts.push(normalizedCorrect);
     }
-    // Перемешиваем варианты
     for (let i = opts.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [opts[i], opts[j]] = [opts[j], opts[i]];
@@ -52,7 +51,7 @@ const WordsGame: React.FC = () => {
     return opts;
   };
 
-  // Функция проигрывания аудио (будет вызываться только при изменении currentWord)
+  // Проигрывание аудио (используем кеш, если есть)
   const playAudio = (audioUrl?: string, wordId?: number) => {
     if (!audioUrl || !started) return;
     let audio: HTMLAudioElement;
@@ -70,7 +69,7 @@ const WordsGame: React.FC = () => {
     });
   };
 
-  // Функция предзагрузки аудио для слова
+  // Предзагрузка аудио для слова
   const preloadAudioForWord = (word: Word) => {
     if (!word.audio_url) return;
     if (preloadedAudios[word.id]) return;
@@ -91,21 +90,21 @@ const WordsGame: React.FC = () => {
     nextWords.forEach((word) => preloadAudioForWord(word));
   };
 
-  // Обработчик для кнопки "Прослушать ещё раз"
+  // Обработчик кнопки "Прослушать ещё раз"
   const handleListen = () => {
     if (currentWord && currentWord.audio_url) {
       playAudio(currentWord.audio_url, currentWord.id);
     }
   };
 
-  // Обработчик для кнопки "Начать игру"
+  // Обработчик кнопки "Начать игру"
   const handleStart = () => {
     setStarted(true);
-    // После первого клика игра запускается и аудио проигрывается (будет запущено через useEffect для currentWord)
+    // При запуске игры вызов происходит только один раз, после которого текущий эффект запускает аудио.
   };
 
   useEffect(() => {
-    // Проверяем токен и получаем профиль
+    // Получаем профиль
     const token = localStorage.getItem('token');
     const storedRole = localStorage.getItem('role') || '';
     setRole(storedRole);
@@ -124,7 +123,7 @@ const WordsGame: React.FC = () => {
         });
     }
 
-    // Получение слов из словаря
+    // Получаем слова из словаря
     api
       .get('/dictionary')
       .then((res) => {
@@ -135,7 +134,7 @@ const WordsGame: React.FC = () => {
           audio_url: item.audio_url,
         }));
 
-        // Отбираем только слова, у которых заполнены word_udi, translation и обязательно есть audio_url
+        // Отбираем только слова, у которых заполнены word_udi, translation и audio_url (озвучка)
         const filteredWords = fetchedWords.filter(
           (word) =>
             typeof word.word_udi === 'string' &&
@@ -169,7 +168,7 @@ const WordsGame: React.FC = () => {
         setError('Error fetching words');
         console.error(err);
       });
-  }, [navigate]);
+  }, [navigate, started]);
 
   // При изменении currentWord генерируем варианты, сбрасываем feedback и проигрываем аудио (однократно)
   useEffect(() => {
@@ -202,7 +201,7 @@ const WordsGame: React.FC = () => {
   };
 
   const handleSkip = () => {
-    // Удаляем предзагруженное аудио для текущего слова
+    // Освобождаем предзагруженное аудио для текущего слова
     if (currentWord && preloadedAudios[currentWord.id]) {
       setPreloadedAudios((prev) => {
         const newPreloaded = { ...prev };
@@ -215,7 +214,7 @@ const WordsGame: React.FC = () => {
     setCurrentWord(remaining[0] || null);
   };
 
-  // Обработчик для drop зоны: если target равен "dontknow", пропускаем слово, иначе проверяем ответ.
+  // Обработчик для drop zone
   const handleDrop = (target: string) => {
     if (target === 'dontknow') {
       handleSkip();
