@@ -13,6 +13,8 @@ interface Word {
   audio_url?: string;
 }
 
+const PRELOAD_COUNT = 5;
+
 const WordsGame: React.FC = () => {
   const [currentWord, setCurrentWord] = useState<Word | null>(null);
   const [words, setWords] = useState<Word[]>([]);
@@ -21,39 +23,85 @@ const WordsGame: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [role, setRole] = useState<string>('');
   const [username, setUsername] = useState<string | null>(null);
+  const [started, setStarted] = useState<boolean>(false);
+  const [preloadedAudios, setPreloadedAudios] = useState<{ [id: number]: HTMLAudioElement }>({});
+
   const navigate = useNavigate();
 
-  // Функция для генерации вариантов ответа
-  const generateOptions = (correct: string, allWords: Word[]) => {
+  // Функция для генерации вариантов ответа – возвращает ровно 2 варианта (правильный и 1 случайный неверный).
+  const generateOptions = (correct: string, allWords: Word[]): string[] => {
+    const normalizedCorrect = correct.split(',')[0].trim().toLowerCase();
     const otherTranslations = allWords
-      .map((w) => w.translation)
-      .filter((trans) => trans.trim() !== '' && trans !== correct);
-    const randomOptions: string[] = [];
-    const copy = [...otherTranslations];
-    while (copy.length > 0 && randomOptions.length < 2) {
-      const index = Math.floor(Math.random() * copy.length);
-      randomOptions.push(copy[index]);
-      copy.splice(index, 1);
+      .map((w) => w.translation.split(',')[0].trim().toLowerCase())
+      .filter((trans) => trans !== '' && trans !== normalizedCorrect);
+    let randomOption = '';
+    if (otherTranslations.length > 0) {
+      const index = Math.floor(Math.random() * otherTranslations.length);
+      randomOption = otherTranslations[index];
     }
-    const opts = [correct, ...randomOptions];
+    let opts = [normalizedCorrect];
+    if (randomOption) opts.push(randomOption);
+    if (opts.length === 1) {
+      opts.push(normalizedCorrect);
+    }
+    // Перемешиваем варианты
     for (let i = opts.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [opts[i], opts[j]] = [opts[j], opts[i]];
     }
-    // Берем первую часть каждого варианта до запятой.
-    return opts.map((opt) => opt.split(',')[0].trim());
+    return opts;
   };
 
-  // Функция проигрывания аудио (опционально)
-  const playAudio = (audioUrl?: string) => {
-    if (!audioUrl) return;
-    const fullAudioUrl = audioUrl.startsWith('http')
-      ? audioUrl
-      : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;
-    const audio = new Audio(fullAudioUrl);
+  // Функция проигрывания аудио (будет вызываться только при изменении currentWord)
+  const playAudio = (audioUrl?: string, wordId?: number) => {
+    if (!audioUrl || !started) return;
+    let audio: HTMLAudioElement;
+    if (wordId && preloadedAudios[wordId]) {
+      audio = preloadedAudios[wordId];
+    } else {
+      const fullAudioUrl = audioUrl.startsWith('http')
+        ? audioUrl
+        : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;
+      audio = new Audio(fullAudioUrl);
+      audio.preload = 'auto';
+    }
     audio.play().catch((err) => {
       console.error('Ошибка при воспроизведении аудио:', err);
     });
+  };
+
+  // Функция предзагрузки аудио для слова
+  const preloadAudioForWord = (word: Word) => {
+    if (!word.audio_url) return;
+    if (preloadedAudios[word.id]) return;
+    const fullAudioUrl = word.audio_url.startsWith('http')
+      ? word.audio_url
+      : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${word.audio_url.startsWith('/') ? '' : '/'}${word.audio_url}`;
+    const audio = new Audio(fullAudioUrl);
+    audio.preload = 'auto';
+    audio.load();
+    setPreloadedAudios((prev) => ({ ...prev, [word.id]: audio }));
+  };
+
+  // Предзагрузка аудио для следующих PRELOAD_COUNT слов
+  const preloadNextAudios = () => {
+    const currentIndex = words.findIndex((w) => currentWord && w.id === currentWord.id);
+    if (currentIndex === -1) return;
+    const nextWords = words.slice(currentIndex + 1, currentIndex + 1 + PRELOAD_COUNT);
+    nextWords.forEach((word) => preloadAudioForWord(word));
+  };
+
+  // Обработчик для кнопки "Прослушать ещё раз"
+  const handleListen = () => {
+    if (currentWord && currentWord.audio_url) {
+      playAudio(currentWord.audio_url, currentWord.id);
+    }
+  };
+
+  // Обработчик для кнопки "Начать игру"
+  const handleStart = () => {
+    setStarted(true);
+    // После первого клика игра запускается и аудио проигрывается (будет запущено через useEffect для currentWord)
   };
 
   useEffect(() => {
@@ -87,13 +135,14 @@ const WordsGame: React.FC = () => {
           audio_url: item.audio_url,
         }));
 
+        // Отбираем только слова, у которых заполнены word_udi, translation и обязательно есть audio_url
         const filteredWords = fetchedWords.filter(
           (word) =>
             typeof word.word_udi === 'string' &&
             word.word_udi.trim() !== '' &&
             typeof word.translation === 'string' &&
             word.translation.trim() !== '' &&
-            (!word.audio_url || word.audio_url.trim() === '')
+            word.audio_url && word.audio_url.trim() !== ''
         );
 
         if (filteredWords.length > 0) {
@@ -110,7 +159,8 @@ const WordsGame: React.FC = () => {
           setCurrentWord(shuffledWords[0]);
           const opts = generateOptions(shuffledWords[0].translation, shuffledWords);
           setOptions(opts);
-          playAudio(shuffledWords[0].audio_url);
+          preloadAudioForWord(shuffledWords[0]);
+          preloadNextAudios();
         } else {
           setError('Нет слов для изучения.');
         }
@@ -121,34 +171,51 @@ const WordsGame: React.FC = () => {
       });
   }, [navigate]);
 
-  // При смене текущего слова генерируем варианты и сбрасываем feedback
+  // При изменении currentWord генерируем варианты, сбрасываем feedback и проигрываем аудио (однократно)
   useEffect(() => {
     if (currentWord) {
       const opts = generateOptions(currentWord.translation, words);
       setOptions(opts);
       setFeedback('');
+      if (started) {
+        playAudio(currentWord.audio_url, currentWord.id);
+      }
+      preloadNextAudios();
     }
-  }, [currentWord, words]);
+  }, [currentWord, words, started]);
 
   const handleAnswer = (selected: string) => {
     if (!currentWord) return;
-    if (selected === currentWord.translation) {
+    const correctAnswer = currentWord.translation.split(',')[0].trim().toLowerCase();
+    const selectedAnswer = selected.split(',')[0].trim().toLowerCase();
+    if (selectedAnswer === correctAnswer) {
       setFeedback('правильно');
       setTimeout(() => {
         handleSkip();
       }, 1000);
     } else {
       setFeedback('неправильно');
+      setTimeout(() => {
+        setFeedback('');
+      }, 2000);
     }
   };
 
   const handleSkip = () => {
+    // Удаляем предзагруженное аудио для текущего слова
+    if (currentWord && preloadedAudios[currentWord.id]) {
+      setPreloadedAudios((prev) => {
+        const newPreloaded = { ...prev };
+        delete newPreloaded[currentWord.id];
+        return newPreloaded;
+      });
+    }
     const remaining = words.slice(1);
     setWords(remaining);
     setCurrentWord(remaining[0] || null);
   };
 
-  // Обработчик для drop zone, вызывается при отпускании draggable элемента
+  // Обработчик для drop зоны: если target равен "dontknow", пропускаем слово, иначе проверяем ответ.
   const handleDrop = (target: string) => {
     if (target === 'dontknow') {
       handleSkip();
@@ -157,24 +224,38 @@ const WordsGame: React.FC = () => {
     }
   };
 
+  if (!started) {
+    return (
+      <div className="games-container start-screen">
+        <h1 className="game-title">Игра: Изучи слово</h1>
+        <button className="start-btn" onClick={handleStart}>
+          Начать игру
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="games-container">
       {error && <p className="error-message">{error}</p>}
       {currentWord ? (
         <>
           <DraggableWord word={currentWord.word_udi} />
+          <button className="listen-btn" onClick={handleListen}>
+            Прослушать ещё раз
+          </button>
           <div className="options-wrapper">
+            {/* Верхняя зона – вариант ответа */}
             <DropZone target={options[0] || ''} onDrop={handleDrop}>
               {options[0]}
             </DropZone>
-            <DropZone target={options[1] || ''} onDrop={handleDrop}>
-              {options[1]}
-            </DropZone>
-            <DropZone target={options[2] || ''} onDrop={handleDrop}>
-              {options[2]}
-            </DropZone>
+            {/* Левая зона – вариант "не знаю" */}
             <DropZone target="dontknow" onDrop={handleDrop}>
               не знаю
+            </DropZone>
+            {/* Нижняя зона – вариант ответа */}
+            <DropZone target={options[1] || ''} onDrop={handleDrop}>
+              {options[1]}
             </DropZone>
           </div>
           {feedback && <p className="feedback">{feedback}</p>}
