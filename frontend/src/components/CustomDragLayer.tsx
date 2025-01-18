@@ -28,7 +28,7 @@ function getItemStyles(
   const x = currentOffset.x - dragOffset.x;
   const y = currentOffset.y - dragOffset.y;
 
-  const transform = `translate3d(${x-280}px, ${y}px, 0)`;
+  const transform = `translate3d(${x/2 - 100}px, ${y}px, 0)`;
   return {
     transform,
     WebkitTransform: transform,
