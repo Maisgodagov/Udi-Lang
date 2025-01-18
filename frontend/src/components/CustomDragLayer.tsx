@@ -1,4 +1,3 @@
-// CustomDragLayer.tsx
 import React from 'react';
 import { useDragLayer } from 'react-dnd';
 
@@ -33,23 +32,17 @@ const CustomDragLayer: React.FC = () => {
     isDragging: monitor.isDragging(),
   }));
 
-  function renderItem() {
-    if (itemType === 'WORD') {
-      return (
-        <div className="center-circle custom-drag-layer">
-          {item.word}
-        </div>
-      );
-    }
+  if (!isDragging || itemType !== 'WORD') {
     return null;
   }
 
-  if (!isDragging) return null;
-
+  // Здесь мы отрисовываем ghost-превью, например, как центральный круг с uдинским словом.
   return (
     <div style={layerStyles}>
       <div style={getItemStyles(initialOffset, currentOffset)}>
-        {renderItem()}
+        <div className="center-circle custom-drag-layer">
+          {item.word}
+        </div>
       </div>
     </div>
   );

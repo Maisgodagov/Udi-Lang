@@ -119,3 +119,8 @@
   font-size: 24px;
   color: #fff;
 }
+.custom-drag-layer {
+  /* Можно задать те же стили, что и у .center-circle, либо свои */
+  opacity: 0.8;
+  pointer-events: none;
+}
