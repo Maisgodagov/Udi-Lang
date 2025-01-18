@@ -6,7 +6,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-bottom:  0 50px;
+
 }
 
 /* Начальный экран */
@@ -30,7 +30,9 @@
 .center-circle {
   background-color: #d2b4b4;
   height: 150px;
-  width: 150px;
+  min-width: 150px;
+  width: fit-content;
+  padding: 20px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -68,8 +70,8 @@
 .option-circle {
   background-color: #a4c3b2;
   height: 120px;
-  width: 120px;
-  border-radius: 50%;
+  width: 100%;
+  border-radius:  50% 50%  0 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -83,9 +85,10 @@
 /* Позиционирование drop зон */
 /* Верхняя зона */
 .options-wrapper > :nth-child(1) {
-  top: 10%;
+  top: 60px;
   left: 50%;
   transform: translate(-50%, -50%);
+  border-radius:  0 0 50% 50%;
 }
 
 /* Левая зона (вариант "не знаю") */
@@ -93,11 +96,14 @@
   top: 50%;
   left: 10%;
   transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
 }
 
 /* Нижняя зона */
 .options-wrapper > :nth-child(3) {
-  bottom: 10%;
+  bottom: 60px;
   left: 50%;
   transform: translate(-50%, 50%);
 }
@@ -109,7 +115,7 @@
 
 /* Hover-эффект для drop зон */
 .option-circle:hover {
-  transform: scale(1.1) translate(-50%, -50%);
+
 }
 
 .feedback {
