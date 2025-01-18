@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
 
-export interface DraggableWordProps {
+interface DraggableWordProps {
   word: string;
 }
 
@@ -18,7 +18,11 @@ const DraggableWord: React.FC<DraggableWordProps> = ({ word }) => {
     <div
       ref={drag}
       className="center-circle"
-      style={{ opacity: isDragging ? 0.5 : 1 }}
+      style={{
+        opacity: isDragging ? 0.6 : 1,
+        transform: isDragging ? 'scale(1.1)' : 'none',
+        transition: 'transform 0.2s, opacity 0.2s'
+      }}
     >
       {word}
     </div>
