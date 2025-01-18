@@ -129,6 +129,13 @@
 
 /* Стили для кастомного drag layer */
 .custom-drag-layer {
-  opacity: 0;
+  opacity: 1;
   pointer-events: none;
+}
+
+@media (max-width: 500px) {
+  .custom-drag-layer {
+    opacity: 0;
+  }  
+  
 }
