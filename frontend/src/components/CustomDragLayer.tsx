@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDragLayer } from 'react-dnd';
 
 const layerStyles: React.CSSProperties = {
@@ -11,23 +11,28 @@ const layerStyles: React.CSSProperties = {
   height: '100%',
 };
 
-function getItemStyles(initialOffset: any, currentOffset: any) {
-  if (!initialOffset || !currentOffset) {
+function getItemStyles(initialRect: DOMRect | null, currentOffset: { x: number; y: number } | null) {
+  if (!initialRect || !currentOffset) {
     return { display: 'none' };
   }
-  const { x, y } = currentOffset;
-  const transform = `translate(${x}px, ${y}px)`;
+  const ghostHalfWidth = initialRect.width / 2;
+  const ghostHalfHeight = initialRect.height / 2;
+  // Здесь currentOffset – это верхний левый угол перетаскиваемого элемента.
+  const transform = `translate(${currentOffset.x - ghostHalfWidth}px, ${currentOffset.y - ghostHalfHeight}px)`;
   return {
     transform,
     WebkitTransform: transform,
   };
 }
 
-const CustomDragLayer: React.FC = () => {
-  const { itemType, isDragging, item, initialOffset, currentOffset } = useDragLayer((monitor) => ({
+interface CustomDragLayerProps {
+  initialRect: DOMRect | null;
+}
+
+const CustomDragLayer: React.FC<CustomDragLayerProps> = ({ initialRect }) => {
+  const { itemType, isDragging, item, currentOffset } = useDragLayer(monitor => ({
     item: monitor.getItem(),
     itemType: monitor.getItemType(),
-    initialOffset: monitor.getInitialSourceClientOffset(),
     currentOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
   }));
@@ -36,10 +41,9 @@ const CustomDragLayer: React.FC = () => {
     return null;
   }
 
-  // Здесь мы отрисовываем ghost-превью, например, как центральный круг с uдинским словом.
   return (
     <div style={layerStyles}>
-      <div style={getItemStyles(initialOffset, currentOffset)}>
+      <div style={getItemStyles(initialRect, currentOffset)}>
         <div className="center-circle custom-drag-layer">
           {item.word}
         </div>

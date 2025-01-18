@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
@@ -29,6 +29,7 @@ const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 // Компонент для обработки рендеринга Header
 const AppContent: React.FC = () => {
   const location = useLocation(); // Получаем текущий путь
+  const [initialRect, setInitialRect] = useState<DOMRect | null>(null);
   return (
     <div>
       {/* Условный рендеринг Header */}
@@ -86,8 +87,8 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <DndProvider backend={isTouchDevice ? TouchBackend : HTML5Backend}>
-                  <WordsGame />
-                  <CustomDragLayer />
+                <WordsGame setInitialRect={setInitialRect} />
+                <CustomDragLayer initialRect={initialRect} />
                 </DndProvider>
                
               </ProtectedRoute>

@@ -1,14 +1,14 @@
-// DraggableWord.tsx
-import React, { useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useDrag } from 'react-dnd';
-
 
 interface DraggableWordProps {
   word: string;
+  setInitialRect: (rect: DOMRect) => void;
 }
 
-const DraggableWord: React.FC<DraggableWordProps> = ({ word }) => {
-  const [{ isDragging }, drag, preview] = useDrag({
+const DraggableWord: React.FC<DraggableWordProps> = ({ word, setInitialRect }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [{ isDragging }, drag] = useDrag({
     type: 'WORD',
     item: { word },
     collect: (monitor) => ({
@@ -16,17 +16,14 @@ const DraggableWord: React.FC<DraggableWordProps> = ({ word }) => {
     }),
   });
 
-  // useEffect(() => {
-  //   // Задаем пустой preview, чтобы скрыть стандартный ghost image
-  //   preview(getEmptyImage(), { captureDraggingState: true });
-  // }, [preview]);
+  useEffect(() => {
+    if (ref.current) {
+      setInitialRect(ref.current.getBoundingClientRect());
+    }
+  }, [ref, setInitialRect]);
 
   return (
-    <div
-      ref={drag}
-      className="center-circle"
-      style={{ opacity: isDragging ? 0 : 1 }}  // полностью скрываем исходный элемент при drag
-    >
+    <div ref={drag} className="center-circle" style={{ opacity: isDragging ? 0 : 1 }}>
       {word}
     </div>
   );
