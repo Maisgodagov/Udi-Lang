@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDragLayer } from 'react-dnd';
 
 const layerStyles: React.CSSProperties = {
@@ -11,31 +11,42 @@ const layerStyles: React.CSSProperties = {
   height: '100%',
 };
 
-function getItemStyles(initialRect: DOMRect | null, currentOffset: { x: number; y: number } | null) {
-  if (!initialRect || !currentOffset) {
+interface CustomDragLayerProps {
+  initialRect: DOMRect | null;
+}
+
+function getItemStyles(
+  currentOffset: { x: number; y: number } | null,
+  dragOffset: { x: number; y: number } | undefined
+) {
+  if (!currentOffset || !dragOffset) {
     return { display: 'none' };
   }
-  const ghostHalfWidth = initialRect.width / 2;
-  const ghostHalfHeight = initialRect.height / 2;
-  // Здесь currentOffset – это верхний левый угол перетаскиваемого элемента.
-  const transform = `translate(${currentOffset.x - ghostHalfWidth}px, ${currentOffset.y - ghostHalfHeight}px)`;
+
+  // Здесь currentOffset уже находится в координатах viewport.
+  // Смещаем ghost относительно курсора, используя сохранённый dragOffset.
+  const x = currentOffset.x - dragOffset.x;
+  const y = currentOffset.y - dragOffset.y;
+
+  const transform = `translate3d(${0}px, ${y}px, 0)`;
   return {
     transform,
     WebkitTransform: transform,
   };
 }
 
-interface CustomDragLayerProps {
-  initialRect: DOMRect | null;
-}
-
 const CustomDragLayer: React.FC<CustomDragLayerProps> = ({ initialRect }) => {
-  const { itemType, isDragging, item, currentOffset } = useDragLayer(monitor => ({
+  const { itemType, isDragging, item, currentOffset } = useDragLayer((monitor) => ({
     item: monitor.getItem(),
     itemType: monitor.getItemType(),
-    currentOffset: monitor.getSourceClientOffset(),
+    // Используем getClientOffset – позиция курсора относительно viewport
+    currentOffset: monitor.getClientOffset(),
     isDragging: monitor.isDragging(),
   }));
+
+  useEffect(() => {
+    console.log('CustomDragLayer state:', { isDragging, itemType, currentOffset, item, initialRect });
+  }, [isDragging, itemType, currentOffset, item, initialRect]);
 
   if (!isDragging || itemType !== 'WORD') {
     return null;
@@ -43,7 +54,7 @@ const CustomDragLayer: React.FC<CustomDragLayerProps> = ({ initialRect }) => {
 
   return (
     <div style={layerStyles}>
-      <div style={getItemStyles(initialRect, currentOffset)}>
+      <div style={getItemStyles(currentOffset, item?.dragOffset)}>
         <div className="center-circle custom-drag-layer">
           {item.word}
         </div>

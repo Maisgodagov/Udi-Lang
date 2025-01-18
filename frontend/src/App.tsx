@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import Home from './pages/Home';
@@ -17,6 +17,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import CustomDragLayer from './components/CustomDragLayer';
+
 const App: React.FC = () => {
   return (
     <Router>
@@ -24,15 +25,15 @@ const App: React.FC = () => {
     </Router>
   );
 };
+
 const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-// Компонент для обработки рендеринга Header
 const AppContent: React.FC = () => {
-  const location = useLocation(); // Получаем текущий путь
+  const location = useLocation();
   const [initialRect, setInitialRect] = useState<DOMRect | null>(null);
+
   return (
     <div>
-      {/* Условный рендеринг Header */}
       {location.pathname !== '/login' && location.pathname !== '/register' && <Header />}
       <div>
         <Routes>
@@ -67,14 +68,6 @@ const AppContent: React.FC = () => {
             }
           />
           <Route
-            path="/admin"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/admin-users"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
@@ -86,11 +79,16 @@ const AppContent: React.FC = () => {
             path="/words-game"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <DndProvider backend={isTouchDevice ? TouchBackend : HTML5Backend}>
-                <WordsGame setInitialRect={setInitialRect} />
-                <CustomDragLayer initialRect={initialRect} />
+                <DndProvider
+                  backend={
+                    isTouchDevice
+                      ? (manager) => TouchBackend(manager, { enableMouseEvents: true })
+                      : HTML5Backend
+                  }
+                >
+                  <WordsGame setInitialRect={setInitialRect} />
+                  <CustomDragLayer initialRect={initialRect} />
                 </DndProvider>
-               
               </ProtectedRoute>
             }
           />

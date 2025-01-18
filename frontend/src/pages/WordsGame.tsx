@@ -230,7 +230,7 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
       {error && <p className="error-message">{error}</p>}
       {currentWord ? (
         <>
-          <DraggableWord word={currentWord.word_udi} setInitialRect={() => {}} />
+          <DraggableWord word={currentWord.word_udi} setInitialRect={setInitialRect} />
           <button className="listen-btn" onClick={handleListen}>
             Прослушать ещё раз
           </button>
