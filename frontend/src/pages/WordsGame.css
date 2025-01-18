@@ -135,7 +135,7 @@
 
 @media (max-width: 500px) {
   .custom-drag-layer {
-    opacity: 0;
+    opacity: 1;
   }  
   
 }
