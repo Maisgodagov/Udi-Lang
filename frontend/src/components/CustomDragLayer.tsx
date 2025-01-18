@@ -23,9 +23,12 @@ function getItemStyles(
     return { display: 'none' };
   }
 
+  // Здесь currentOffset уже находится в координатах viewport.
+  // Смещаем ghost относительно курсора, используя сохранённый dragOffset.
+  const x = currentOffset.x - dragOffset.x;
   const y = currentOffset.y - dragOffset.y;
 
-  const transform = `translate3d(${0}px, ${y}px, 0)`;
+  const transform = `translate3d(${x-280}px, ${y}px, 0)`;
   return {
     transform,
     WebkitTransform: transform,
