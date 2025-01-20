@@ -56,14 +56,16 @@ const Header: React.FC = () => {
 
   return (
     <header className="header">
-      <div className="logo">
-        <Link className="logo-text" to="/">UdiLang</Link>
-      </div>
+      <div className="container">
+        <div className="header-wrapper">
+          <div className="logo">
+          <Link className="logo-text" to="/">UdiLang</Link>
+          </div>
 
-      <div className="burgerMenuButton" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-        <Hamburger toggled={isMenuOpen} toggle={setIsMenuOpen} />
-      </div>
-
+          <div className="burgerMenuButton" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <Hamburger toggled={isMenuOpen} toggle={setIsMenuOpen} />
+          </div>
+        </div>
       <nav className={isMenuOpen ? 'nav open' : 'nav'}>
         <ul className="navList">
           <li className="navItem">
@@ -112,6 +114,7 @@ const Header: React.FC = () => {
         </ul>
         <button onClick={handleLogout} className="logoutButton">Выйти</button>
       </nav>
+      </div>
     </header>
   );
 };

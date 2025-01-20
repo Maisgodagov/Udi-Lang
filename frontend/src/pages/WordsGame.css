@@ -1,5 +1,5 @@
 .games-container {
-  width: 100vw;
+  width: 100%;
   height: calc(100vh - 105px);
   position: relative;
   display: flex;
@@ -29,12 +29,11 @@
 /* Центральный круг с удинским словом */
 .center-circle {
   position: relative;
-  min-height: 150px;
-  height: auto;
-  max-width: 150px; 
+  height: 135px;
+  max-width: 200px; 
   width: 100%; 
   padding: 20px;
-  padding-bottom: 10%;
+  padding-bottom: 30px;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -54,9 +53,9 @@
   background-image: url(../assets/cloud.png);
   background-size: cover;
   width: 200px;
-  height: 200px;
+  height: 135px;
   position: absolute;
-  bottom: -10px;
+  bottom: 0;
   z-index: -10;
 }
 /* Кнопка прослушивания */
@@ -80,10 +79,8 @@
 
 /* Общие стили для drop зон */
 .option-circle {
-  background-color: #a4c3b2;
   height: 120px;
   width: 100%;
-  border-radius:  50% 50%  0 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -96,33 +93,66 @@
 
 /* Позиционирование drop зон */
 /* Верхняя зона */
+/* Верхняя зона */
 .options-wrapper > :nth-child(1) {
-  top: 60px;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius:  0 0 50% 50%;
+  background: url(../assets/cloudy.png) 0 100% repeat-x, url(../assets/cloudy.png) 150px 100% repeat-x;
+  background-size: contain; /* если требуется */
+  border-radius: 0 0 15% 15%;
+  background-repeat: round;
+  height: 150px;
+  max-width: 1024px;
+  width: 100%;
+  align-items: flex-end;
+  padding-bottom: 16px;
+  font-weight: 500;
+  font-size: 22px;
+  color: #2a5b67;
+  transition: background 1s ease-in; /* или transition: background-size 0.3s ease; */
 }
+
+.options-wrapper > :nth-child(1).hovered {
+  background: url(../assets/cloudy.png) 20px 100% repeat-x, url(../assets/cloudy.png) 180px 100% repeat-x;
+  background-size: contain;
+}
+
 
 /* Левая зона (вариант "не знаю") */
 .options-wrapper > :nth-child(2) {
-  top: 50%;
+  top: 35%;
   left: 10%;
   transform: translate(-50%, -50%);
   width: 100px;
   height: 100px;
   border-radius: 50%;
+  background-color: #f4d645;
+  color: #724141;
 }
 
 /* Нижняя зона */
 .options-wrapper > :nth-child(3) {
-  bottom: 60px;
-  left: 50%;
-  transform: translate(-50%, 50%);
+  background: url(../assets/bush.png) 0 100% repeat-x, url(../assets/bush.png) 180px 100% repeat-x;
+  background-size: contain;
+  border-radius: 15% 15% 0 0;
+  background-repeat: round;
+  height: 150px;
+  max-width: 1024px;
+  width: 100%;
+  bottom: 0;
+  align-items: center;
+  font-weight: 500;
+  font-size: 22px;
+  color: #7a4423;
+  transition: background 1.3s ease; /* или transition: background-size 0.3s ease; */
+
+}
+.options-wrapper > :nth-child(3).hovered {
+  background: url(../assets/bush.png) 20px 100% repeat-x, url(../assets/bush.png) 210px 100% repeat-x;
+  background-size: contain;
 }
 
 /* Для drop зоны "не знаю" */
 .option-circle.dont-know {
-  background-color: #e0a899;
+
 }
 
 /* Hover-эффект для drop зон */

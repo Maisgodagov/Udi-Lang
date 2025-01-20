@@ -226,31 +226,34 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
   }
 
   return (
-    <div className="games-container">
-      {error && <p className="error-message">{error}</p>}
-      {currentWord ? (
-        <>
-          <DraggableWord word={currentWord.word_udi} setInitialRect={setInitialRect} />
-          <button className="listen-btn" onClick={handleListen}>
-            Прослушать ещё раз
-          </button>
-          <div className="options-wrapper">
-            <DropZone target={options[0] || ''} onDrop={handleDrop}>
-              {options[0]}
-            </DropZone>
-            <DropZone target="dontknow" onDrop={handleDrop}>
-              не знаю
-            </DropZone>
-            <DropZone target={options[1] || ''} onDrop={handleDrop}>
-              {options[1]}
-            </DropZone>
-          </div>
-          {feedback && <p className="feedback">{feedback}</p>}
-        </>
-      ) : (
-        <p>Нет слов для отображения</p>
-      )}
-    </div>
+
+      <div className="games-container">
+        <div className="container">
+        {error && <p className="error-message">{error}</p>}
+        {currentWord ? (
+          <>
+            <DraggableWord word={currentWord.word_udi} setInitialRect={setInitialRect} />
+            <button className="listen-btn" onClick={handleListen}>
+              Прослушать ещё раз
+            </button>
+            <div className="options-wrapper">
+              <DropZone target={options[0] || ''} onDrop={handleDrop}>
+                {options[0]}
+              </DropZone>
+              <DropZone target="dontknow" onDrop={handleDrop}>
+                не знаю
+              </DropZone>
+              <DropZone target={options[1] || ''} onDrop={handleDrop}>
+                {options[1]}
+              </DropZone>
+            </div>
+            {feedback && <p className="feedback">{feedback}</p>}
+          </>
+        ) : (
+          <p>Нет слов для отображения</p>
+        )}
+        </div>
+      </div>   
   );
 };
 

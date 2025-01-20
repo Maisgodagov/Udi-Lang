@@ -18,13 +18,12 @@ const DropZone: React.FC<DropZoneProps> = ({ target, onDrop, children }) => {
     }),
   });
 
-  const backgroundColor = isOver ? '#b0e0a8' : '#a4c3b2';
+  // const backgroundColor = isOver ? '#b0e0a8' : 'transparent';
 
   return (
     <div
       ref={drop}
-      className={`option-circle ${target === 'dontknow' ? 'dont-know' : ''}`}
-      style={{ backgroundColor }}
+      className={`option-circle ${target === 'dontknow' ? 'dont-know' : ''} ${isOver ? 'hovered' : ''}`}
     >
       {children}
     </div>
