@@ -78,7 +78,7 @@ const AppContent: React.FC = () => {
           <Route
             path="/words-game"
             element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute allowedRoles={['admin', 'translator']}>
                 <DndProvider
                   backend={
                     isTouchDevice

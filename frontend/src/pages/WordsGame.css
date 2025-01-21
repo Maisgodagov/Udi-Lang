@@ -1,6 +1,6 @@
 .games-container {
   width: 100%;
-  height: calc(100vh - 75px);
+  height: calc(100vh - 105px);
   position: relative;
   display: flex;
   justify-content: center;
