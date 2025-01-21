@@ -17,13 +17,30 @@ interface WordsGameProps {
   setInitialRect: (rect: DOMRect) => void;
 }
 
+// Количество слов, для которых будем предзагружать аудио
 const PRELOAD_COUNT = 5;
+
+// Импорт аудиофайлов обратной связи
+import correctSoundFile from '../assets/right.wav';
+import incorrectSoundFile from '../assets/wrong.wav';
+
+// Импорт иконок
+import correctIconImg from '../assets/right-icon.png';
+import incorrectIconImg from '../assets/wrong-icon.png';
+
+const CorrectIcon = () => (
+  <img src={correctIconImg} alt="Правильно" className="feedback-icon" />
+);
+const IncorrectIcon = () => (
+  <img src={incorrectIconImg} alt="Неправильно" className="feedback-icon" />
+);
 
 const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
   const [currentWord, setCurrentWord] = useState<Word | null>(null);
   const [words, setWords] = useState<Word[]>([]);
   const [options, setOptions] = useState<string[]>([]);
-  const [feedback, setFeedback] = useState<string>('');
+  // feedbackType может быть 'correct', 'incorrect' или пустой строкой
+  const [feedbackType, setFeedbackType] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [role, setRole] = useState<string>('');
   const [username, setUsername] = useState<string | null>(null);
@@ -42,11 +59,12 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
       const index = Math.floor(Math.random() * otherTranslations.length);
       randomOption = otherTranslations[index];
     }
-    let opts = [normalizedCorrect];
+    const opts = [normalizedCorrect];
     if (randomOption) opts.push(randomOption);
     if (opts.length === 1) {
       opts.push(normalizedCorrect);
     }
+    // Перемешиваем варианты
     for (let i = opts.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [opts[i], opts[j]] = [opts[j], opts[i]];
@@ -68,6 +86,14 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     }
     audio.play().catch((err) => {
       console.error('Ошибка при воспроизведении аудио:', err);
+    });
+  };
+
+  const playFeedbackSound = (isCorrect: boolean) => {
+    const audioSrc = isCorrect ? correctSoundFile : incorrectSoundFile;
+    const audio = new Audio(audioSrc);
+    audio.play().catch((err) => {
+      console.error('Ошибка при воспроизведении звука обратной связи:', err);
     });
   };
 
@@ -131,7 +157,7 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
           audio_url: item.audio_url,
         }));
 
-        // Фильтруем: word_udi, translation не пустые, и audio_url обязательно заполнено
+        // Фильтруем: word_udi и translation не пустые, а audio_url обязательно заполнено
         const filteredWords = fetchedWords.filter(
           (word) =>
             word.word_udi.trim() !== '' &&
@@ -165,12 +191,12 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
       });
   }, [navigate]);
 
-  // Эффект: когда currentWord меняется (и игра уже началась), проигрываем его аудио один раз, генерируем варианты.
+  // Эффект: когда currentWord меняется (и игра уже началась)
   useEffect(() => {
     if (currentWord && started) {
       const opts = generateOptions(currentWord.translation, words);
       setOptions(opts);
-      setFeedback('');
+      setFeedbackType('');
       playAudio(currentWord.audio_url, currentWord.id);
       preloadNextAudios();
     }
@@ -181,15 +207,19 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     const correctAnswer = currentWord.translation.split(',')[0].trim().toLowerCase();
     const selectedAnswer = selected.split(',')[0].trim().toLowerCase();
     if (selectedAnswer === correctAnswer) {
-      setFeedback('правильно');
+      // Воспроизводим звук правильного ответа и показываем иконку
+      playFeedbackSound(true);
+      setFeedbackType('correct');
       setTimeout(() => {
         handleSkip();
       }, 1000);
     } else {
-      setFeedback('неправильно');
+      // Воспроизводим звук неправильного ответа и показываем иконку
+      playFeedbackSound(false);
+      setFeedbackType('incorrect');
       setTimeout(() => {
-        setFeedback('');
-      }, 2000);
+        setFeedbackType('');
+      }, 1500);
     }
   };
 
@@ -226,9 +256,8 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
   }
 
   return (
-
-      <div className="games-container">
-        <div className="container">
+    <div className="games-container">
+      <div className="container">
         {error && <p className="error-message">{error}</p>}
         {currentWord ? (
           <>
@@ -247,13 +276,16 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
                 {options[1]}
               </DropZone>
             </div>
-            {feedback && <p className="feedback">{feedback}</p>}
+            <div className="feedback">
+              {feedbackType === 'correct' && <CorrectIcon />}
+              {feedbackType === 'incorrect' && <IncorrectIcon />}
+            </div>
           </>
         ) : (
           <p>Нет слов для отображения</p>
         )}
-        </div>
-      </div>   
+      </div>
+    </div>
   );
 };
 

@@ -23,6 +23,7 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   justify-content: center;
   position: relative;
   align-items: center;
+  height: 50px;
   
 }
 .logo-text {

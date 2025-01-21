@@ -1,6 +1,6 @@
 .games-container {
   width: 100%;
-  height: calc(100vh - 105px);
+  height: calc(100vh - 75px);
   position: relative;
   display: flex;
   justify-content: center;
@@ -65,9 +65,16 @@
   left: 50%;
   transform: translate(-50%, 0);
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 15px;
+  
+  font-weight: 500;
+  color: #5c686b;
+  font-family: "Rubik", serif;
   z-index: 3;
   cursor: pointer;
+  border: none;
+  border-radius: 12px;
+
 }
 
 /* Оболочка для drop зон */
@@ -118,13 +125,14 @@
 
 /* Левая зона (вариант "не знаю") */
 .options-wrapper > :nth-child(2) {
-  top: 35%;
-  left: 10%;
+  top: 30%;
+  left: 60px;
   transform: translate(-50%, -50%);
   width: 100px;
   height: 100px;
+  font-weight: 500;
   border-radius: 50%;
-  background-color: #f4d645;
+  background-color: #ffee30;
   color: #724141;
 }
 
@@ -162,11 +170,13 @@
 
 .feedback {
   position: absolute;
-  bottom: 5%;
-  width: 100%;
+  top: 40%;
+  right: 90px;
+  width: fit-content;
   text-align: center;
-  font-size: 24px;
+  font-size: 26px;
   color: #fff;
+  z-index: 10;
 }
 
 /* Стили для кастомного drag layer */
@@ -180,4 +190,8 @@
     opacity: 1;
   }  
   
+}
+.feedback-icon {
+  width: 75px;
+  height: 75px;
 }
