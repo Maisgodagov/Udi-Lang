@@ -130,7 +130,7 @@ const PhrasesPage: React.FC = () => {
               ref={filteredPhrases.length === index + 1 ? lastElementRef : null}
             >
               <p>
-                <strong>{entry.phrase_udi}</strong> - {entry.phrase_rus}
+                <strong>{entry.phrase_udi.toLowerCase()}</strong> - {entry.phrase_rus}
               </p>
               <button
                 className="dictionary-play-btn"

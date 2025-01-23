@@ -68,20 +68,35 @@ const Header: React.FC = () => {
         </div>
       <nav className={isMenuOpen ? 'nav open' : 'nav'}>
         <ul className="navList">
-          <li className="navItem">
+          {/* <li className="navItem">
             <div className="userSelection">
               {username ? <p className="username">Привет, {username.charAt(0).toUpperCase() + username.slice(1)}!</p> : null}
               {error && <p className="error">{error}</p>}
             </div>
-          </li>
+          </li> */}
           <li className="navItem">
-            <Link to="/profile" className="navLink" onClick={handleLinkClick}>Личный кабинет</Link>
+            <Link to="/profile" className="navLink" onClick={handleLinkClick}>
+            <div className="nav-profile-wrapper">
+              <span className='profile-picture nav-profile-picture'></span>
+              <div className="nav-profile-info">
+                {username ? <p className="username">{username.charAt(0).toUpperCase() + username.slice(1)}</p> : null}
+                {role ? <p className="user-role">{role}</p> : null}
+              </div>
+              <span className="nav-profile-link"></span>
+            </div>
+            </Link>
           </li>
+          <span className="nav-devider"></span>
           <li className="navItem">
-            <Link to="/" className="navLink" onClick={handleLinkClick}>Главная</Link>
+            <Link to="/" className="navLink" onClick={handleLinkClick}>
+            <p className="nav-home-link">Главная</p></Link>
           </li>
+          <span className="nav-devider"></span>
+
           <li className="navItem">
-            <Link to="/dictionary" className="navLink" onClick={handleLinkClick}>Словарь</Link>
+            <Link to="/dictionary" className="navLink" onClick={handleLinkClick}>
+            <p className="nav-dict-link">Словарь</p>
+            </Link>
           </li>
           <li className="navItem">
             <Link to="/phrases" className="navLink" onClick={handleLinkClick}>Фразы</Link>

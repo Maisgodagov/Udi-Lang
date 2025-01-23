@@ -49,7 +49,7 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
   user-select: none;
 }
@@ -58,7 +58,7 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   display: block;
   font-size: 20px;
   user-select: none;
-
+  width: 100%;
 }
 
 .navLink {
@@ -109,5 +109,51 @@ height: calc(100vh - 45px);
 }
 
 .username {
-  font-size: 20px;
+  font-size: 24px;
+  font-weight: 400;
+}
+.user-role {
+  font-size: 14px;
+  font-weight: 300;
+}
+.nav-profile-wrapper {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  cursor: pointer;
+}
+
+.nav-profile-picture {
+  width: 55px;
+  height: 55px;
+  margin-right: 20px;
+}
+
+.nav-profile-link {
+  margin-left: auto;
+  background-image: url(../assets/forward-icon.png);
+  width: 15px;
+  height: 30px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.nav-devider {
+  height: 1px;
+  width: 100%;
+  background-color: rgb(93, 97, 93);
+  margin: 0;
+  padding: 0;
+}
+
+.nav-home-link {
+  display: flex;
+  align-items: end;
+  background-image: url(../assets/home.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 32px;
+  height: 32px;
+  padding-left: 40px;
 }
