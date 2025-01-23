@@ -1,12 +1,16 @@
 const multer = require('multer');
 const path = require('path');
+const ffmpeg = require('fluent-ffmpeg');
+const fs = require('fs');
 const { db } = require('../config/db');
 
 // Настройка multer для загрузки файлов в папку uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadsPath = path.join(__dirname, '../../uploads'); // Дважды ".." чтобы выйти из папки backend
-    console.log('Uploads path:', uploadsPath);
+    const uploadsPath = path.join(__dirname, '../../uploads');
+    if (!fs.existsSync(uploadsPath)) {
+      fs.mkdirSync(uploadsPath, { recursive: true });
+    }
     cb(null, uploadsPath);
   },
   filename: (req, file, cb) => {
@@ -15,6 +19,19 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+// Функция для сжатия аудиофайлов
+const compressAudio = async (inputPath, outputPath) => {
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .audioBitrate(96) // Уменьшаем битрейт (можно настроить)
+      .audioChannels(1) // Стерео в моно
+      .toFormat('mp3') // Преобразуем в MP3
+      .on('end', () => resolve())
+      .on('error', (err) => reject(err))
+      .save(outputPath);
+  });
+};
 
 // Получение всех слов (словарь)
 const getDictionary = async (req, res) => {
@@ -89,23 +106,51 @@ const getPhrasesToTranslate = async (req, res) => {
 };
 
 // Добавление перевода для слова (обновление таблицы dictionary)
+// const addTranslation = async (req, res) => {
+//   const { word_udi, word_rus, username } = req.body;
+//   const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
+//   const audioUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
+
+//   console.log('Received translation data:', { word_udi, word_rus, audioUrl, username });
+//   if (!audioUrl) {
+//     return res.status(400).json({ message: 'Audio file is required' });
+//   }
+
+//   try {
+//     const query = 'UPDATE dictionary SET word_udi = ?, audio_url = ?, username = ? WHERE word_rus = ?';
+//     await db.query(query, [word_udi, audioUrl, username, word_rus]);
+//     res.status(200).json({ message: 'Translation added successfully' });
+//   } catch (err) {
+//     console.error('Error adding translation:', err);
+//     res.status(500).json({ message: 'Error adding translation' });
+//   }
+// };
 const addTranslation = async (req, res) => {
   const { word_udi, word_rus, username } = req.body;
   const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
-  const audioUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
 
-  console.log('Received translation data:', { word_udi, word_rus, audioUrl, username });
-  if (!audioUrl) {
-    return res.status(400).json({ message: 'Audio file is required' });
+  if (!req.file) {
+    return res.status(400).json({ message: 'Аудиофайл обязателен' });
   }
 
+  const inputPath = req.file.path;
+  const compressedPath = path.join(path.dirname(inputPath), `compressed_${req.file.filename}`);
+
   try {
+    // Сжимаем файл
+    await compressAudio(inputPath, compressedPath);
+
+    // Удаляем исходный файл (если требуется)
+    fs.unlinkSync(inputPath);
+
+    const audioUrl = `${baseUrl}/uploads/compressed_${req.file.filename}`;
     const query = 'UPDATE dictionary SET word_udi = ?, audio_url = ?, username = ? WHERE word_rus = ?';
     await db.query(query, [word_udi, audioUrl, username, word_rus]);
-    res.status(200).json({ message: 'Translation added successfully' });
+
+    res.status(200).json({ message: 'Перевод добавлен успешно', audioUrl });
   } catch (err) {
-    console.error('Error adding translation:', err);
-    res.status(500).json({ message: 'Error adding translation' });
+    console.error('Ошибка при сжатии файла:', err);
+    res.status(500).json({ message: 'Ошибка при добавлении перевода' });
   }
 };
 
