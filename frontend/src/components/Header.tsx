@@ -91,26 +91,36 @@ const Header: React.FC = () => {
             <Link to="/" className="navLink" onClick={handleLinkClick}>
             <p className="nav-home-link">Главная</p></Link>
           </li>
-          <span className="nav-devider"></span>
-
           <li className="navItem">
             <Link to="/dictionary" className="navLink" onClick={handleLinkClick}>
-            <p className="nav-dict-link">Словарь</p>
+            <p className="nav-dict-link">Слова</p>
             </Link>
           </li>
           <li className="navItem">
-            <Link to="/phrases" className="navLink" onClick={handleLinkClick}>Фразы</Link>
+            <Link to="/phrases" className="navLink" onClick={handleLinkClick}>
+            <p className="nav-phrase-link">Фразы</p>
+            </Link>
           </li>
+          <li className="navItem">
+              <Link to="/words-game" className="navLink" onClick={handleLinkClick}>
+              <p className="nav-practice-link">Тренироваться</p>
+              </Link>
+            </li>
+          <span className="nav-devider"></span>
+          {role === 'admin' || role === 'moderator' || role === 'translator' ? (
+            <li className="navItem">
+              <Link to="/add-translation" className="navLink" onClick={handleLinkClick}>
+              <p className="nav-record-link">Добавить произношение</p>
+              </Link>
+            </li>
+          ) : null}
+          <span className="nav-devider"></span>
           {role === 'admin' || role === 'moderator' ? (
             <li className="navItem">
               <Link to="/add-word" className="navLink" onClick={handleLinkClick}>Добавить слово</Link>
             </li>
           ) : null}
-          {role === 'admin' || role === 'moderator' || role === 'translator' ? (
-            <li className="navItem">
-              <Link to="/add-translation" className="navLink" onClick={handleLinkClick}>Добавить произношение</Link>
-            </li>
-          ) : null}
+          
           {role === 'admin' ? (
             <li className="navItem">
               <Link to="/admin" className="navLink" onClick={handleLinkClick}>Админ-слова</Link>
@@ -121,11 +131,7 @@ const Header: React.FC = () => {
               <Link to="/admin-users" className="navLink" onClick={handleLinkClick}>Админ-пользователи</Link>
             </li>
           ) : null}
-          {role === 'admin' || role === 'moderator' || role === 'translator' ? (
-            <li className="navItem">
-              <Link to="/words-game" className="navLink" onClick={handleLinkClick}>Вордзгейм</Link>
-            </li>
-          ) : null}
+            
         </ul>
         <button onClick={handleLogout} className="logoutButton">Выйти</button>
       </nav>

@@ -157,3 +157,54 @@ height: calc(100vh - 45px);
   height: 32px;
   padding-left: 40px;
 }
+
+.nav-dict-link {
+  display: flex;
+  align-items: center;
+  background-image: url(../assets/book.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 26px 32px;
+  background-position: 2px;
+  height: 32px;
+  padding-left: 40px;
+}
+
+.nav-phrase-link {
+  display: flex;
+  align-items: center;
+  background-image: url(../assets/phrase.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 27px 28px;
+  background-position: 2px;
+  height: 32px;
+  padding-left: 40px;
+}
+
+.nav-practice-link {
+  display: flex;
+  align-items: center;
+  background-image: url(../assets/practice.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 32px 32px;
+  background-position: 2px;
+  height: 32px;
+  padding-left: 40px;
+}
+.nav-record-link {
+  display: flex;
+  align-items: center;
+  background-image: url(../assets/microphone-white.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 22px 32px;
+  background-position: 5px;
+  height: 32px;
+  padding-left: 40px;
+}
