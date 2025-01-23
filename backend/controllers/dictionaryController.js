@@ -130,7 +130,7 @@ const addTranslation = async (req, res) => {
     // Выполняем сжатие файла
     await compressAudio(inputPath, compressedPath);
 
-    // Удаляем исходный файл, если сжатие прошло успешно
+    // Удаляем исходный файл, если сжатие прошло успешнss
     fs.unlinkSync(inputPath);
 
     // Генерируем URL для сжатого файла
