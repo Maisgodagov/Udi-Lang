@@ -49,7 +49,7 @@ const DictionaryPage: React.FC = () => {
   };
 
   const filteredDictionary = dictionary.filter((entry) =>
-    entry.audio_url && entry.audio_url.trim() !== '' && // только записи с аудио
+    entry.audio_url && entry.audio_url.trim() !== '' && 
     (
       entry.word_udi.toLowerCase().includes(searchTerm.toLowerCase()) ||
       entry.word_rus.toLowerCase().includes(searchTerm.toLowerCase())
@@ -126,7 +126,7 @@ const DictionaryPage: React.FC = () => {
               ref={filteredDictionary.length === index + 1 ? lastElementRef : null}
             >
               <p>
-                <strong>{entry.word_udi}</strong> - {entry.word_rus}
+                <strong>{entry.word_udi.toLowerCase()}</strong> - {entry.word_rus}
               </p>
               <button
                 className="dictionary-play-btn"
