@@ -81,7 +81,4 @@ app.use((err, req, res, next) => {
 // Запуск сервера
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
-  console.log(`Allowed Origins: ${allowedOrigins.join(', ')}`);
 });

@@ -42,7 +42,6 @@ const getUsers = async (req, res) => {
         const query = 'UPDATE users SET role = ? WHERE id = ?';
         const [result] = await db.query(query, [role, id]);
         if (result.affectedRows === 0) {
-          console.log('user not found:', id);
           return res.status(404).json({ message: 'Слово не найдено' });
         }
         res.status(200).json({ message: 'Роль пользователя обновлена' });      

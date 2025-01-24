@@ -78,7 +78,6 @@ const getPhrases = async (req, res) => {
 const addWord = async (req, res) => {
   const { word_udi, word_rus, comment } = req.body;
   
-  console.log('Полученные данные:', req.body);
 
   // Проверяем, что обязательные поля заполнены
   if (!word_udi || !word_rus) {
@@ -121,56 +120,10 @@ const getPhrasesToTranslate = async (req, res) => {
     res.status(500).json({ message: 'Ошибка при получении фраз для перевода' });
   }
 };
-// Итоговая версия функции addTranslation
-// const addTranslation = async (req, res) => {
-//   const { word_udi, word_rus, username } = req.body;
 
-//   // Проверяем наличие файла
-//   if (!req.file) {
-//     return res.status(400).json({ message: 'Аудиофайл обязателен' });
-//   }
-
-//   const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
-//   const inputPath = req.file.path;
-//   const compressedPath = path.join(path.dirname(inputPath), `compressed_${req.file.filename}`);
-
-//   try {
-//     console.log('Получены данные для обновления:', {
-//       word_udi,
-//       word_rus,
-//       username,
-//       inputPath,
-//     });
-//     // Выполняем сжатие файла
-//     await compressAudio(inputPath, compressedPath);
-
-//     // Удаляем исходный файл, если сжатие прошло успешнss
-//     fs.unlinkSync(inputPath);
-
-//     // Генерируем URL для сжатого файла
-//     const audioUrl = `${baseUrl}/uploads/compressed_${req.file.filename}`;
-//     // Выполняем обновление записи в базе данных
-//     const query = 'UPDATE dictionary SET word_udi = ?, audio_url = ?, username = ? WHERE word_rus = ?';
-//     const [result] = await db.query(query, [word_udi, audioUrl, username, word_rus]);
-
-//     if (result.affectedRows === 0) {
-//       return res.status(404).json({ message: 'Слово не найдено' });
-//     }
-
-//     res.status(200).json({ message: 'Перевод добавлен успешно', audioUrl });
-//   } catch (err) {
-//     // Удаляем сжатый файл, если он был создан, но произошла ошибка
-//     if (fs.existsSync(compressedPath)) {
-//       fs.unlinkSync(compressedPath);
-//     }
-
-//     res.status(500).json({ message: 'Ошибка сервера при добавлении перевода', error: err.message });
-//   }
-// };
 const addTranslation = async (req, res) => {
   const { word_udi, word_rus, username } = req.body;
 
-  // Проверяем наличие файла
   if (!req.file) {
     return res.status(400).json({ message: 'Аудиофайл обязателен' });
   }
@@ -228,7 +181,6 @@ const addPhraseTranslation = async (req, res) => {
   const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
   const audioUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
 
-  console.log('Received translation data for phrase:', { phrase_udi, phrase_rus, audioUrl, username });
   if (!audioUrl) {
     return res.status(400).json({ message: 'Аудиофайл обязателен' });
   }
@@ -278,7 +230,6 @@ const updateWord = async (req, res) => {
     const query = 'UPDATE dictionary SET word_udi = ?, word_rus = ? WHERE id = ?';
     const [result] = await db.query(query, [word_udi, word_rus, id]);
     if (result.affectedRows === 0) {
-      console.log('Word not found:', id);
       return res.status(404).json({ message: 'Слово не найдено' });
     }
     res.status(200).json({ message: 'Слово успешно обновлено' });
