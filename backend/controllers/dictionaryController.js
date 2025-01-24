@@ -20,6 +20,20 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+const trimSilence = async (inputPath, outputPath) => {
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .audioFilters('silenceremove=1:0:-50dB') // Убираем тишину с порогом -50 dB
+      .on('end', () => {
+        resolve();
+      })
+      .on('error', (err) => {
+        console.error(`Ошибка при обрезке тишины ${inputPath}:`, err.message);
+        reject(err);
+      })
+      .save(outputPath);
+  });
+};
 // Функция для сжатия аудиофайла
 const compressAudio = async (inputPath, outputPath) => {
   return new Promise((resolve, reject) => {
@@ -108,6 +122,51 @@ const getPhrasesToTranslate = async (req, res) => {
   }
 };
 // Итоговая версия функции addTranslation
+// const addTranslation = async (req, res) => {
+//   const { word_udi, word_rus, username } = req.body;
+
+//   // Проверяем наличие файла
+//   if (!req.file) {
+//     return res.status(400).json({ message: 'Аудиофайл обязателен' });
+//   }
+
+//   const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
+//   const inputPath = req.file.path;
+//   const compressedPath = path.join(path.dirname(inputPath), `compressed_${req.file.filename}`);
+
+//   try {
+//     console.log('Получены данные для обновления:', {
+//       word_udi,
+//       word_rus,
+//       username,
+//       inputPath,
+//     });
+//     // Выполняем сжатие файла
+//     await compressAudio(inputPath, compressedPath);
+
+//     // Удаляем исходный файл, если сжатие прошло успешнss
+//     fs.unlinkSync(inputPath);
+
+//     // Генерируем URL для сжатого файла
+//     const audioUrl = `${baseUrl}/uploads/compressed_${req.file.filename}`;
+//     // Выполняем обновление записи в базе данных
+//     const query = 'UPDATE dictionary SET word_udi = ?, audio_url = ?, username = ? WHERE word_rus = ?';
+//     const [result] = await db.query(query, [word_udi, audioUrl, username, word_rus]);
+
+//     if (result.affectedRows === 0) {
+//       return res.status(404).json({ message: 'Слово не найдено' });
+//     }
+
+//     res.status(200).json({ message: 'Перевод добавлен успешно', audioUrl });
+//   } catch (err) {
+//     // Удаляем сжатый файл, если он был создан, но произошла ошибка
+//     if (fs.existsSync(compressedPath)) {
+//       fs.unlinkSync(compressedPath);
+//     }
+
+//     res.status(500).json({ message: 'Ошибка сервера при добавлении перевода', error: err.message });
+//   }
+// };
 const addTranslation = async (req, res) => {
   const { word_udi, word_rus, username } = req.body;
 
@@ -118,6 +177,7 @@ const addTranslation = async (req, res) => {
 
   const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
   const inputPath = req.file.path;
+  const trimmedPath = path.join(path.dirname(inputPath), `trimmed_${req.file.filename}`);
   const compressedPath = path.join(path.dirname(inputPath), `compressed_${req.file.filename}`);
 
   try {
@@ -127,14 +187,20 @@ const addTranslation = async (req, res) => {
       username,
       inputPath,
     });
-    // Выполняем сжатие файла
-    await compressAudio(inputPath, compressedPath);
 
-    // Удаляем исходный файл, если сжатие прошло успешнss
+    // Удаление тишины
+    await trimSilence(inputPath, trimmedPath);
+
+    // Сжатие файла
+    await compressAudio(trimmedPath, compressedPath);
+
+    // Удаляем временные файлы (исходный и обрезанный)
     fs.unlinkSync(inputPath);
+    fs.unlinkSync(trimmedPath);
 
     // Генерируем URL для сжатого файла
     const audioUrl = `${baseUrl}/uploads/compressed_${req.file.filename}`;
+
     // Выполняем обновление записи в базе данных
     const query = 'UPDATE dictionary SET word_udi = ?, audio_url = ?, username = ? WHERE word_rus = ?';
     const [result] = await db.query(query, [word_udi, audioUrl, username, word_rus]);
@@ -145,7 +211,10 @@ const addTranslation = async (req, res) => {
 
     res.status(200).json({ message: 'Перевод добавлен успешно', audioUrl });
   } catch (err) {
-    // Удаляем сжатый файл, если он был создан, но произошла ошибка
+    // Удаляем временные файлы в случае ошибки
+    if (fs.existsSync(trimmedPath)) {
+      fs.unlinkSync(trimmedPath);
+    }
     if (fs.existsSync(compressedPath)) {
       fs.unlinkSync(compressedPath);
     }
@@ -153,7 +222,6 @@ const addTranslation = async (req, res) => {
     res.status(500).json({ message: 'Ошибка сервера при добавлении перевода', error: err.message });
   }
 };
-
 // Добавление перевода для фразы (обновление таблицы phrases)
 const addPhraseTranslation = async (req, res) => {
   const { phrase_udi, phrase_rus, username } = req.body;
