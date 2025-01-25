@@ -17,6 +17,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import CustomDragLayer from './components/CustomDragLayer';
+import TrainingPage from './pages/TrainingPage';
 
 const App: React.FC = () => {
   return (
@@ -78,7 +79,7 @@ const AppContent: React.FC = () => {
           <Route
             path="/words-game"
             element={
-              <ProtectedRoute allowedRoles={['admin', 'translator']}>
+              <ProtectedRoute allowedRoles={['admin', 'translator', 'user', 'moderator']}>
                 <DndProvider
                   backend={
                     isTouchDevice
@@ -89,6 +90,14 @@ const AppContent: React.FC = () => {
                   <WordsGame setInitialRect={setInitialRect} />
                   <CustomDragLayer initialRect={initialRect} />
                 </DndProvider>
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/training"
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'translator', 'user', 'moderator']}>
+                <TrainingPage />
               </ProtectedRoute>
             }
           />

@@ -1,0 +1,49 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import './TrainingPage.css';
+
+// Информация об играх
+const games = [
+  {
+    id: 'words-game',
+    title: 'Изучи слово',
+    description: 'Тренируйся, соединяя слова с их переводами.',
+    route: '/words-game',
+  },
+  {
+    id: 'future-game',
+    title: 'Будущая игра',
+    description: 'Эта игра в разработке.',
+    route: '/future-game',
+  },
+];
+
+const TrainingPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (route: string) => {
+    navigate(route);
+  };
+
+  return (
+    <div className="training-page">
+      <h1 className="training-title">Выбери тренировку</h1>
+      <div className="games-list">
+        {games.map((game) => (
+          <div className="game-card" key={game.id}>
+            <h2 className="game-title">{game.title}</h2>
+            <p className="game-description">{game.description}</p>
+            <button
+              className="play-btn"
+              onClick={() => handleNavigate(game.route)}
+            >
+              Играть
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default TrainingPage;

@@ -185,12 +185,12 @@
   pointer-events: none;
 }
 
-@media (max-width: 500px) {
+/* @media (max-width: 500px) {
   .custom-drag-layer {
     opacity: 1;
-  }  
+  }   */
   
-}
+/* } */
 .feedback-icon {
   width: 75px;
   height: 75px;

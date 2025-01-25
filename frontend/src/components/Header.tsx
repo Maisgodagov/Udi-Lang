@@ -102,7 +102,7 @@ const Header: React.FC = () => {
             </Link>
           </li>
           <li className="navItem">
-              <Link to="/words-game" className="navLink" onClick={handleLinkClick}>
+              <Link to="/training" className="navLink" onClick={handleLinkClick}>
               <p className="nav-practice-link">Тренироваться</p>
               </Link>
             </li>
