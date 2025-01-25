@@ -1,4 +1,10 @@
+.translate-title {
+    text-align: center;
+    padding: 0 10px;
+}
+
 .russian-word {
+    position: relative;
     width: 100%;
     background-color: #fff;
     border-radius: 30px;
@@ -11,7 +17,15 @@
     align-items: center;
     user-select: none;
 }
+
+.russian-word::after {
+    content: 'рус.';
+    position: absolute;
+    right: 10px;
+    color: #868686;
+}
 .udin-word {
+    position: relative;
     width: 100%;
     background-color: #fff;
     border-radius: 30px;
@@ -23,6 +37,14 @@
     display: flex;
     align-items: center;
     user-select: none;
+    border: none;
+}
+.udin-word::after {
+    content: 'уди.';
+    position: absolute;
+    right: 10px;
+    color: #868686;
+    font-weight: 400;
 }
 .comment {
     width: 100%;
