@@ -1,12 +1,12 @@
 .games-container {
   width: 100%;
-  height: calc(100vh - 50px);
+  height: calc(100vh - 95px);
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: rgb(121, 222, 222);
-  padding-bottom: 55px;
+
 }
 
 /* Начальный экран */
