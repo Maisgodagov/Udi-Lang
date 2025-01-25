@@ -18,6 +18,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import CustomDragLayer from './components/CustomDragLayer';
 import TrainingPage from './pages/TrainingPage';
+import PhraseGame from './pages/PhraseGame';
 
 const App: React.FC = () => {
   return (
@@ -98,6 +99,14 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={['admin', 'translator', 'user', 'moderator']}>
                 <TrainingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/phrase-game"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <PhraseGame />
               </ProtectedRoute>
             }
           />

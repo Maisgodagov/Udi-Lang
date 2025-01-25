@@ -11,10 +11,10 @@ const games = [
     route: '/words-game',
   },
   {
-    id: 'future-game',
-    title: 'Будущая игра',
+    id: 'phrase-game',
+    title: 'Собери фразу',
     description: 'Эта игра в разработке.',
-    route: '/future-game',
+    route: '/phrase-game',
   },
 ];
 
