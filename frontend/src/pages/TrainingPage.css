@@ -16,17 +16,25 @@
   }
   
   .game-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background: #f9f9f9;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 300px;
+    max-width: 400px;
+    min-height: 200px;
+    width: 100%;
     text-align: center;
   }
   
   .game-title {
-    font-size: 1.5rem;
+    font-size: 22px;
+    font-weight: 500;
+    font-family: "Rubik", serif;
     margin-bottom: 10px;
+    color: #464646;
   }
   
   .game-description {
@@ -35,14 +43,17 @@
     color: #666;
   }
   
-  .play-btn {
-    background-color: #007bff;
+  .game-play-btn {
+    background-color: #5A7B6E;
     border: none;
     color: white;
     padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1rem;
+    margin-top: auto;
+    font-weight: 600;
+    width: fit-content;
   }
   
   .play-btn:hover {

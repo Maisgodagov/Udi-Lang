@@ -27,14 +27,14 @@ const TrainingPage: React.FC = () => {
 
   return (
     <div className="training-page">
-      <h1 className="training-title">Выбери тренировку</h1>
+      <h1 className="section-title">Выбери тренировку</h1>
       <div className="games-list">
         {games.map((game) => (
           <div className="game-card" key={game.id}>
             <h2 className="game-title">{game.title}</h2>
             <p className="game-description">{game.description}</p>
             <button
-              className="play-btn"
+              className="game-play-btn"
               onClick={() => handleNavigate(game.route)}
             >
               Играть

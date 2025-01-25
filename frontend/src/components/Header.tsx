@@ -8,7 +8,7 @@ const Header: React.FC = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null); // Состояние для роли
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [error, setError] = useState('');
+  const [error,setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
