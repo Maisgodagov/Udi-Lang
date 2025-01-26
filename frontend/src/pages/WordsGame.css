@@ -125,15 +125,7 @@
 
 /* Левая зона (вариант "не знаю") */
 .options-wrapper > :nth-child(2) {
-  top: 30%;
-  left: 60px;
-  transform: translate(-50%, -50%);
-  width: 100px;
-  height: 100px;
-  font-weight: 500;
-  border-radius: 50%;
-  background-color: #ffee30;
-  color: #724141;
+  display: none;
 }
 
 /* Нижняя зона */
