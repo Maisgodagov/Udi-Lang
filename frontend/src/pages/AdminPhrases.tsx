@@ -41,11 +41,11 @@ const AdminPhrasesPage: React.FC = () => {
   };
 
   // Фильтрация фраз по поисковому запросу (ищем по phrase_udi и phrase_rus)
-  const filteredPhrases = phrases.filter(
-    (entry) =>
-      entry.phrase_udi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entry.phrase_rus.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPhrases = phrases.filter((entry) =>
+    (entry.phrase_udi || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (entry.phrase_rus || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
 
   // Начать редактирование выбранной фразы
   const handleEdit = (entry: PhraseEntry) => {
