@@ -105,7 +105,7 @@
   background: url(../assets/cloudy.png) 0 100% repeat-x, url(../assets/cloudy.png) 150px 100% repeat-x;
   background-size: contain; /* если требуется */
   border-radius: 0 0 15% 15%;
-  background-repeat: round;
+  background-repeat: round repeat-x;
   height: 150px;
   max-width: 1024px;
   width: 100%;
@@ -133,7 +133,7 @@
   background: url(../assets/bush.png) 0 100% repeat-x, url(../assets/bush.png) 180px 100% repeat-x;
   background-size: contain;
   border-radius: 15% 15% 0 0;
-  background-repeat: round;
+  background-repeat: round repeat-x;
   height: 150px;
   max-width: 1024px;
   width: 100%;
@@ -184,6 +184,6 @@
   
 /* } */
 .feedback-icon {
-  width: 75px;
-  height: 75px;
+  width: 50px;
+  height: 50px;
 }
