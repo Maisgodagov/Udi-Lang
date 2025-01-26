@@ -22,7 +22,8 @@
     content: 'рус.';
     position: absolute;
     right: 10px;
-    color: #868686;
+    opacity: 0.5;
+    color: #444343;
 }
 .udin-word {
     position: relative;
@@ -39,11 +40,20 @@
     user-select: none;
     border: none;
 }
-.udin-word::after {
+
+.translation-input-block {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.translation-input-block::after {
     content: 'уди.';
     position: absolute;
     right: 10px;
-    color: #868686;
+    top: 12px;
+    opacity: 0.5;
+    color: #444343;
     font-weight: 400;
 }
 .comment {

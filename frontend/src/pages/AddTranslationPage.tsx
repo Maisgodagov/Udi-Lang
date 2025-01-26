@@ -31,10 +31,9 @@ const AddTranslationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState<string>('');
 
-  // общее поле для ввода перевода (если у слова/фразы перевода нет)
+  // Здесь храним перевод на удинский, который пользователь может редактировать
   const [userTranslation, setUserTranslation] = useState('');
 
-  // Храним текущий обрабатываемый элемент (слово или фразу)
   const [currentItem, setCurrentItem] = useState<TaskItem | null>(null);
   const [items, setItems] = useState<TaskItem[]>([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -69,7 +68,7 @@ const AddTranslationPage: React.FC = () => {
         console.error(err);
       });
 
-    // Загружаем ВСЕ слова из словаря
+    // Загружаем ВСЕ слова + фразы
     Promise.all([
       api.get('/dictionary'), // для слов
       api.get('/phrases'),    // для фраз
@@ -78,7 +77,7 @@ const AddTranslationPage: React.FC = () => {
         const dictionaryData = dictRes.data;
         const phrasesData = phraseRes.data;
 
-        // 1) Слова, у которых есть word_udi, но нет audio_url => нужно только озвучить
+        // 1) Слова, у которых есть word_udi, но нет audio_url => нужно только озвучить (но при этом перевод можно редактировать)
         const wordsWithTranslationNoAudio: TaskItem[] = dictionaryData
           .filter((item: any) =>
             item.word_rus &&
@@ -96,7 +95,7 @@ const AddTranslationPage: React.FC = () => {
             type: 'word',
           }));
 
-        // 2) Слова, у которых нет word_udi (и нет озвучки), но есть word_rus => нужно добавить перевод и озвучку
+        // 2) Слова, у которых нет word_udi, нет аудио, но есть русское слово => нужно добавить перевод и озвучку
         const wordsNoTranslationNoAudio: TaskItem[] = dictionaryData
           .filter((item: any) =>
             item.word_rus &&
@@ -107,14 +106,13 @@ const AddTranslationPage: React.FC = () => {
           .map((item: any) => ({
             id: item.id,
             text: item.word_rus,
-            translation: '',          // Перевода пока нет
+            translation: '',
             comment: item.comment,
             audio_url: item.audio_url,
             type: 'word',
           }));
 
-        // 3) Фразы, у которых нет phrase_udi (и нет аудио) => нужно добавить перевод и озвучку
-        // (Если хотите, можно также проверить !item.audio_url, чтобы точно знать, что и озвучки нет)
+        // 3) Фразы, у которых нет phrase_udi (и нет аудио), => нужно добавить перевод и озвучку
         const phrasesToTranslate: TaskItem[] = phrasesData
           .filter((item: any) =>
             item.phrase_rus &&
@@ -125,8 +123,8 @@ const AddTranslationPage: React.FC = () => {
           .map((item: any) => ({
             id: item.id,
             text: item.phrase_rus,
-            translation: '', // Нет перевода
-            comment: item.comment, // если вдруг есть
+            translation: '',
+            comment: item.comment,
             audio_url: item.audio_url,
             type: 'phrase',
           }));
@@ -166,7 +164,20 @@ const AddTranslationPage: React.FC = () => {
       });
   }, [navigate]);
 
+  // ----------------------------------------------------------------
+  // Когда меняется currentItem, подставляем имеющийся перевод в инпут (чтобы можно было редактировать)
+  // ----------------------------------------------------------------
+  useEffect(() => {
+    if (currentItem) {
+      setUserTranslation(currentItem.translation || '');
+    } else {
+      setUserTranslation('');
+    }
+  }, [currentItem]);
+
+  // ----------------------------------------------------------------
   // Функция для перемешивания массива
+  // ----------------------------------------------------------------
   const shuffle = (array: TaskItem[]) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -177,7 +188,7 @@ const AddTranslationPage: React.FC = () => {
   };
 
   // ----------------------------------------------------------------
-  // Сабмит (добавление перевода, если нужно, и озвучки)
+  // Сабмит (добавление/обновление перевода и озвучки)
   // ----------------------------------------------------------------
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,19 +198,14 @@ const AddTranslationPage: React.FC = () => {
       return;
     }
 
-    // Проверяем наличие аудиозаписи
     if (!audioBlob) {
       setError('Сначала запишите произношение.');
       return;
     }
 
-    // Определяем, есть ли необходимость в переводе
-    const needTranslation =
-      (currentItem.type === 'word' && !currentItem.translation) ||
-      currentItem.type === 'phrase';
-
-    // Если нужна запись перевода, проверяем наличие userTranslation
-    if (needTranslation && !userTranslation.trim()) {
+    // Перевод обязателен для фраз, а также для слов,
+    // потому что мы разрешили редактировать перевод (даже если он изначально был).
+    if (!userTranslation.trim()) {
       setError('Сначала введите перевод на удинский язык.');
       return;
     }
@@ -211,18 +217,9 @@ const AddTranslationPage: React.FC = () => {
 
     if (currentItem.type === 'word') {
       // Слово
-      // Если слово без перевода (word_udi), берём из userTranslation
-      // Иначе берём готовое currentItem.translation
-      const wordUdi = currentItem.translation
-        ? currentItem.translation
-        : userTranslation;
-
-      formData.append('word_udi', wordUdi);
+      formData.append('word_udi', userTranslation.trim());
       formData.append('word_rus', currentItem.text);
-      // comment, если нужно, можно тоже передавать:
-      // if (currentItem.comment) formData.append('comment', currentItem.comment);
 
-      // Запрос на эндпоинт для добавления/обновления слова: /add-translation
       setIsLoading(true);
       api
         .post('/add-translation', formData, {
@@ -233,7 +230,7 @@ const AddTranslationPage: React.FC = () => {
           handleAfterSubmit();
         })
         .catch((err) => {
-          setError('Ошибка при добавлении озвучки');
+          setError('Ошибка при добавлении озвучки слова');
           console.error('Error:', err);
         })
         .finally(() => {
@@ -241,11 +238,9 @@ const AddTranslationPage: React.FC = () => {
         });
     } else {
       // Фраза
-      // Здесь всегда нужно добавить phrase_udi (берём из userTranslation)
       formData.append('phrase_udi', userTranslation.trim());
       formData.append('phrase_rus', currentItem.text);
 
-      // Эндпоинт для фраз: /add-phrase-translation
       setIsLoading(true);
       api
         .post('/add-phrase-translation', formData, {
@@ -265,7 +260,9 @@ const AddTranslationPage: React.FC = () => {
     }
   };
 
-  // После успешной отправки убираем текущий элемент и переходим к следующему
+  // ----------------------------------------------------------------
+  // После сохранения/обновления — перейти к следующему
+  // ----------------------------------------------------------------
   const handleAfterSubmit = () => {
     setAudioUrl('');
     setAudioBlob(null);
@@ -278,7 +275,6 @@ const AddTranslationPage: React.FC = () => {
     setCurrentItem(remaining[0] || null);
 
     // Обновим счётчик "переведённых" слов (только если это слово)
-    // Для фраз статистику не ведём, оставим как в исходном коде
     if (currentItem && currentItem.type === 'word') {
       setTranslatedItems((prev) => prev + 1);
     }
@@ -396,12 +392,11 @@ const AddTranslationPage: React.FC = () => {
   };
 
   // ----------------------------------------------------------------
-  // Удаление текущего элемента (для админа)
+  // Удаление текущего элемента (только для админа)
   // ----------------------------------------------------------------
   const handleDeleteCurrent = () => {
     if (!currentItem) return;
 
-    // В зависимости от типа, будет разный эндпоинт
     const endpoint =
       currentItem.type === 'word'
         ? `/dictionary/${currentItem.id}`
@@ -431,56 +426,38 @@ const AddTranslationPage: React.FC = () => {
   };
 
   // ----------------------------------------------------------------
-  // Отрисовка
+  // Логика заголовка
   // ----------------------------------------------------------------
-  // Логика заголовка в зависимости от типа и наличия перевода:
   const getTitle = () => {
     if (!currentItem) return '';
 
     if (currentItem.type === 'phrase') {
       return 'Добавьте перевод и произношение фразы';
-    }
-    // Слово
-    if (currentItem.translation) {
-      // если уже есть перевод (word_udi)
-      return 'Добавьте произношение слова';
     } else {
       return 'Добавьте перевод и произношение слова';
     }
   };
 
+  // ----------------------------------------------------------------
+  // Отрисовка
+  // ----------------------------------------------------------------
   return (
     <div className="page-wrapper">
       <h1 className="section-title translate-title">{getTitle()}</h1>
 
-      {/* Старая надпись "Осталось озвучить X слов" в примере: */}
-      <p className="words-stat">Осталось {items.length} слов и фраз</p>
+      <p className="words-stat">Осталось {items.length} слов/фраз</p>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {currentItem ? (
         <form className="add-form" onSubmit={handleSubmit}>
           <div>
-            {/* Если это слово с переводом, показываем русское + удинское.
-                Если слово без перевода, показываем только русское, а поле для ввода удинского – ниже.
-                Если фраза – тоже только исходную фразу, а поле для ввода удинского – ниже.
-            */}
             {currentItem.type === 'word' ? (
               <>
-                <p className='russian-word'>
-                  {currentItem.text}
-                </p>
-                {currentItem.translation && (
-                  <p className='udin-word'>
-                    {currentItem.translation}
-                  </p>
-                )}
+                <p className="russian-word">{currentItem.text}</p>
               </>
             ) : (
-              // фраза
-              <p className='russian-word'>
-                {currentItem.text}
-              </p>
+              <p className="russian-word">{currentItem.text}</p>
             )}
 
             {currentItem.comment && (
@@ -488,23 +465,21 @@ const AddTranslationPage: React.FC = () => {
             )}
           </div>
 
-          {/* Если перевода нет (слово без word_udi) или это фраза (phrase_udi всегда нужно), 
-              показываем поле для ввода перевода */}
-          {(currentItem.type === 'phrase' || !currentItem.translation) && (
-            <div className="translation-input-block">
-              <label>
-                <input className='udin-word'
-                  type="text"
-                  value={userTranslation}
-                  onChange={(e) => setUserTranslation(e.target.value)}
-                  placeholder='введите перевод на удинский...'
-                />
-              </label>
-            </div>
-          )}
+          {/* Всегда показываем поле для ввода/редактирования удинского перевода */}
+          <div className="translation-input-block">
+            <label>
+              <input
+                className="udin-word"
+                type="text"
+                value={userTranslation}
+                onChange={(e) => setUserTranslation(e.target.value)}
+                placeholder="введите перевод на удинский..."
+              />
+            </label>
+          </div>
 
           <div className="record-wrapper">
-            {/* Плеер прослушивания, если уже записано что-то */}
+            {/* Если уже записали аудио, показываем плеер */}
             {audioUrl && (
               <div className="audio-player-wrapper">
                 <div className="audio-player">
@@ -525,7 +500,7 @@ const AddTranslationPage: React.FC = () => {
               </div>
             )}
 
-            {/* Кнопки записи / остановки / повторной записи */}
+            {/* Кнопки записи и остановки */}
             {isRecording ? (
               <div className="indicator-wrapper">
                 <p className="record-duration-text">
@@ -542,39 +517,25 @@ const AddTranslationPage: React.FC = () => {
                   <div className="box box4"></div>
                   <div className="box box5"></div>
                 </div>
-                <button
-                  className="stop-record-btn"
-                  type="button"
-                  onClick={stopRecording}
-                >
+                <button className="stop-record-btn" type="button" onClick={stopRecording}>
                   
                 </button>
               </div>
             ) : audioUrl ? (
-              <button
-                className="re-record-btn"
-                type="button"
-                onClick={handleReset}
-              >
+              <button className="re-record-btn" type="button" onClick={handleReset}>
                 
               </button>
             ) : (
-              <button
-                className="record-btn"
-                type="button"
-                onClick={startRecording}
-              >
+              <button className="record-btn" type="button" onClick={startRecording}>
                 Записать произношение
               </button>
             )}
           </div>
 
-          {/* Кнопка сохранить */}
           <button className="save-btn" type="submit" disabled={isLoading}>
             {isLoading ? 'Сохранение...' : 'Сохранить'}
           </button>
 
-          {/* Кнопка "Пропустить" и "Удалить" (для админа) */}
           <div className="btn-skip-wrapper">
             {role === 'admin' && (
               <button
@@ -593,7 +554,6 @@ const AddTranslationPage: React.FC = () => {
           {successMessage && <p className="success-msg">{successMessage}</p>}
         </form>
       ) : (
-        // Если currentItem == null, значит элементы закончились
         <p style={{ marginTop: '20px' }}>
           Нет элементов, требующих перевода или озвучивания
         </p>
@@ -603,9 +563,10 @@ const AddTranslationPage: React.FC = () => {
         - Нажмите "Записать произношение", чтобы добавить аудиозапись.
       </p>
       <p className="add-word-text">
-        - Если не хотите переводить текущую фразу или слово, то нажмите "Пропустить".
+        - Если не хотите переводить текущее слово/фразу, нажмите "Пропустить".
       </p>
     </div>
   );
 };
+
 export default AddTranslationPage;
