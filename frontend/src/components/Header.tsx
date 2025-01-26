@@ -105,7 +105,7 @@ const Header: React.FC = () => {
               <Link to="/training" className="navLink" onClick={handleLinkClick}>
               <p className="nav-practice-link">Тренироваться</p>
               </Link>
-            </li>
+          </li>
           <span className="nav-devider"></span>
           {role === 'admin' || role === 'moderator' || role === 'translator' ? (
             <li className="navItem">
@@ -114,7 +114,9 @@ const Header: React.FC = () => {
               </Link>
             </li>
           ) : null}
-          <span className="nav-devider"></span>
+          {role === 'admin' || role === 'moderator' || role === 'translator' ? (
+            <span className="nav-devider"></span>
+          ) : null}
           {role === 'admin' || role === 'moderator' ? (
             <li className="navItem">
               <Link to="/add-word" className="navLink" onClick={handleLinkClick}>Добавить слово</Link>
