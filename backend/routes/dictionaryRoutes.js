@@ -14,7 +14,8 @@ const {
   updateWord, 
   deleteWord, 
   getDictionaryStatistics,
-  addPhrase
+  addPhrase,
+  updatePhrase,
 } = require('../controllers/dictionaryController');
 
 const { authMiddleware, checkRole } = require('../middleware/authMiddleware');
@@ -122,6 +123,12 @@ router.post(
   checkRole(['admin', 'moderator']),
   upload.single('audio'),
   addPhrase
+);
+
+router.put('/phrases/:id',
+  authMiddleware,
+  checkRole(['admin', 'moderator']),
+  updatePhrase
 );
 
 module.exports = router;

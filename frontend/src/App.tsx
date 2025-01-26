@@ -19,6 +19,7 @@ import { TouchBackend } from 'react-dnd-touch-backend';
 import CustomDragLayer from './components/CustomDragLayer';
 import TrainingPage from './pages/TrainingPage';
 import PhraseGame from './pages/PhraseGame';
+import AdminPhrasesPage from './pages/AdminPhrases';
 
 const App: React.FC = () => {
   return (
@@ -74,6 +75,14 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-phrase"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminPhrasesPage />
               </ProtectedRoute>
             }
           />

@@ -288,6 +288,29 @@ const addPhrase = async (req, res) => {
   }
 };
 
+// Обновление фразы
+const updatePhrase = async (req, res) => {
+  const { id } = req.params;
+  const { phrase_udi, phrase_rus } = req.body;
+
+  if (!phrase_udi || !phrase_rus) {
+    return res.status(400).json({ message: 'Необходимо заполнить оба поля' });
+  }
+
+  try {
+    const query = 'UPDATE phrases SET phrase_udi = ?, phrase_rus = ? WHERE id = ?';
+    const [result] = await db.query(query, [phrase_udi, phrase_rus, id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Фраза не найдена' });
+    }
+    res.status(200).json({ message: 'Фраза успешно обновлена' });
+  } catch (err) {
+    console.error('Ошибка при обновлении фразы:', err);
+    res.status(500).json({ message: 'Ошибка при обновлении фразы' });
+  }
+};
+
+
 // Получение статистики по словарю (на основе таблицы dictionary)
 const getDictionaryStatistics = async (req, res) => {
   try {
@@ -316,5 +339,6 @@ module.exports = {
   getDictionaryStatistics, 
   addPhrase,
   getPhrases,
+  updatePhrase,
   upload
 };
