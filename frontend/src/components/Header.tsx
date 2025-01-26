@@ -120,6 +120,11 @@ const Header: React.FC = () => {
               <Link to="/add-word" className="navLink" onClick={handleLinkClick}>Добавить слово</Link>
             </li>
           ) : null}
+          {role === 'admin' || role === 'moderator' ? (
+            <li className="navItem">
+              <Link to="/add-phrase" className="navLink" onClick={handleLinkClick}>Добавить фразу</Link>
+            </li>
+          ) : null}
           
           {role === 'admin' ? (
             <li className="navItem">

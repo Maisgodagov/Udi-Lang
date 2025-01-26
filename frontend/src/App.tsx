@@ -20,6 +20,7 @@ import CustomDragLayer from './components/CustomDragLayer';
 import TrainingPage from './pages/TrainingPage';
 import PhraseGame from './pages/PhraseGame';
 import AdminPhrasesPage from './pages/AdminPhrases';
+import AddPhrasePage from './pages/AddPhrasePage';
 
 const App: React.FC = () => {
   return (
@@ -51,6 +52,14 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={['admin', 'moderator']}>
                 <AddWordPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-phrase"
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'moderator']}>
+                <AddPhrasePage />
               </ProtectedRoute>
             }
           />

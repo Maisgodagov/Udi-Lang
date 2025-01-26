@@ -273,20 +273,34 @@ const deletePhrase = async (req, res) => {
 
 // Добавление новой фразы (вставка в таблицу phrases)
 const addPhrase = async (req, res) => {
-  const { phrase_udi, phrase_rus, username } = req.body;
-  const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
-  const audioUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
-  if (!phrase_udi || !phrase_rus || !audioUrl || !username) {
-    return res.status(400).json({ message: 'Все поля, включая запись, обязательны для заполнения' });
+  const { phrase_udi, phrase_rus, username, comment } = req.body;
+  // username можно получить и из токена, если нужно
+  
+  if (!phrase_udi || !phrase_rus) {
+    return res.status(400).json({ message: 'Необходимо указать phrase_udi и phrase_rus' });
   }
+
+  const baseUrl = process.env.BASE_URL || 'https://udilang.ru';
+
+  let audioUrl = '';
+  if (req.file) {
+    // Если аудио прислали
+    audioUrl = `${baseUrl}/uploads/${req.file.filename}`;
+  }
+
   try {
-    const query = 'INSERT INTO phrases (phrase_udi, phrase_rus, audio_url, username) VALUES (?, ?, ?, ?)';
-    const [results] = await db.query(query, [phrase_udi, phrase_rus, audioUrl, username]);
+    // Допустим, в таблице phrases есть поле comment. Если нет — уберите.
+    const query = 'INSERT INTO phrases (phrase_udi, phrase_rus, audio_url, username, comment) VALUES (?, ?, ?, ?, ?)';
+    // username или берем из req.body, или, если нужно, из req.user.username
+    const [results] = await db.query(query, [phrase_udi, phrase_rus, audioUrl, username || '', comment || '']);
+    
     res.status(201).json({ message: 'Фраза добавлена', phraseId: results.insertId });
   } catch (err) {
+    console.error('Ошибка при добавлении фразы:', err);
     res.status(500).json({ message: 'Ошибка при добавлении фразы' });
   }
 };
+
 
 // Обновление фразы
 const updatePhrase = async (req, res) => {
