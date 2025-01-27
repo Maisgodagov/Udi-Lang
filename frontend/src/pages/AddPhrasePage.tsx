@@ -7,7 +7,6 @@ import api from '../services/axiosConfig';
 const AddPhrasePage: React.FC = () => {
   const [phraseUdi, setPhraseUdi] = useState('');
   const [phraseRus, setPhraseRus] = useState('');
-  const [comment, setComment] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +38,6 @@ const AddPhrasePage: React.FC = () => {
     const payload = {
       phrase_udi: phraseUdi.trim().toLowerCase(),
       phrase_rus: phraseRus.trim().toLowerCase(),
-      comment: comment.trim(),
     };
 
     setIsLoading(true);
@@ -49,7 +47,6 @@ const AddPhrasePage: React.FC = () => {
         setSuccessMessage('Фраза добавлена!');
         setPhraseUdi('');
         setPhraseRus('');
-        setComment('');
         setError('');
       })
       .catch((err) => {
@@ -84,14 +81,6 @@ const AddPhrasePage: React.FC = () => {
             onChange={(e) => setPhraseRus(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <textarea
-            className="add-input comment-input"
-            placeholder="Комментарий (опционально)"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-          ></textarea>
         </div>
         <button className="save-btn" type="submit" disabled={isLoading}>
           {isLoading ? 'Сохранение...' : 'Сохранить'}

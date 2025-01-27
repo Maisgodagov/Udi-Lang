@@ -273,9 +273,9 @@ const deletePhrase = async (req, res) => {
 
 // Добавление новой фразы (вставка в таблицу phrases)
 // Обязательным делаем только поле phrase_rus.
-// Остальные поля (phrase_udi, audioUrl, username, comment) не обязательны.
+// Остальные поля (phrase_udi, audioUrl, username) не обязательны.
 const addPhrase = async (req, res) => {
-  const { phrase_udi, phrase_rus, username, comment } = req.body;
+  const { phrase_udi, phrase_rus, username } = req.body;
   
   // Проверяем, что обязательные поля заполнены
   if (!phrase_rus) {
@@ -290,18 +290,16 @@ const addPhrase = async (req, res) => {
   }
 
   try {
-    // Учитывая, что поля phrase_udi и comment могут быть не заданы, ставим их в ''
-    // аналогично с username.
+    // Учитывая, что поля phrase_udi и username могут быть не заданы, ставим их в ''
     const query = `
-      INSERT INTO phrases (phrase_udi, phrase_rus, audio_url, username, comment) 
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO phrases (phrase_udi, phrase_rus, audio_url, username) 
+      VALUES (?, ?, ?, ?)
     `;
     const [results] = await db.query(query, [
-      phrase_udi || '', 
-      phrase_rus.trim(), 
-      audioUrl, 
-      username || '', 
-      comment || ''
+      phrase_udi || '',
+      phrase_rus.trim(),
+      audioUrl,
+      username || ''
     ]);
 
     res.status(201).json({ message: 'Фраза добавлена', phraseId: results.insertId });
