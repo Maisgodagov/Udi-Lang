@@ -82,6 +82,7 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   width: fit-content;
   padding-left: 40px;
   background-size: 30px 30px;
+  background-position: 2px;
   cursor: pointer;
 }
 .nav {

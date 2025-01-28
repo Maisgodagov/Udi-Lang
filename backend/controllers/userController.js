@@ -4,19 +4,13 @@ const { User } = require('../models/userModel');
 // Функция для получения профиля пользователя
 const getProfile = async (req, res) => {
   try {
-    const userId = req.user.userId;  // Извлекаем ID пользователя из токена
-    const user = await User.findById(userId);  // Получаем данные пользователя
-
-    if (!user) {
+    const userId = req.user.userId;  // из токена
+    const [rows] = await db.query('SELECT username, email, role, created_at, xp, first_name, last_name, gender, birth_date FROM users WHERE id = ?', [userId]);
+    if (rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    res.status(200).json({
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      created_at: user.created_at
-    });
+    const user = rows[0];
+    res.status(200).json(user);
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ message: 'Error fetching user profile' });

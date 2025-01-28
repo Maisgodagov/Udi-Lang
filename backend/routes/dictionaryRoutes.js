@@ -11,6 +11,7 @@ const {
   getUserStats, 
   getPhrases,
   deletePhrase, 
+  updateWordProgress,
   updateWord, 
   deleteWord, 
   getDictionaryStatistics,
@@ -73,6 +74,12 @@ router.post(
   checkRole(['translator', 'admin', 'moderator']),
   upload.single('audio'),
   addPhraseTranslation
+);
+// Добавляем новый маршрут для обновления прогресса слова
+router.post(
+  '/dictionary/progress',
+  authMiddleware,
+  updateWordProgress
 );
 
 // 8. Статистика по словарю

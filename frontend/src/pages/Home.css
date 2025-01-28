@@ -1,0 +1,93 @@
+/* Общий контейнер для главной страницы */
+.home-page {
+    max-width: 800px; /* Ширина блока */
+    margin: 0 auto;   /* Центрируем по горизонтали */
+    padding: 20px;
+    color: #333;
+  }
+  
+  /* Заголовок */
+  .home-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  /* Приветственное сообщение пользователя */
+  .greeting {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  /* Блок с прогрессом пользователя */
+  .progress-block {
+    background-color: #fafafa;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .progress-block h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+  }
+  
+  /* Блок "начните обучение" + кнопки */
+  .quick-actions {
+    margin: 30px 0;
+    text-align: center;
+  }
+  
+  .quick-actions h2 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+  
+  /* Сетка для кнопок */
+  .actions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  /* Стили для кнопок */
+  .action-btn {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .action-btn:hover {
+    background-color: #45a049;
+  }
+  
+  /* Блок мотивации (или новостей) */
+  .motivation-block {
+    margin-top: 20px;
+    text-align: center;
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 15px;
+  }
+  
+  .motivation-block h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+  }
+  
+  /* Текст цитаты */
+  .quote-text {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #555;
+  }
+  

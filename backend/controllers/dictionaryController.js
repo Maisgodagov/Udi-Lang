@@ -346,6 +346,112 @@ const getDictionaryStatistics = async (req, res) => {
     res.status(500).json({ message: 'Error fetching dictionary statistics' });
   }
 };
+// controllers/dictionaryController.js
+
+/**
+ * Обновление прогресса слова:
+ * userId   - из токена
+ * wordId   - ID слова
+ * result   - 'correct' / 'incorrect'
+ * XP       - сколько очков даём за правильный ответ (например, 10)
+ * Если запись (user_word_progress) отсутствует, создаём её, иначе обновляем
+ */
+const updateWordProgress = async (req, res) => {
+  try {
+    const userId = req.user.userId; // берем из authMiddleware
+    const { wordId, result } = req.body; // например { "wordId": 123, "result": "correct" }
+
+    // Проверка входных данных
+    if (!wordId || !result) {
+      return res.status(400).json({ message: 'wordId и result обязательны' });
+    }
+
+    // 1. Проверяем, есть ли такое слово в dictionary
+    const [rows] = await db.query('SELECT id FROM dictionary WHERE id = ?', [wordId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Слово не найдено' });
+    }
+
+    // 2. Получаем/создаём запись в user_word_progress для (userId, wordId)
+    const [progressRows] = await db.query(
+      'SELECT * FROM user_word_progress WHERE user_id = ? AND word_id = ?',
+      [userId, wordId]
+    );
+
+    let progress = progressRows[0];
+    if (!progress) {
+      // создаём запись со статусом 'learning'
+      await db.query(
+        `INSERT INTO user_word_progress (user_id, word_id, status, xp, times_correct, times_incorrect, last_practiced)
+         VALUES (?, ?, 'learning', 0, 0, 0, NOW())`,
+        [userId, wordId]
+      );
+      // сразу получаем её обратно
+      const [newProgressRows] = await db.query(
+        'SELECT * FROM user_word_progress WHERE user_id = ? AND word_id = ?',
+        [userId, wordId]
+      );
+      progress = newProgressRows[0];
+    }
+
+    // 3. Обновляем поля
+    let newTimesCorrect = progress.times_correct;
+    let newTimesIncorrect = progress.times_incorrect;
+    let newXP = progress.xp;
+    let newStatus = progress.status;
+
+    // Допустим, за правильный ответ +10 XP, за неправильный +0
+    if (result === 'correct') {
+      newTimesCorrect += 1;
+      newXP += 10;  
+      // Если пользователь ответил правильно N раз — статус = 'mastered'
+      if (newTimesCorrect >= 3) {
+        newStatus = 'mastered';
+      }
+    } else if (result === 'incorrect') {
+      newTimesIncorrect += 1;
+      newStatus = 'need_review';
+    }
+
+    // 4. Сохраняем обновлённые значения в user_word_progress
+    await db.query(
+      `UPDATE user_word_progress
+       SET times_correct = ?, times_incorrect = ?, xp = ?, status = ?, last_practiced = NOW()
+       WHERE id = ?`,
+      [newTimesCorrect, newTimesIncorrect, newXP, newStatus, progress.id]
+    );
+
+    // 5. Обновляем общий XP пользователя в таблице users
+    // Сначала получим текущее значение xp у пользователя
+    const [userRows] = await db.query('SELECT xp FROM users WHERE id = ?', [userId]);
+    if (userRows.length === 0) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+    const userXpOld = userRows[0].xp || 0;
+    let xpIncrement = 0;
+    if (result === 'correct') {
+      xpIncrement = 10; // То же, что и выше
+    }
+    const userXpNew = userXpOld + xpIncrement;
+
+    await db.query('UPDATE users SET xp = ? WHERE id = ?', [userXpNew, userId]);
+
+    return res.status(200).json({
+      message: 'Прогресс обновлён',
+      wordProgress: {
+        wordId,
+        timesCorrect: newTimesCorrect,
+        timesIncorrect: newTimesIncorrect,
+        status: newStatus,
+        xp: newXP,
+      },
+      userXp: userXpNew,
+    });
+  } catch (err) {
+    console.error('Ошибка при обновлении прогресса слова:', err);
+    return res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+  }
+};
 
 module.exports = { 
   getDictionary, 
@@ -354,6 +460,7 @@ module.exports = {
   getPhrasesToTranslate, 
   addPhraseTranslation, 
   addTranslation, 
+  updateWordProgress,
   getUserStats, 
   updateWord, 
   deleteWord, 
