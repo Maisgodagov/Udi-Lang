@@ -22,4 +22,4 @@ router.put(
 // GET /api/user/stats
 router.get('/stats', authMiddleware, getUserStats);
   
-module.exports = router; // Экспортируем router наsпрямую
+module.exports = router; // Экспортируем router н8eаsпрямую
