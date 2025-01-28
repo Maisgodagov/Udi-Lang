@@ -41,17 +41,24 @@ const getUsers = async (req, res) => {
   }
 }
 
+// userController.js
 const getUserStats = async (req, res) => {
   try {
-    // Предположим, в authMiddleware ставим req.user.id = <число>
-    const userId = req.user.id;
-    console.log('>>> getUserStats: userId =', userId);
+    const userId = req.user.userId; // должно быть 8
+    console.log('>>> getUserStats userId =', userId);
+    
+    const [rows] = await db.query('SELECT * FROM user_word_progress WHERE user_id = ?', [userId]);
+    console.log('>>> Rows from user_word_progress:', rows);
 
+    // Посмотрим, что реально вернулось. Может быть там пусто.
+    
+    // Потом делаем COUNT(*):
     const [[{ totalLearned }]] = await db.query(`
       SELECT COUNT(*) AS totalLearned
       FROM user_word_progress
       WHERE user_id = ?
     `, [userId]);
+    console.log('>>> totalLearned =', totalLearned);
 
     const [[{ masteredCount }]] = await db.query(`
       SELECT COUNT(*) AS masteredCount

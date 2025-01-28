@@ -50,6 +50,7 @@ const Home: React.FC = () => {
   const handleNavigate = (route: string) => {
     navigate(route);
   };
+  
 
   return (
     <div className="home-page">
