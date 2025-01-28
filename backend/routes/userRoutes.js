@@ -17,5 +17,9 @@ router.put(
     checkRole(['admin']),
     changeUserRole
   );
+
+  // **новый** маршрут для статистики
+// GET /api/user/stats
+router.get('/users/stats', authMiddleware, getUserStats);
   
 module.exports = router; // Экспортируем router напрямую
