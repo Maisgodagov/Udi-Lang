@@ -9,10 +9,8 @@ const authMiddleware = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
-      console.error('JWT verification error:', err.message);
       return res.status(403).json({ message: 'Invalid token' });
     }
-    console.log('Decoded JWT:', decoded);
     req.user = decoded
     next(); // Передаем управление следующему middleware или обработчику маршрута
   });

@@ -74,7 +74,6 @@ app.get('*', (req, res) => {
 
 // Глобальный обработчик ошибок (если нужно)
 app.use((err, req, res, next) => {
-  console.error(err.stack);
   res.status(500).json({ message: 'Internal server error' });
 });
 

@@ -28,7 +28,6 @@ const trimSilence = async (inputPath, outputPath) => {
         resolve();
       })
       .on('error', (err) => {
-        console.error(`Ошибка при обрезке тишины ${inputPath}:`, err.message);
         reject(err);
       })
       .save(outputPath);
@@ -56,7 +55,6 @@ const getDictionary = async (req, res) => {
     const [results] = await db.query('SELECT * FROM dictionary');
     res.status(200).json(results);
   } catch (err) {
-    console.error('Ошибка при загрузке слов:', err);
     res.status(500).json({ message: 'Ошибка при загрузке слов' });
   }
 };
@@ -67,7 +65,6 @@ const getPhrases = async (req, res) => {
     const [results] = await db.query('SELECT * FROM phrases');
     res.status(200).json(results);
   } catch (err) {
-    console.error('Ошибка при загрузке фраз:', err);
     res.status(500).json({ message: 'Ошибка при загрузке фраз' })
   }
 }
@@ -92,7 +89,6 @@ const addWord = async (req, res) => {
     const [results] = await db.query(query, [word_udi, word_rus, comment || '', '', '']);
     res.status(201).json({ message: 'Слово добавлено', wordId: results.insertId });
   } catch (err) {
-    console.error('Ошибка при добавлении слова в словарь:', err);
     res.status(500).json({ message: 'Ошибка при добавлении слова' });
   }
 };
@@ -105,7 +101,6 @@ const getWordsToTranslate = async (req, res) => {
     const [results] = await db.query('SELECT * FROM dictionary WHERE word_udi IS NULL OR word_udi = ""');
     res.status(200).json(results);
   } catch (err) {
-    console.error('Ошибка при получении слов:', err);
     res.status(500).json({ message: 'Ошибка при получении слов для перевода' });
   }
 };
@@ -116,7 +111,6 @@ const getPhrasesToTranslate = async (req, res) => {
     const [results] = await db.query('SELECT * FROM phrases WHERE phrase_udi IS NULL OR phrase_udi = ""');
     res.status(200).json(results);
   } catch (err) {
-    console.error('Ошибка при получении фраз:', err);
     res.status(500).json({ message: 'Ошибка при получении фраз для перевода' });
   }
 };
@@ -134,13 +128,6 @@ const addTranslation = async (req, res) => {
   const compressedPath = path.join(path.dirname(inputPath), `compressed_${req.file.filename}`);
 
   try {
-    console.log('Получены данные для обновления:', {
-      word_udi,
-      word_rus,
-      username,
-      inputPath,
-    });
-
     // Удаление тишины
     await trimSilence(inputPath, trimmedPath);
 
@@ -190,7 +177,6 @@ const addPhraseTranslation = async (req, res) => {
     await db.query(query, [phrase_udi, audioUrl, username, phrase_rus]);
     res.status(200).json({ message: 'Перевод фразы успешно добавлен' });
   } catch (err) {
-    console.error('Error adding phrase translation:', err);
     res.status(500).json({ message: 'Ошибка при добавлении перевода фразы' });
   }
 };
@@ -212,7 +198,6 @@ const getUserStats = async (req, res) => {
       total: totalResults[0].total,
     });
   } catch (err) {
-    console.error('Error fetching user stats:', err);
     res.status(500).json({ message: 'Error fetching user stats' });
   }
 };
@@ -234,7 +219,6 @@ const updateWord = async (req, res) => {
     }
     res.status(200).json({ message: 'Слово успешно обновлено' });
   } catch (err) {
-    console.error('Ошибка при обновлении слова:', err);
     res.status(500).json({ message: 'Ошибка при обновлении слова' });
   }
 };
@@ -250,7 +234,6 @@ const deleteWord = async (req, res) => {
     }
     res.status(200).json({ message: 'Слово успешно удалено' });
   } catch (err) {
-    console.error('Ошибка при удалении слова:', err);
     res.status(500).json({ message: 'Ошибка при удалении слова' });
   }
 };
@@ -266,7 +249,6 @@ const deletePhrase = async (req, res) => {
     }
     res.status(200).json({ message: 'Фраза успешно удалена' });
   } catch (err) {
-    console.error('Ошибка при удалении фразы:', err);
     res.status(500).json({ message: 'Ошибка при удалении фразы' });
   }
 };
@@ -304,7 +286,6 @@ const addPhrase = async (req, res) => {
 
     res.status(201).json({ message: 'Фраза добавлена', phraseId: results.insertId });
   } catch (err) {
-    console.error('Ошибка при добавлении фразы:', err);
     res.status(500).json({ message: 'Ошибка при добавлении фразы' });
   }
 };
@@ -327,7 +308,6 @@ const updatePhrase = async (req, res) => {
     }
     res.status(200).json({ message: 'Фраза успешно обновлена' });
   } catch (err) {
-    console.error('Ошибка при обновлении фразы:', err);
     res.status(500).json({ message: 'Ошибка при обновлении фразы' });
   }
 };
@@ -448,7 +428,6 @@ const updateWordProgress = async (req, res) => {
       userXp: userXpNew,
     });
   } catch (err) {
-    console.error('Ошибка при обновлении прогресса слова:', err);
     return res.status(500).json({ message: 'Внутренняя ошибка сервера' });
   }
 };

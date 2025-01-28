@@ -27,7 +27,6 @@ const getProfile = async (req, res) => {
     const user = rows[0];
     res.status(200).json(user);
   } catch (error) {
-    console.error('Error fetching user profile:', error);
     res.status(500).json({ message: 'Error fetching user profile' });
   }
 };
@@ -45,10 +44,8 @@ const getUsers = async (req, res) => {
 const getUserStats = async (req, res) => {
   try {
     const userId = req.user.userId; // должно быть 8
-    console.log('>>> getUserStats userId =', userId);
     
     const [rows] = await db.query('SELECT * FROM user_word_progress WHERE user_id = ?', [userId]);
-    console.log('>>> Rows from user_word_progress:', rows);
 
     // Посмотрим, что реально вернулось. Может быть там пусто.
     
@@ -58,7 +55,6 @@ const getUserStats = async (req, res) => {
       FROM user_word_progress
       WHERE user_id = ?
     `, [userId]);
-    console.log('>>> totalLearned =', totalLearned);
 
     const [[{ masteredCount }]] = await db.query(`
       SELECT COUNT(*) AS masteredCount
@@ -80,7 +76,6 @@ const getUserStats = async (req, res) => {
       needReviewCount,
     });
   } catch (err) {
-    console.error('Error fetching user stats:', err);
     res.status(500).json({ message: 'Error fetching user stats' });
   }
 };
@@ -100,7 +95,6 @@ const getUserStats = async (req, res) => {
         }
         res.status(200).json({ message: 'Роль пользователя обновлена' });      
       } catch (err) {
-        console.error('Ошибка при обновлении роли:', err);
         res.status(500).json({ message: 'Ошибка при обновлении слова'})
       }
   }
