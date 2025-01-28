@@ -81,7 +81,6 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   background-repeat: no-repeat;
   width: fit-content;
   padding-left: 40px;
-  margin-top: auto;
   background-size: 30px 30px;
   cursor: pointer;
 }
