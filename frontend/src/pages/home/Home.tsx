@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/axiosConfig'; // Используем настроенный axios
 import './Home.css';
 import LevelProgress from '../../components/progressBar/LevelProgress';  // <-- путь подкорректируйте
+import UserStatistics from '../../components/userStats/UserStatistics'; // Импортируем новый компонент
 
 // Интерфейсы для типов данных
 interface UserProfile {
@@ -27,49 +28,37 @@ interface PhraseStats {
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [stats, setStats] = useState<UserStats | null>(null);
+  const [wordStats, setWordStats] = useState<UserStats | null>(null);
   const [phraseStats, setPhraseStats] = useState<PhraseStats | null>(null);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
 
-    // Загружаем профиль
-    axios
-      .get('/api/user/profile', { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => {
-        setUser(res.data);
-      })
-      .catch((err) => {
-        setError('Ошибка при получении профиля');
-        console.error(err);
-      });
+      try {
+        // Загружаем профиль
+        const profileRes = await api.get('/user/profile');
+        setUser(profileRes.data);
 
-    // Загружаем статистику по словам
-    axios
-      .get('/api/user/stats', { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => {
-        setStats(res.data);
-      })
-      .catch((err) => {
-        setError('Ошибка при загрузке статистики слов');
-        console.error(err);
-      });
+        // Загружаем статистику по словам
+        const wordStatsRes = await api.get('/user/stats');
+        setWordStats(wordStatsRes.data);
 
-    // Загружаем статистику по фразам
-    axios
-      .get('/api/user/phrase-stats', { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => {
-        setPhraseStats(res.data);
-      })
-      .catch((err) => {
-        setError('Ошибка при загрузке статистики фраз');
+        // Загружаем статистику по фразам
+        const phraseStatsRes = await api.get('/user/phrase-stats');
+        setPhraseStats(phraseStatsRes.data);
+      } catch (err) {
+        setError('Ошибка при загрузке данных');
         console.error(err);
-      });
+      }
+    };
+
+    fetchData();
   }, [navigate]);
 
   const handleNavigate = (route: string) => {
@@ -86,7 +75,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="home-page">
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
 
       {user && (
         <>
@@ -96,22 +85,8 @@ const Home: React.FC = () => {
         </>
       )}
 
-      {stats && (
-        <div className="progress-block">
-          <h2>Статистика слов</h2>
-          <p>Всего слов в процессе: {stats.totalLearned}</p>
-          <p>Выучено (mastered): {stats.masteredCount}</p>
-          <p>Нужно повторить: {stats.needReviewCount}</p>
-        </div>
-      )}
-
-      {phraseStats && (
-        <div className="progress-block">
-          <h2>Статистика фраз</h2>
-          <p>Всего фраз в процессе: {phraseStats.totalPhrases}</p>
-          <p>Выучено (mastered): {phraseStats.masteredPhrases}</p>
-          <p>Нужно повторить: {phraseStats.needReviewPhrases}</p>
-        </div>
+      {wordStats && phraseStats && (
+        <UserStatistics wordStats={wordStats} phraseStats={phraseStats} />
       )}
 
       <div className="quick-actions">
