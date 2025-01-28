@@ -22,7 +22,6 @@ const register = async (req, res) => {
 
     res.status(200).json({ message: 'User registered successfully' });
   } catch (error) {
-    console.error('Error during registration:', error);
     res.status(500).json({ message: 'Error registering user' });
   }
 };
@@ -49,7 +48,7 @@ const login = async (req, res) => {
     }
 
     // Генерация JWT токена
-    const token = jwt.sign({ userId: user.id, role: user.role, username: user.username }, 'secretkey');
+    const token = jwt.sign({ userId: user.id, role: user.role, username: user.username }, process.env.JWT_SECRET);
 
     res.status(200).json({ message: 'Login successful', token });
   } catch (error) {

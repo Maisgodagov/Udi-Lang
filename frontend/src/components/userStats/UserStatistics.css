@@ -1,0 +1,46 @@
+.user-statistics-container {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .statistics-title {
+    background-image: url(../../assets/stats.png);
+    background-repeat: no-repeat;
+    background-size: 24px;
+    height: 24px;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 400;
+    padding-left: 30px;
+    margin-bottom: 8px;
+    color: #464646;
+  }
+  
+  .statistics-blocks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .statistics-section {
+    background-color: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    width: 49%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .statistics-section h3 {
+    margin-bottom: 8px;
+    font-weight: 400;
+    color: #464646;
+  }
+  
+  .statistics-section p {
+    margin: 5px 0;
+    color: #666;
+  }
+
+  

@@ -1,0 +1,73 @@
+.profile-wrapper {
+    background-color: rgb(187, 187, 215);
+    max-width: 500px;
+    width: 95%;
+    padding: 20px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
+}
+
+.profile-picture {
+    width: 90px;
+    height: 90px;
+    background-image: url(../assets/user.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.profile-top {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+.profile-join-date {
+    font-size: 18px;
+    font-weight: 300;
+    font-family: "Rubik", serif;
+}
+.profile-email {
+    font-size: 18px;
+    font-weight: 300;
+    font-family: "Rubik", serif;
+}
+.profile-name {
+    font-size: 24px;
+    font-weight: 500;
+    font-family: "Rubik", serif;
+    margin: 0;
+
+}
+
+.profile-role {
+    font-weight: 300;
+    
+}
+
+.profile-stat {
+    font-size: 18px;
+    margin-bottom: 50px;
+    font-weight: 300;
+}
+.name-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.profile-logout {
+    width: 50%;
+    align-self: center;
+    border: none;
+    height: 30px;
+    border-radius: 18px;
+    font-size: 17px;
+    font-family: "Rubik", serif;
+    font-weight: 400;
+    background-color: rgb(188, 116, 133);
+    color: #222020;
+    cursor: pointer;
+    box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
+}

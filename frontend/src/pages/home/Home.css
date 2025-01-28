@@ -1,0 +1,131 @@
+/* Общий контейнер для главной страницы */
+.home-page {
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;   /* Центрируем по горизонтали */
+    padding: 20px;
+    color: #333;
+  }
+  
+  /* Заголовок */
+  .home-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  /* Приветственное сообщение пользователя */
+  .greeting {
+    margin: 0;
+    font-size: 20px;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  /* Блок с прогрессом пользователя */
+  .progress-block {
+    background-color: #fafafa;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .progress-block h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+  }
+  
+  /* Блок "начните обучение" + кнопки */
+  .quick-actions {
+    margin: 30px 0;
+    text-align: center;
+  }
+  
+  .quick-actions h2 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: 20px;
+    color: #464646;
+    font-weight: 400;
+  }
+  
+  /* Сетка для кнопок */
+  .actions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    row-gap: 10px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 12px;
+  }
+  
+  /* Стили для кнопок */
+  .action-btn {
+    background-color: #ffffff;
+    color: #464646;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 49%;
+    min-height: 150px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .action-btn:hover {
+    background-color: #ededed;
+  }
+  
+  /* Блок мотивации (или новостей) */
+  .motivation-block {
+    margin-top: 20px;
+    text-align: center;
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 15px;
+  }
+  
+  .motivation-block h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    
+  }
+  
+  /* Текст цитаты */
+  .quote-text {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #555;
+  }
+  .words-game-btn {
+    background-image: url(../../assets/words-game.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 75px;
+  }
+  .phrases-btn{
+    background-image: url(../../assets/phrases.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 85px;
+
+  }
+  .dictionary-btn{
+    background-image: url(../../assets/dictionary-puzzle.png);
+    background-repeat: no-repeat;
+    background-size: 75px;
+    background-position: center;
+  }
+  .phrase-game-btn{
+    background-image: url(../../assets/phrase-cloud.png);
+    background-repeat: no-repeat;
+    background-size: 85px;
+    background-position: center;
+  }

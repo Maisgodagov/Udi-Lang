@@ -1,10 +1,27 @@
 const express = require('express');
 const { getProfile } = require('../controllers/userController');  // Убедись, что правильно импортирована функция
-const authMiddleware = require('../middleware/authMiddleware');
+const { authMiddleware, checkRole } = require('../middleware/authMiddleware');
+const { getUsers, getUserStats, changeUserRole, getUserPhraseStats } = require('../controllers/userController')
 
 const router = express.Router();
 
 // Используем getProfile как обработчик для маршрута
 router.get('/profile', authMiddleware, getProfile);  // Прокачиваешь запрос на правильный обработчик
 
-module.exports = { userRoutes: router };
+router.get('/users', getUsers);
+
+// Обновление роли юзера
+router.put(
+    '/users/:id',
+    authMiddleware,
+    checkRole(['admin']),
+    changeUserRole
+  );
+
+  // **новый** маршрут для статистики
+// GET /api/user/stats
+router.get('/stats', authMiddleware, getUserStats);
+  
+// Маршрут для получения статистики по фразам
+router.get('/phrase-stats', authMiddleware, getUserPhraseStats);
+module.exports = router; // Экспортируем router н8eаsпрямую
