@@ -1,7 +1,7 @@
 const express = require('express');
 const { getProfile } = require('../controllers/userController');  // Убедись, что правильно импортирована функция
 const { authMiddleware, checkRole } = require('../middleware/authMiddleware');
-const { getUsers, changeUserRole } = require('../controllers/userController')
+const { getUsers, getUserStats, changeUserRole } = require('../controllers/userController')
 
 const router = express.Router();
 
