@@ -4,8 +4,23 @@ const { User } = require('../models/userModel');
 // Функция для получения профиля пользователя
 const getProfile = async (req, res) => {
   try {
-    const userId = req.user.userId;  // из токена
-    const [rows] = await db.query('SELECT username, email, role, created_at, xp, first_name, last_name, gender, birth_date FROM users WHERE id = ?', [userId]);
+    const userId = req.user.userId; // userId из токена
+    // Добавляем в SELECT нужные поля
+    const [rows] = await db.query(`
+      SELECT 
+        username, 
+        email, 
+        role, 
+        created_at, 
+        xp,
+        first_name,
+        last_name,
+        gender,
+        birth_date
+      FROM users
+      WHERE id = ?
+    `, [userId]);
+
     if (rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -25,6 +40,48 @@ const getUsers = async (req, res) => {
     res.status(500).json({ message: 'Ошибка при загрузке пользователей'})
   }
 }
+
+const getUserStats = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    // Предположим, у вас есть таблица user_word_progress
+    // и поля: user_id, word_id, status
+    // Выбираем общее кол-во слов, где user_id = userId
+    // masteredCount => status = 'mastered'
+    // needReviewCount => status = 'need_review'
+    const [[{ totalLearned }]] = await db.query(`
+      SELECT COUNT(*) AS totalLearned
+      FROM user_word_progress
+      WHERE user_id = ?
+    `, [userId]);
+
+    const [[{ masteredCount }]] = await db.query(`
+      SELECT COUNT(*) AS masteredCount
+      FROM user_word_progress
+      WHERE user_id = ?
+        AND status = 'mastered'
+    `, [userId]);
+
+    const [[{ needReviewCount }]] = await db.query(`
+      SELECT COUNT(*) AS needReviewCount
+      FROM user_word_progress
+      WHERE user_id = ?
+        AND status = 'need_review'
+    `, [userId]);
+
+    // Если нужно, можно и другое
+    // Отправляем все, что нужно
+    res.status(200).json({
+      totalLearned,
+      masteredCount,
+      needReviewCount,
+    });
+  } catch (err) {
+    console.error('Error fetching user stats:', err);
+    res.status(500).json({ message: 'Error fetching user stats' });
+  }
+};
+
 // Изменение роли пользователя 
   const changeUserRole = async (req, res) => {
       const { id } = req.params;
@@ -45,4 +102,4 @@ const getUsers = async (req, res) => {
       }
   }
   
-module.exports = { getProfile, getUsers, changeUserRole };  // Экспортируем функцию для использования в маршрутах
+module.exports = { getProfile, getUsers, getUserStats, changeUserRole };  // Экспортируем функцию для использования в маршрутах

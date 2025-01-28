@@ -39,7 +39,7 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
   const [currentWord, setCurrentWord] = useState<Word | null>(null);
   const [words, setWords] = useState<Word[]>([]);
   const [options, setOptions] = useState<string[]>([]);
-  // feedbackType может быть 'correct', 'incorrect' или пустой строкой
+  // feedbackType может быть 'correct', 'incorrect' или пустая строка
   const [feedbackType, setFeedbackType] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [role, setRole] = useState<string>('');
@@ -49,6 +49,9 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
 
   const navigate = useNavigate();
 
+  // -----------------------------------------------------
+  // Генерация вариантов ответов
+  // -----------------------------------------------------
   const generateOptions = (correct: string, allWords: Word[]): string[] => {
     const normalizedCorrect = correct.split(',')[0].trim().toLowerCase();
     const otherTranslations = allWords
@@ -72,6 +75,9 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     return opts;
   };
 
+  // -----------------------------------------------------
+  // Воспроизведение аудио (слова)
+  // -----------------------------------------------------
   const playAudio = (audioUrl?: string, wordId?: number) => {
     if (!audioUrl || !started) return;
     let audio: HTMLAudioElement;
@@ -80,15 +86,22 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     } else {
       const fullAudioUrl = audioUrl.startsWith('http')
         ? audioUrl
-        : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;
+        : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${
+            audioUrl.startsWith('/') ? '' : '/'
+          }${audioUrl}`;
       audio = new Audio(fullAudioUrl);
       audio.preload = 'auto';
     }
-    audio.play().catch((err) => {
-      console.error('Ошибка при воспроизведении аудио:', err);
-    });
+    audio
+      .play()
+      .catch((err) => {
+        console.error('Ошибка при воспроизведении аудио:', err);
+      });
   };
 
+  // -----------------------------------------------------
+  // Воспроизведение звуков правильного/неправильного ответа
+  // -----------------------------------------------------
   const playFeedbackSound = (isCorrect: boolean) => {
     const audioSrc = isCorrect ? correctSoundFile : incorrectSoundFile;
     const audio = new Audio(audioSrc);
@@ -97,12 +110,17 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     });
   };
 
+  // -----------------------------------------------------
+  // Предзагрузка аудио для следующего слова
+  // -----------------------------------------------------
   const preloadAudioForWord = (word: Word) => {
     if (!word.audio_url) return;
     if (preloadedAudios[word.id]) return;
     const fullAudioUrl = word.audio_url.startsWith('http')
       ? word.audio_url
-      : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${word.audio_url.startsWith('/') ? '' : '/'}${word.audio_url}`;
+      : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${
+          word.audio_url.startsWith('/') ? '' : '/'
+        }${word.audio_url}`;
     const audio = new Audio(fullAudioUrl);
     audio.preload = 'auto';
     audio.load();
@@ -116,18 +134,22 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     nextWords.forEach((word) => preloadAudioForWord(word));
   };
 
+  // Кнопка "Прослушать ещё раз"
   const handleListen = () => {
     if (currentWord && currentWord.audio_url) {
       playAudio(currentWord.audio_url, currentWord.id);
     }
   };
 
+  // Кнопка "Начать игру"
   const handleStart = () => {
     setStarted(true);
   };
 
+  // -----------------------------------------------------
+  // Инициализация (получаем профиль и список слов)
+  // -----------------------------------------------------
   useEffect(() => {
-    // Получаем профиль пользователя
     const token = localStorage.getItem('token');
     const storedRole = localStorage.getItem('role') || '';
     setRole(storedRole);
@@ -162,10 +184,12 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
           (word) =>
             word.word_udi.trim() !== '' &&
             word.translation.trim() !== '' &&
-            word.audio_url && word.audio_url.trim() !== ''
+            word.audio_url &&
+            word.audio_url.trim() !== ''
         );
 
         if (filteredWords.length > 0) {
+          // Перемешиваем
           const shuffle = (array: Word[]) => {
             const shuffled = [...array];
             for (let i = shuffled.length - 1; i > 0; i--) {
@@ -191,7 +215,9 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
       });
   }, [navigate]);
 
-  // Эффект: когда currentWord меняется (и игра уже началась)
+  // -----------------------------------------------------
+  // Когда меняется currentWord (и игра началась)
+  // -----------------------------------------------------
   useEffect(() => {
     if (currentWord && started) {
       const opts = generateOptions(currentWord.translation, words);
@@ -202,20 +228,37 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     }
   }, [currentWord, words, started]);
 
+  // -----------------------------------------------------
+  // Логика ответа
+  // -----------------------------------------------------
   const handleAnswer = (selected: string) => {
     if (!currentWord) return;
+
     const correctAnswer = currentWord.translation.split(',')[0].trim().toLowerCase();
     const selectedAnswer = selected.split(',')[0].trim().toLowerCase();
-    if (selectedAnswer === correctAnswer) {
-      // Воспроизводим звук правильного ответа и показываем иконку
-      playFeedbackSound(true);
+    const isCorrect = (selectedAnswer === correctAnswer);
+
+    // 1) Отправим запрос на сервер, чтобы обновить прогресс
+    const body = {
+      wordId: currentWord.id,
+      result: isCorrect ? 'correct' : 'incorrect'
+    };
+    api.post('/dictionary/progress', body)
+      .catch(err => {
+        // Если возникла ошибка, выведем в консоль
+        console.error('Ошибка при обновлении прогресса слова:', err);
+      });
+
+    // 2) Воспроизводим звук правильного / неправильного ответа
+    playFeedbackSound(isCorrect);
+
+    // 3) Показываем визуальную обратную связь
+    if (isCorrect) {
       setFeedbackType('correct');
       setTimeout(() => {
         handleSkip();
       }, 1000);
     } else {
-      // Воспроизводим звук неправильного ответа и показываем иконку
-      playFeedbackSound(false);
       setFeedbackType('incorrect');
       setTimeout(() => {
         setFeedbackType('');
@@ -223,6 +266,9 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     }
   };
 
+  // -----------------------------------------------------
+  // Пропуск слова
+  // -----------------------------------------------------
   const handleSkip = () => {
     if (currentWord && preloadedAudios[currentWord.id]) {
       setPreloadedAudios((prev) => {
@@ -236,6 +282,9 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     setCurrentWord(remaining[0] || null);
   };
 
+  // -----------------------------------------------------
+  // Drop handler: если "dontknow" — пропуск, иначе handleAnswer
+  // -----------------------------------------------------
   const handleDrop = (target: string) => {
     if (target === 'dontknow') {
       handleSkip();
@@ -244,6 +293,9 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
     }
   };
 
+  // -----------------------------------------------------
+  // Рендер
+  // -----------------------------------------------------
   if (!started) {
     return (
       <div className="games-container start-screen">
@@ -261,7 +313,10 @@ const WordsGame: React.FC<WordsGameProps> = ({ setInitialRect }) => {
         {error && <p className="error-message">{error}</p>}
         {currentWord ? (
           <>
-            <DraggableWord word={currentWord.word_udi.toLowerCase()} setInitialRect={setInitialRect} />
+            <DraggableWord
+              word={currentWord.word_udi.toLowerCase()}
+              setInitialRect={setInitialRect}
+            />
             <button className="listen-btn" onClick={handleListen}>
               Прослушать ещё раз
             </button>
