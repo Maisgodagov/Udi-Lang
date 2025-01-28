@@ -4,10 +4,12 @@ import axios from 'axios';
 import './Home.css';
 import LevelProgress from '../../components/progressBar/LevelProgress';  // <-- путь подкорректируйте
 
+// Интерфейсы для типов данных
 interface UserProfile {
   username: string;
   xp: number;
   first_name: string;
+  last_name?: string; // Добавлено для отображения фамилии
 }
 
 interface UserStats {
@@ -16,11 +18,18 @@ interface UserStats {
   needReviewCount: number;
 }
 
+interface PhraseStats {
+  totalPhrases: number;
+  masteredPhrases: number;
+  needReviewPhrases: number;
+}
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
-  const [error, setError] = useState('');
+  const [phraseStats, setPhraseStats] = useState<PhraseStats | null>(null);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -40,14 +49,25 @@ const Home: React.FC = () => {
         console.error(err);
       });
 
-    // Загружаем статистику
+    // Загружаем статистику по словам
     axios
       .get('/api/user/stats', { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
         setStats(res.data);
       })
       .catch((err) => {
-        setError('Ошибка при загрузке статистики');
+        setError('Ошибка при загрузке статистики слов');
+        console.error(err);
+      });
+
+    // Загружаем статистику по фразам
+    axios
+      .get('/api/user/phrase-stats', { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
+        setPhraseStats(res.data);
+      })
+      .catch((err) => {
+        setError('Ошибка при загрузке статистики фраз');
         console.error(err);
       });
   }, [navigate]);
@@ -56,13 +76,21 @@ const Home: React.FC = () => {
     navigate(route);
   };
 
+  // Функция для отображения полного имени
+  const getFullName = () => {
+    if (!user) return '';
+    const firstName = user.first_name.trim();
+    const lastName = user.last_name ? user.last_name.trim() : '';
+    return `${firstName} ${lastName}`.trim();
+  };
+
   return (
     <div className="home-page">
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {user && (
         <>
-          <p className="greeting">Привет, {user.first_name}!</p>
+          <p className="greeting">Привет, {getFullName()}!</p>
           {/* Наш вынесенный компонент */}
           <LevelProgress xp={user.xp} />
         </>
@@ -74,6 +102,15 @@ const Home: React.FC = () => {
           <p>Всего слов в процессе: {stats.totalLearned}</p>
           <p>Выучено (mastered): {stats.masteredCount}</p>
           <p>Нужно повторить: {stats.needReviewCount}</p>
+        </div>
+      )}
+
+      {phraseStats && (
+        <div className="progress-block">
+          <h2>Статистика фраз</h2>
+          <p>Всего фраз в процессе: {phraseStats.totalPhrases}</p>
+          <p>Выучено (mastered): {phraseStats.masteredPhrases}</p>
+          <p>Нужно повторить: {phraseStats.needReviewPhrases}</p>
         </div>
       )}
 
