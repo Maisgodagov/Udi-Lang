@@ -144,6 +144,9 @@ const Header: React.FC = () => {
             </li>
           ) : null}
         </ul>
+        {role === 'admin' ? (
+            <span className="nav-devider"></span>
+          ) : null}
         <button onClick={handleLogout} className="logoutButton">Выйти</button>
       </nav>
       </div>
