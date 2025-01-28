@@ -1,0 +1,33 @@
+.level-progress-wrapper {
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  /* Прогрессбар */
+  .xp-progress-bar {
+    background-color: #ddd;
+    border-radius: 5px;
+    position: relative;
+    height: 20px;
+    margin: 10px 0;
+    overflow: hidden;
+  }
+  
+  .xp-progress-inner {
+    background-color: #4caf50;
+    height: 100%;
+    color: #fff;
+    text-align: center;
+    font-size: 0.8rem;
+    line-height: 20px;
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .xp-stats {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
+  }
+  
