@@ -22,4 +22,6 @@ router.put(
 // GET /api/user/stats
 router.get('/stats', authMiddleware, getUserStats);
   
+// Маршрут для получения статистики по фразам
+router.get('/phrase-stats', authMiddleware, getUserPhraseStats);
 module.exports = router; // Экспортируем router н8eаsпрямую
