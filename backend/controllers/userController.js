@@ -43,12 +43,10 @@ const getUsers = async (req, res) => {
 
 const getUserStats = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    // Предположим, у вас есть таблица user_word_progress
-    // и поля: user_id, word_id, status
-    // Выбираем общее кол-во слов, где user_id = userId
-    // masteredCount => status = 'mastered'
-    // needReviewCount => status = 'need_review'
+    // Предположим, в authMiddleware ставим req.user.id = <число>
+    const userId = req.user.id;
+    console.log('>>> getUserStats: userId =', userId);
+
     const [[{ totalLearned }]] = await db.query(`
       SELECT COUNT(*) AS totalLearned
       FROM user_word_progress
@@ -69,8 +67,6 @@ const getUserStats = async (req, res) => {
         AND status = 'need_review'
     `, [userId]);
 
-    // Если нужно, можно и другое
-    // Отправляем все, что нужно
     res.status(200).json({
       totalLearned,
       masteredCount,

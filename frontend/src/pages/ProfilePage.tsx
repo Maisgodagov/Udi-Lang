@@ -72,6 +72,8 @@ const ProfilePage: React.FC = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
+  console.log(userStats)
+
 
   return (
     <div className="page-wrapper">
@@ -132,7 +134,6 @@ const ProfilePage: React.FC = () => {
             <p>Выучено (mastered): {userStats.masteredCount}</p>
             <p>Нужно повторить: {userStats.needReviewCount}</p>
           </div>
-
           <button className="profile-logout" onClick={handleLogout}>
             Выйти
           </button>
