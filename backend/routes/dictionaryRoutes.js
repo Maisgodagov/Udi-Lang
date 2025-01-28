@@ -15,6 +15,7 @@ const {
   updateWord, 
   deleteWord, 
   getDictionaryStatistics,
+  updatePhraseProgress,
   addPhrase,
   updatePhrase,
 } = require('../controllers/dictionaryController');
@@ -33,6 +34,9 @@ router.get('/dictionary', authMiddleware, getDictionary);
 
 // 13. Получнение всех фраз
 router.get('/phrases', authMiddleware, getPhrases);
+
+// прогресс фраз
+router.post('/phrases/progress', authMiddleware, updatePhraseProgress);
 
 // 3. Добавление нового слова (только для admin и moderator)
 router.post(

@@ -431,10 +431,99 @@ const updateWordProgress = async (req, res) => {
     return res.status(500).json({ message: 'Внутренняя ошибка сервера' });
   }
 };
+const updatePhraseProgress = async (req, res) => {
+  try {
+    const userId = req.user.userId; // предполагаем, что в токене есть userId
+    const { phraseId, result } = req.body;
+
+    if (!phraseId || !result) {
+      return res.status(400).json({ message: 'Необходимо передать phraseId и result' });
+    }
+
+    // Проверяем, что фраза действительно существует
+    const [phraseRows] = await db.query('SELECT id FROM phrases WHERE id = ?', [phraseId]);
+    if (phraseRows.length === 0) {
+      return res.status(404).json({ message: 'Фраза не найдена' });
+    }
+
+    // Ищем в user_phrase_progress запись (user_id, phrase_id)
+    const [progressRows] = await db.query(
+      'SELECT * FROM user_phrase_progress WHERE user_id = ? AND phrase_id = ?',
+      [userId, phraseId]
+    );
+    let progress = progressRows[0];
+
+    if (!progress) {
+      // Если записи нет — создаём новую
+      await db.query(
+        `INSERT INTO user_phrase_progress (user_id, phrase_id, status, xp, times_correct, times_incorrect, last_practiced)
+         VALUES (?, ?, 'learning', 0, 0, 0, NOW())`,
+        [userId, phraseId]
+      );
+      // Считываем обратно
+      const [newRows] = await db.query(
+        'SELECT * FROM user_phrase_progress WHERE user_id = ? AND phrase_id = ?',
+        [userId, phraseId]
+      );
+      progress = newRows[0];
+    }
+
+    let { times_correct, times_incorrect, xp, status } = progress;
+
+    // Логика: при правильном ответе +10 XP, при неправильном +0
+    if (result === 'correct') {
+      times_correct += 1;
+      xp += 10;
+      // Если несколько правильных подряд => статус 'mastered'
+      if (times_correct >= 3) {
+        status = 'mastered';
+      }
+    } else if (result === 'incorrect') {
+      times_incorrect += 1;
+      status = 'need_review';
+    }
+
+    // Обновляем запись
+    await db.query(
+      `UPDATE user_phrase_progress
+       SET times_correct = ?, times_incorrect = ?, xp = ?, status = ?, last_practiced = NOW()
+       WHERE id = ?`,
+      [times_correct, times_incorrect, xp, status, progress.id]
+    );
+
+    // Параллельно обновим общий XP пользователя (в таблице users)
+    // Сначала получаем текущее значение XP
+    const [userRows] = await db.query('SELECT xp FROM users WHERE id = ?', [userId]);
+    if (userRows.length === 0) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+    const userXpOld = userRows[0].xp || 0;
+    let xpIncrement = (result === 'correct') ? 10 : 0;
+    const userXpNew = userXpOld + xpIncrement;
+
+    await db.query('UPDATE users SET xp = ? WHERE id = ?', [userXpNew, userId]);
+
+    return res.status(200).json({
+      message: 'Прогресс фразы обновлён',
+      phraseProgress: {
+        phraseId,
+        times_correct,
+        times_incorrect,
+        xp,
+        status,
+      },
+      userXp: userXpNew
+    });
+  } catch (err) {
+    console.error('Ошибка при обновлении прогресса фразы:', err);
+    return res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+  }
+};
 
 module.exports = { 
   getDictionary, 
   addWord, 
+  updatePhraseProgress,
   getWordsToTranslate, 
   getPhrasesToTranslate, 
   addPhraseTranslation, 

@@ -63,7 +63,9 @@ const PhraseGame: React.FC = () => {
   const playAudio = (audioUrl: string) => {
     const fullAudioUrl = audioUrl.startsWith('http')
       ? audioUrl
-      : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${audioUrl.startsWith('/') ? '' : '/'}${audioUrl}`;
+      : `${import.meta.env.VITE_API_URL || 'https://udilang.ru'}${
+          audioUrl.startsWith('/') ? '' : '/'
+        }${audioUrl}`;
     const audio = new Audio(fullAudioUrl);
     audio.play().catch((err) => console.error('Ошибка воспроизведения аудио:', err));
   };
@@ -78,9 +80,20 @@ const PhraseGame: React.FC = () => {
       setSelectedWords((prev) => [...prev, word]);
       setShuffledWords((prev) => prev.filter((_, i) => i !== index));
 
+      // Если собрали всю фразу
       if (selectedWords.length + 1 === correctWords.length) {
         setFeedback('Верно!');
         playSound(correctSoundFile);
+
+        // 1) Отправляем на сервер, что ответ "правильный"
+        api.post('/phrases/progress', {
+          phraseId: currentPhrase.id,
+          result: 'correct'
+        }).catch(err => {
+          console.error('Ошибка при обновлении прогресса фразы:', err);
+        });
+
+        // Переход к следующей фразе
         setTimeout(() => {
           const currentIndex = phrases.findIndex((p) => p.id === currentPhrase.id);
           const nextPhrase = phrases[currentIndex + 1] || null;
@@ -88,7 +101,17 @@ const PhraseGame: React.FC = () => {
         }, 1000);
       }
     } else {
+      // Неправильный выбор
       playSound(incorrectSoundFile);
+      // 2) Отправляем результат "incorrect"
+      api.post('/phrases/progress', {
+        phraseId: currentPhrase.id,
+        result: 'incorrect'
+      }).catch(err => {
+        console.error('Ошибка при обновлении прогресса фразы:', err);
+      });
+
+      // Анимация ошибки
       const wordElement = document.getElementById(`word-${index}`);
       if (wordElement) {
         wordElement.classList.add('incorrect');
@@ -124,7 +147,10 @@ const PhraseGame: React.FC = () => {
     <div className="phrase-game-container">
       <h1 className="game-title">Собери фразу</h1>
       <p className="phrase-translation">{currentPhrase.phrase_rus}</p>
-      <button className="play-audio-btn" onClick={() => playAudio(currentPhrase.audio_url)}>
+      <button
+        className="play-audio-btn"
+        onClick={() => playAudio(currentPhrase.audio_url)}
+      >
         Воспроизвести озвучку
       </button>
       <div className="shuffled-words">
