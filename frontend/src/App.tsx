@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import RegisterPage from './pages/RegisterPage';
-import LoginPage from './pages/LoginPage';
-import Home from './pages/Home';
-import ProfilePage from './pages/ProfilePage';
-import Header from './components/Header';
-import DictionaryPage from './pages/DictionaryPage';
-import AddWordPage from './pages/AddWordPage';
-import AddTranslationPage from './pages/AddTranslationPage';
-import AdminPage from './pages/AdminPage';
+import RegisterPage from './pages/register/RegisterPage';
+import LoginPage from './pages/login/LoginPage';
+import Home from './pages/home/Home';
+import ProfilePage from './pages/profile/ProfilePage';
+import Header from './components/header/Header';
+import DictionaryPage from './pages/dictionary/DictionaryPage';
+import AddWordPage from './pages/addWord/AddWordPage';
+import AddTranslationPage from './pages/translate/AddTranslationPage';
+import AdminPage from './pages/admin/adminWords/AdminPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import PhrasesPage from './pages/PhrasesPage';
-import AdminUsers from './pages/AdminUsers';
-import WordsGame from './pages/WordsGame';
+import PhrasesPage from './pages/phrases/PhrasesPage';
+import AdminUsers from './pages/admin/adminUsers/AdminUsers';
+import WordsGame from './pages/training/wordsGame/WordsGame';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import CustomDragLayer from './components/CustomDragLayer';
-import TrainingPage from './pages/TrainingPage';
-import PhraseGame from './pages/PhraseGame';
-import AdminPhrasesPage from './pages/AdminPhrases';
-import AddPhrasePage from './pages/AddPhrasePage';
+import TrainingPage from './pages/training/TrainingPage';
+import PhraseGame from './pages/training/phrasesGame/PhraseGame';
+import AdminPhrasesPage from './pages/admin/adminPhrases/AdminPhrases';
+import AddPhrasePage from './pages//addPhrase/AddPhrasePage';
 
 const App: React.FC = () => {
   return (

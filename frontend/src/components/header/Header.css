@@ -1,0 +1,214 @@
+/* Общие стили для хедера */
+
+body::-webkit-scrollbar { width: 0; height: 0; }
+
+.header {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  padding: 0 5px;
+  height: 50px;
+  background-color: #5a7b6e;
+  color: #e6e6e6;
+  width: 100%;
+  box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.1);
+}
+
+.logo {
+  width: fit-content;
+}
+.header-wrapper {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  align-items: center;
+  height: 50px;
+  
+}
+.logo-text {
+    font-size: 30px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    user-select: none;
+
+}
+
+.burgerMenuButton {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.navList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  user-select: none;
+}
+
+.navItem {
+  display: block;
+  font-size: 20px;
+  user-select: none;
+  width: 100%;
+}
+
+.navLink {
+  color: white;
+  text-decoration: none;
+  user-select: none;
+
+  font-size: 20px;
+}
+
+.logoutButton {
+  color: white;
+  height: 32px;
+  text-decoration: none;
+  user-select: none;
+  font-size: 20px;
+  background-color: transparent;
+  border: none;
+  background-image: url(../../assets/exit.png);
+  background-repeat: no-repeat;
+  width: fit-content;
+  padding-left: 40px;
+  background-size: 30px 30px;
+  background-position: 2px;
+  cursor: pointer;
+}
+.nav {
+display: none;
+position: absolute;
+top: 50px;
+left: 0;
+background-color: #4d4b4b;
+width: 100%;
+padding: 20px;
+flex-direction: column;
+gap: 10px;
+z-index: 100;
+}
+
+.nav.open {
+display: flex;
+width: 100%;
+height: calc(100vh - 45px);
+
+}
+
+.userSelection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.username {
+  font-size: 24px;
+  font-weight: 400;
+}
+.user-role {
+  font-size: 14px;
+  font-weight: 300;
+}
+.nav-profile-wrapper {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  cursor: pointer;
+}
+
+.nav-profile-picture {
+  width: 55px;
+  height: 55px;
+  margin-right: 20px;
+}
+
+.nav-profile-link {
+  margin-left: auto;
+  background-image: url(../../assets/forward-icon.png);
+  width: 15px;
+  height: 30px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.nav-devider {
+  height: 1px;
+  width: 100%;
+  background-color: rgb(93, 97, 93);
+  margin: 0;
+  padding: 0;
+}
+
+.nav-home-link {
+  display: flex;
+  align-items: end;
+  background-image: url(../../assets/home.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 32px;
+  height: 32px;
+  padding-left: 40px;
+}
+
+.nav-dict-link {
+  display: flex;
+  align-items: center;
+  background-image: url(../../assets/book.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 26px 32px;
+  background-position: 2px;
+  height: 32px;
+  padding-left: 40px;
+}
+
+.nav-phrase-link {
+  display: flex;
+  align-items: center;
+  background-image: url(../../assets/phrase.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 27px 28px;
+  background-position: 2px;
+  height: 32px;
+  padding-left: 40px;
+}
+
+.nav-practice-link {
+  display: flex;
+  align-items: center;
+  background-image: url(../../assets/practice.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 32px 32px;
+  background-position: 2px;
+  height: 32px;
+  padding-left: 40px;
+}
+.nav-record-link {
+  display: flex;
+  align-items: center;
+  background-image: url(../../assets/microphone-white.png);
+  margin: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: 22px 32px;
+  background-position: 5px;
+  height: 32px;
+  padding-left: 40px;
+}
