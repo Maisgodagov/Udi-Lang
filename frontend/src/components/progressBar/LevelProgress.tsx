@@ -31,16 +31,22 @@ const LevelProgress: React.FC<LevelProgressProps> = ({ xp }) => {
 
   return (
     <div className="level-progress-wrapper">
-      <h3>{currentLevel} уровень</h3>
-      <p>{xp} очков</p>
-      <div className="xp-progress-bar">
-        <div className="xp-progress-inner" style={{ width: `${percent}%` }}>
-          {percent}%
+      <div className="level-wrapper">
+        <span className='user-level'>{currentLevel}</span>
+        <div className="xp-progress-bar">
+          <div className="xp-progress-inner" style={{ width: `${percent}%` }}>
+          </div>
+          
         </div>
+        <span className="level-text">
+            {currentLevel} уровень
+          </span>
+          <span className="xp-stats">
+            осталось {leftToNextLevel} очков
+          </span>
+        <span className='user-level-next'>{nextLevel}</span>
       </div>
-      <p className="xp-stats">
-        {leftToNextLevel} очков до уровня {nextLevel}
-      </p>
+      
     </div>
   );
 };

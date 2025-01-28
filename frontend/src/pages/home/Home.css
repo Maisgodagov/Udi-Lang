@@ -1,6 +1,9 @@
 /* Общий контейнер для главной страницы */
 .home-page {
-    max-width: 800px; /* Ширина блока */
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin: 0 auto;   /* Центрируем по горизонтали */
     padding: 20px;
     color: #333;
@@ -15,7 +18,8 @@
   
   /* Приветственное сообщение пользователя */
   .greeting {
-    font-size: 1.2rem;
+    margin: 0;
+    font-size: 20px;
     margin-bottom: 1rem;
     text-align: center;
   }

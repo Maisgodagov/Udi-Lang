@@ -25,16 +25,16 @@ const UserStatistics: React.FC<UserStatisticsProps> = ({ wordStats, phraseStats 
       <h2 className="statistics-title">Ваша статистика</h2>
       <div className="statistics-blocks">
         <div className="statistics-section">
-          <h3>Статистика слов</h3>
-          <p>Всего слов в процессе: {wordStats.totalLearned}</p>
-          <p>Выучено (mastered): {wordStats.masteredCount}</p>
-          <p>Нужно повторить: {wordStats.needReviewCount}</p>
+          <h3>Слова</h3>
+          <p>Пройдено: {wordStats.totalLearned}</p>
+          <p>Выучено: {wordStats.masteredCount}</p>
+          <p>Повторить: {wordStats.needReviewCount}</p>
         </div>
         <div className="statistics-section">
-          <h3>Статистика фраз</h3>
-          <p>Всего фраз в процессе: {phraseStats.totalPhrases}</p>
-          <p>Выучено (mastered): {phraseStats.masteredPhrases}</p>
-          <p>Нужно повторить: {phraseStats.needReviewPhrases}</p>
+          <h3>Фразы</h3>
+          <p>Пройдено: {phraseStats.totalPhrases}</p>
+          <p>Выучено: {phraseStats.masteredPhrases}</p>
+          <p>Повторить: {phraseStats.needReviewPhrases}</p>
         </div>
       </div>
     </div>

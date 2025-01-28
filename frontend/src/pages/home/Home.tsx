@@ -64,48 +64,43 @@ const Home: React.FC = () => {
   const handleNavigate = (route: string) => {
     navigate(route);
   };
-
-  // Функция для отображения полного имени
-  const getFullName = () => {
-    if (!user) return '';
-    const firstName = user.first_name.trim();
-    const lastName = user.last_name ? user.last_name.trim() : '';
-    return `${firstName} ${lastName}`.trim();
-  };
-
   return (
     <div className="home-page">
-      {error && <p className="error-message">{error}</p>}
+      <div className="container">
+        {error && <p className="error-message">{error}</p>}
 
-      {user && (
-        <>
-          <p className="greeting">Привет, {getFullName()}!</p>
-          {/* Наш вынесенный компонент */}
-          <LevelProgress xp={user.xp} />
-        </>
-      )}
+        {user && (
+          <>
+            <p className="greeting">Привет, {user.first_name.trim()}!</p>
+            {/* Наш вынесенный компонент */}
+            <LevelProgress xp={user.xp} />
+          </>
+        )}
 
-      {wordStats && phraseStats && (
-        <UserStatistics wordStats={wordStats} phraseStats={phraseStats} />
-      )}
+        {wordStats && phraseStats && (
+          <UserStatistics wordStats={wordStats} phraseStats={phraseStats} />
+        )}
 
-      <div className="quick-actions">
-        <h2>Начните обучение сейчас!</h2>
-        <div className="actions-grid">
-          <button className="action-btn" onClick={() => handleNavigate('/training')}>
-            Тренироваться
-          </button>
-          <button className="action-btn" onClick={() => handleNavigate('/dictionary')}>
-            Перейти к словарю
-          </button>
-          <button className="action-btn" onClick={() => handleNavigate('/phrases')}>
-            Перейти к фразам
-          </button>
-          <button className="action-btn" onClick={() => handleNavigate('/profile')}>
-            Мой профиль
-          </button>
+        <div className="quick-actions">
+          <h2>Начните обучение сейчас!</h2>
+          <div className="actions-grid">
+            <button className="action-btn" onClick={() => handleNavigate('/training')}>
+              Тренироваться
+            </button>
+            <button className="action-btn" onClick={() => handleNavigate('/dictionary')}>
+              Перейти к словарю
+            </button>
+            <button className="action-btn" onClick={() => handleNavigate('/phrases')}>
+              Перейти к фразам
+            </button>
+            <button className="action-btn" onClick={() => handleNavigate('/profile')}>
+              Мой профиль
+            </button>
+          </div>
         </div>
       </div>
+
+      
     </div>
   );
 };
