@@ -30,7 +30,7 @@ const AddPhrasePage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!phraseUdi || !phraseRus) {
+    if (!phraseRus) {
       setError('Все обязательные поля (фраза на удинском и перевод) должны быть заполнены');
       return;
     }
@@ -69,7 +69,6 @@ const AddPhrasePage: React.FC = () => {
             type="text"
             value={phraseUdi}
             onChange={(e) => setPhraseUdi(e.target.value)}
-            required
           />
         </div>
         <div>

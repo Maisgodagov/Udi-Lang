@@ -143,7 +143,6 @@ const Header: React.FC = () => {
               <Link to="/admin-users" className="navLink" onClick={handleLinkClick}>Админ-пользователи</Link>
             </li>
           ) : null}
-            
         </ul>
         <button onClick={handleLogout} className="logoutButton">Выйти</button>
       </nav>
