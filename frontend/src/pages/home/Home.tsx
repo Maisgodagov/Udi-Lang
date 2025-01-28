@@ -84,18 +84,18 @@ const Home: React.FC = () => {
         <div className="quick-actions">
           <h2>Начните обучение сейчас!</h2>
           <div className="actions-grid">
-            <button className="action-btn" onClick={() => handleNavigate('/training')}>
-              Тренироваться
-            </button>
-            <button className="action-btn" onClick={() => handleNavigate('/dictionary')}>
-              Перейти к словарю
-            </button>
-            <button className="action-btn" onClick={() => handleNavigate('/phrases')}>
-              Перейти к фразам
-            </button>
-            <button className="action-btn" onClick={() => handleNavigate('/profile')}>
-              Мой профиль
-            </button>
+            <div className="action-btn words-game-btn" onClick={() => handleNavigate('/words-game')}>
+              Учить слова
+            </div>
+            <div className="action-btn phrase-game-btn" onClick={() => handleNavigate('/phrase-game')}>
+              Учить фразы
+            </div>
+            <div className="action-btn dictionary-btn" onClick={() => handleNavigate('/dictionary')}>
+              Словарь
+            </div>
+            <div className="action-btn phrases-btn" onClick={() => handleNavigate('/phrases')}>
+              Сборник фраз
+            </div>
           </div>
         </div>
       </div>
