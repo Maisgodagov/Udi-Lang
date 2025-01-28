@@ -20,6 +20,6 @@ router.put(
 
   // **новый** маршрут для статистики
 // GET /api/user/stats
-router.get('/users/stats', authMiddleware, getUserStats);
+router.get('/stats', authMiddleware, getUserStats);
   
 module.exports = router; // Экспортируем router напрямую
